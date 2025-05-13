@@ -20,6 +20,9 @@ public class HomeController {
 
     @PostMapping("/merchant/logout")
     public String logout(HttpSession session) {
+        String username = (String) session.getAttribute("username");
+        System.out.println("登出信息 - 用户名: " + username);
+        
         session.invalidate(); // 销毁当前会话
         return "redirect:/merchant/login?logout"; // 重定向到登录页
     }

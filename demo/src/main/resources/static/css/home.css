@@ -1,0 +1,165 @@
+/* ===== 基础重置 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* ===== 全局样式 ===== */
+body {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== 导航栏优化 ===== */
+nav {
+    background-color: #dc3545; /* 更符合WCAG标准的红色 */
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+/* 汉堡菜单 */
+.hamburger {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* ===== 主要内容容器 ===== */
+.main-content {
+    flex: 1;
+    padding-bottom: 100px; /* 防止页脚遮挡 */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 20px;
+}
+
+/* ===== 角色选择优化 ===== */
+.role-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.role-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    /* width: 300px; */
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.role-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #dc3545;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.role-box:hover::after {
+    transform: scaleX(1);
+}
+
+/* ===== 页脚优化 ===== */
+footer {
+    background-color: #2d2d2d;
+    color: white;
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: auto;
+}
+
+/* ===== 响应式优化 ===== */
+@media (max-width: 768px) {
+    /* 汉堡菜单交互 */
+    .nav-links {
+        /* 不展示 */
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #dc3545;
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .hamburger {
+        display: block;
+    }
+
+    /* 角色容器调整 */
+    .role-box {
+        width: 100%;
+        max-width: 400px;
+    }
+}
+
+/* ===== 微交互优化 ===== */
+.role-box:active {
+    transform: scale(0.98);
+}
+
+.role-box img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.role-box:hover img {
+    transform: rotate(-5deg) scale(1.1);
+}
+
+/* ===== 辅助功能优化 ===== */
+a:focus, button:focus {
+    outline: 3px solid rgba(220, 53, 69, 0.5);
+    outline-offset: 2px;
+}
+
+/* ===== 色彩对比优化 ===== */
+.logo {
+    color: rgba(255,255,255,0.95);
+}
+
+.nav-links a {
+    color: rgba(255,255,255,0.9);
+    transition: opacity 0.3s ease;
+}
+
+.nav-links a:hover {
+    opacity: 0.8;
+}

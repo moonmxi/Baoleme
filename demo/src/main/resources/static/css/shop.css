@@ -1,0 +1,57 @@
+/* 占位符样式 */
+.placeholder-section {
+    padding: 2rem;
+    text-align: center;
+    border-radius: 8px;
+    margin: 20px 0;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.8;
+}
+
+.placeholder-section i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #666;
+}
+
+.placeholder-section h3 {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.placeholder-section p {
+    color: #666;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* 导航样式 */
+/* 针对Bootstrap 5的样式覆盖 */
+.nav-shop {
+    border-bottom: 2px solid #dee2e6; /* 匹配Bootstrap原生样式 */
+}
+
+.nav-shop .nav-link {
+    font-weight: 500;
+    color: #495057;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-shop .nav-link.active {
+    color: #0d6efd; /* Bootstrap主色 */
+    border-bottom: 3px solid #0d6efd;
+    margin-bottom: -2px;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .nav-shop.nav-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}

@@ -1,11 +1,16 @@
-<section id="shop" class="content-area" th:fragment="main-shop" style="display: none;">
+<section id="shop-info" class="content-area" th:fragment="main-shop-info" style="display: none;">
     <div th:if="${shop}">
+        <!-- 就是不跳转页面！ -->
+        <a href="#shop" class="btn-exit" role="button">
+            <i class="icon-exit"></i> 返回
+        </a>
+
         <h2>店铺管理 - [[${shop.name}]]</h2>
         <div class="shop-info">
-        <p>店铺名称：<span th:text="${shop.name}">默认店铺名称</span></p>
-        <p>店铺描述：<span th:text="${shop.description}">默认描述</span></p>
-        <p>创建时间：<span th:text="${shop.createdDate}">2023-01-01</span></p>
-    </div>
+            <p>店铺名称：<span th:text="${shop.name}">默认店铺名称</span></p>
+            <p>店铺描述：<span th:text="${shop.description}">默认描述</span></p>
+            <p>创建时间：<span th:text="${shop.createdDate}">2023-01-01</span></p>
+        </div>
     </div>
 
     <!-- 当 shop 为 null 时的提示 -->

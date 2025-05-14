@@ -31,7 +31,7 @@ function initNavigation() {
             e.preventDefault();
 
             // 移除所有激活状态
-            console.log("[DEBUG] 正在隐藏所有内容区域:");
+            // console.log("[DEBUG] 正在隐藏所有内容区域:");
             contentAreas.forEach(area => {
                 // console.log(` - 区域ID: ${area.id}`);  // 输出每个区域的ID
                 area.style.display = 'none';           // 隐藏操作

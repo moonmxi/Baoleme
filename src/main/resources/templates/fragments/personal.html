@@ -1,5 +1,11 @@
 <section id="personal" class="content-area" th:fragment="main-personal">
     <h2>个人中心</h2>
+
+    <!-- 成功提示消息（新增） -->
+    <div th:if="${successMessage}" class="alert alert-success">
+        [[${successMessage}]]
+    </div>
+    
     <div class="settings">
         <!-- 用户信息展示 -->
         <div class="user-info">

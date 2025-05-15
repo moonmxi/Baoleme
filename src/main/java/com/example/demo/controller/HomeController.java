@@ -4,9 +4,11 @@ import java.sql.Timestamp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.entity.Merchant;
 import com.example.demo.service.MerchantService;
@@ -26,6 +28,73 @@ public class HomeController {
     @GetMapping("/")
     public String home() {
         return "home";
+    }
+
+    // 显示编辑资料页面
+    @GetMapping("/merchant/edit-profile")
+    public String showEditProfile(HttpSession session, Model model) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            return "redirect:/merchant/login";
+        }
+
+        Merchant merchant = merchantService.getMerchantByUsername(username);
+        model.addAttribute("merchant", merchant);
+        return "edit-profile";
+    }
+
+    // 处理资料修改提交
+    @PostMapping("/merchant/update-profile")
+    public String updateProfile(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String newPassword,
+            @RequestParam(required = false) String confirmPassword,
+            @RequestParam(required = false) String phone,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        // 转换空字符串为null
+        if (phone != null && phone.isEmpty()) {
+            phone = null;
+        }
+
+        String currentUsername = (String) session.getAttribute("username");
+        if (currentUsername == null) {
+            return "redirect:/merchant/login";
+        }
+
+        Merchant currentMerchant = merchantService.getMerchantByUsername(currentUsername);
+
+        // 1. 检查新用户名是否已存在（且不是当前用户）
+        if (!currentUsername.equals(username)) {
+            Merchant existingMerchant = merchantService.getMerchantByUsername(username);
+            if (existingMerchant != null) {
+                redirectAttributes.addFlashAttribute("usernameError", "用户名已被占用");
+                return "redirect:/merchant/edit-profile";
+            }
+            currentMerchant.setUsername(username);
+        }
+
+        // 密码修改逻辑
+        if (!newPassword.isEmpty()) {
+            if (!newPassword.equals(confirmPassword)) {
+                redirectAttributes.addFlashAttribute("passwordError", "两次输入的密码不一致");
+                return "redirect:/merchant/edit-profile";
+            }
+            currentMerchant.setPassword(newPassword); // 实际应加密存储
+        }
+
+        // 电话格式验证（示例）
+        if (phone != null && !phone.matches("^\\d{5,15}$")) {
+            redirectAttributes.addFlashAttribute("phoneError", "联系电话格式无效");
+            return "redirect:/merchant/edit-profile";
+        }
+        currentMerchant.setPhone(phone);
+
+        merchantService.updateMerchant(currentMerchant);
+        session.setAttribute("username", username); // 更新Session中的用户名
+        redirectAttributes.addFlashAttribute("successMessage", "资料修改成功！");
+        return "redirect:/merchant#personal";
     }
 
     // 账户注销（删除账户）

@@ -27,7 +27,7 @@
         <url/>
     </scm>
     <properties>
-        <java.version>22</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencies>
         <!-- vscode自动配置 -->
@@ -63,7 +63,7 @@
             <version>8.0.33</version>
         </dependency>
 
-        <!-- MyBatis与Spring Boot集成（升级版本） -->
+        <!-- MyBatis与Spring Boot集成 -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
@@ -79,14 +79,7 @@
             </plugin>
         </plugins>
 
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.xml</include> <!-- 包含所有XML文件 -->
-                </includes>
-            </resource>
-        </resources>
+        <!-- <resources> 写了就没自动配置了 </resources> -->
     </build>
 
 </project>

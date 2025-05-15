@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
   datasource:
     url: jdbc:mysql://localhost:3306/baoleme?useSSL=false&serverTimezone=UTC
     username: root

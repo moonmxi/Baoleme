@@ -21,6 +21,25 @@
                     <i class="icon-logout"></i> 退出登录
                 </button>
             </form>
+            <!-- 注销账户按钮（新增） -->
+            <button class="btn-delete-account" onclick="confirmAccountDeletion()">
+                <i class="icon-delete"></i> 永久注销账户
+            </button>
+
+            <script>
+                function confirmAccountDeletion() {
+                    if (confirm("警告：此操作将永久删除您的账户，所有数据无法恢复！确认继续吗？")) {
+                        // 提交删除请求
+                        fetch('/merchant/delete-account', { method: 'POST' })
+                            .then(response => {
+                                if (response.redirected) {
+                                    window.location.href = response.url;
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                    }
+                }
+            </script>
         </div>
     </div>
 </section>

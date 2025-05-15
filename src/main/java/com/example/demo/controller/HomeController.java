@@ -28,6 +28,34 @@ public class HomeController {
         return "home";
     }
 
+    // 账户注销（删除账户）
+    @PostMapping("/merchant/delete-account")
+    public String deleteAccount(HttpSession session) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            return "redirect:/merchant/login"; // 未登录用户重定向到登录页
+        }
+
+        // 1. 查询用户信息
+        Merchant merchant = merchantService.getMerchantByUsername(username);
+        if (merchant == null) {
+            return "redirect:/merchant/login?error=not_found";
+        }
+
+        // 2. 执行删除操作
+        merchantService.deleteMerchant(merchant.getId());
+
+        // 3. 销毁会话并跳转到注销成功页
+        session.invalidate();
+        return "redirect:/merchant/account-deleted";
+    }
+
+// 注销成功页
+    @GetMapping("/merchant/account-deleted")
+    public String accountDeleted() {
+        return "account-deleted"; // 对应 templates/account-deleted.html
+    }
+
     @PostMapping("/merchant/logout")
     public String logout(HttpSession session) {
         String username = (String) session.getAttribute("username");

@@ -84,3 +84,18 @@
     opacity: 0.8;
     text-decoration: underline;
 }
+
+/* 危险操作按钮样式 */
+.btn-delete-account {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-delete-account:hover {
+    background-color: #cc0000;
+}

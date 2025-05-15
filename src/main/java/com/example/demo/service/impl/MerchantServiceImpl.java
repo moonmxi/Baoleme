@@ -33,6 +33,11 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
+    public Merchant getMerchantByUsername(String username) {
+        return merchantMapper.selectByUsername(username);
+    }
+
+    @Override
     public List<Merchant> getAllMerchants() {
         return merchantMapper.selectAll();
     }

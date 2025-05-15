@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 public class Merchant {
 
@@ -10,7 +10,7 @@ public class Merchant {
     private String username;
     private String password;
     private String phone;
-    private LocalDateTime createdAt;
+    private Timestamp createdAt;
 
     // 无参构造方法（供MyBatis反射使用）
     public Merchant() {
@@ -22,7 +22,7 @@ public class Merchant {
     }
 
     // 全参数构造方法：用于从数据库加载数据
-    public Merchant(Long id, String username, String password, String phone, LocalDateTime createdAt) {
+    public Merchant(Long id, String username, String password, String phone, Timestamp createdAt) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -82,11 +82,11 @@ public class Merchant {
         this.phone = phone;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 }

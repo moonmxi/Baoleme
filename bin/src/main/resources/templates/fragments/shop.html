@@ -1,0 +1,28 @@
+<section id="shop" class="content-area" th:fragment="main-shop" style="display: none;">
+    <div th:if="${shop}">
+        <h2>店铺管理 - [[${shop.name}]]</h2>
+        <!-- 导航选项卡 -->
+        <div class="container-fluid">
+            <ul class="nav nav-tabs nav-justified nav-shop mb-3"> <!-- 添加Bootstrap工具类 -->
+                <li class="nav-item">
+                    <a class="nav-link active" href="#shop-info" data-bs-toggle="tab">店铺信息</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#shop-status" data-bs-toggle="tab">状态管理</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#shop-reviews" data-bs-toggle="tab">评价管理</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#shop-products" data-bs-toggle="tab">商品管理</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 当 shop 为 null 时的提示 -->
+    <div th:unless="${shop}" class="alert alert-warning">
+        <i class="icon-warning"></i>
+        店铺信息未找到，请检查商户账号是否关联店铺
+    </div>
+</section>

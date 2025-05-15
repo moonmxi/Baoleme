@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美味外卖 - 首页</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="logo">美味外卖</div>
+        <button class="hamburger">☰</button>
+        <div class="nav-links">
+            <a href="/">首页</a>
+            <a href="#">关于我们</a>
+            <a href="#">联系我们</a>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <h1>请选择您的身份</h1>
+        
+        <div class="role-container">
+            <!-- 普通用户 -->
+            <div class="role-box" onclick="window.location='#';">
+                <img src="user-icon.png" alt="用户">
+                <h2>普通用户</h2>
+                <p>立即下单，享受各种美食外卖服务</p>
+            </div>
+
+            <!-- 骑手 -->
+            <div class="role-box" onclick="window.location='#';">
+                <img src="rider-icon.png" alt="骑手">
+                <h2>骑手</h2>
+                <p>加入我们的配送团队，开始接单配送</p>
+            </div>
+
+            <!-- 商家 -->
+            <a th:href="@{/merchant/login}" class="role-link">
+                <div class="role-box">
+                    <img th:src="@{/images/merchant-icon.png}" alt="商家">
+                    <h2>商家</h2>
+                    <p>入驻平台，扩展您的餐饮业务</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2023 美味外卖 版权所有 | 联系电话: 400-123-4567</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<section id="orders" class="content-area" th:fragment="main-orders" style="display: none;">
+    <!-- 统计卡片 -->
+    <div class="stats-summary">
+        <div class="stat-card">
+            <h3>总订单数</h3>
+            <p class="highlight" th:text="${totalOrders} ?: 0">0</p>
+            <span class="trend up" th:if="${growthRate > 0}"
+                aria-label="周环比增长[[${growthRate}]]%">↑[[${growthRate}]]%</span>
+            <span class="trend down" th:unless="${growthRate > 0}"
+                aria-label="周环比下降[[${growthRate}]]%">↓[[${growthRate}]]%</span>
+        </div>
+        <div class="stat-card">
+            <h3>总销售额</h3>
+            <p th:text="'¥ ' + ${#numbers.formatDecimal(totalAmount, 1, 2)}">¥ 0.00</p>
+        </div>
+        <div class="stat-card">
+            <h3>平均订单金额</h3>
+            <p th:text="'¥ ' + ${#numbers.formatDecimal(avgAmount, 1, 2)}">¥ 0.00</p>
+        </div>
+    </div>
+
+    <!-- 订单列表 -->
+    <div class="order-list" th:if="${not #lists.isEmpty(orders)}">
+        <h3>最近订单</h3>
+
+        <!-- 订单状态筛选 -->
+        <div class="order-filter">
+            <button class="active" data-status="ALL">全部</button>
+            <button data-status="PENDING">待处理</button>
+            <button data-status="DELIVERING">配送中</button>
+            <button data-status="COMPLETED">已完成</button>
+        </div>
+
+        <!-- 订单表格 -->
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>订单编号</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}">#1001</td>
+                    <td th:text="'¥' + ${#numbers.formatDecimal(order.totalPrice, 1, 2)}">¥99.99</td>
+                    <td>
+                        <span th:class="'status-tag ' + ${order.status.styleClass}"
+                            th:text="${order.status.description}">进行中</span>
+                    </td>
+                    <td th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">
+                        2023-10-01 14:30
+                    </td>
+                    <td>
+                        <a href="#" th:href="@{/orders/{id}(id=${order.id})}" class="action-link">详情</a>
+                        <!-- th:if="${order.cancelable}" -->
+                        <a href="#" class="action-link danger">取消</a>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 空状态提示 -->
+    <div th:if="${#lists.isEmpty(orders)}" class="alert alert-warning">
+        <i class="icon-info"></i>
+        当前没有订单记录
+        <a href="#" th:href="@{/products}" class="btn-create">
+            <i class="icon-plus"></i> 去创建首单
+        </a>
+    </div>
+</section>
+
+<!-- 脚本依赖 -->
+<script th:src="@{/js/order.js}" defer></script>

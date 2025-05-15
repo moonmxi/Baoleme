@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>商家注册</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="logo">美味外卖</div>
+        <div class="nav-links">
+            <a href="/">首页</a>
+            <a href="#">关于我们</a>
+            <a href="#">联系我们</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="global-alert">
+                <div th:if="${param.error}" class="alert alert-warning">
+                    用户名规则：3-20位字母、数字或下划线<br>
+                    密码规则：至少6位，包含至少一个字母和一个数字
+                </div>
+            </div>
+
+            <div class="login-container">
+                <h2>商家注册</h2>
+                <form action="/merchant/register" method="post">
+                    <input type="text" name="username" placeholder="用户名" required>
+                    <input type="password" name="password" placeholder="密码" required>
+                    <button type="submit">注册</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- <script th:src="@{/js/merchant-regist.js}" defer></script> -->
+</body>
+
+</html>

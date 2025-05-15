@@ -1,0 +1,98 @@
+<section id="stats" class="content-area" th:fragment="main-stats" style="display: none;">
+    <div th:if="${username}">
+        <h2>营业统计</h2>
+
+        <!-- 统计指标卡片 -->
+        <article class="stat-card" aria-labelledby="total-income">
+            <h3 id="total-income">本月总收入</h3>
+            <p class="highlight">
+                ¥ <span th:text="${#numbers.formatDecimal(stats?.totalRevenue ?: 0, 1, 2)}">0.00</span>
+            </p>
+            <span th:if="${stats?.orderCount > 0}" class="trend up" th:text="'订单量: ' + ${stats.orderCount}"></span>
+        </article>
+
+        <article class="stat-card" aria-labelledby="income-per-day">
+            <h3 id="income-per-day">日均营业额</h3>
+            <p class="highlight">
+                ¥ <span th:text="${#numbers.formatDecimal(stats?.averageDaily ?: 0, 1, 2)}">0.00</span>
+            </p>
+        </article>
+
+        <article class="stat-card" aria-labelledby="best-day">
+            <h3 id="best-day">最佳销售日</h3>
+            <p th:text="${stats?.bestDayDate ?: '暂无数据'}">2023-10-15</p>
+            <p class="highlight">
+                ¥ <span th:text="${#numbers.formatDecimal(stats?.bestDayAmount ?: 0, 1, 2)}">0.00</span>
+            </p>
+        </article>
+
+        <!-- 视图切换 & 时间筛选 -->
+        <div class="stats-controls">
+            <div class="view-toggle">
+                <button class="active" data-view="chart">图表模式</button>
+                <button data-view="table">表格模式</button>
+            </div>
+            <div class="date-filter" th:if="${stats}">
+                <select id="timeRange" onchange="handleTimeRangeChange(this)">
+                    <option value="30">最近30天</option>
+                    <option value="90">最近90天</option>
+                    <option value="custom">自定义范围</option>
+                </select>
+                <input type="hidden" id="storeId" th:value="${shop?.id}" />
+            </div>
+        </div>
+
+        <!-- 动态内容区域 -->
+        <div class="stats-content">
+            <!-- 折线图容器 -->
+            <canvas id="revenueChart" class="chart-container active" style="display: block;"></canvas>
+
+            <!-- 数据表格容器 -->
+            <div id="dataTable" class="table-container" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>营业额</th>
+                            <th>订单量</th>
+                            <th>客单价</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="entry : ${stats?.dailyStats}">
+                            <!-- 日期 -->
+                            <td th:text="${#temporals.format(entry.key, 'yyyy-MM-dd')}">2023-10-01</td>
+
+                            <!-- 总销售额 -->
+                            <td>¥ <span th:text="${#numbers.formatDecimal(entry.value.total, 1, 2)}">0.00</span></td>
+
+                            <!-- 订单量 -->
+                            <td th:text="${entry.value.count}">25</td>
+
+                            <!-- 平均销售额 -->
+                            <td>¥ <span th:text="${#numbers.formatDecimal(entry.value.avg, 1, 2)}">62.00</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+            <script th:src="@{/js/stats.js}" defer></script>
+            <!-- 数据埋点 -->
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                window.chartData = {
+                    labels: /*[[${stats?.chartLabels ?: T(java.util.Collections).emptyList()}]]*/["01-01", "01-02"],
+                    amounts: /*[[${stats?.chartAmounts ?: T(java.util.Collections).emptyList()}]]*/[0.0, 0.0]
+                };
+                /*]]>*/
+            </script>
+        </div>
+    </div>
+
+    <!-- 当 shop 为 null 时的提示 -->
+    <div th:unless="${username}" class="alert alert-warning">
+        <i class="icon-warning"></i>
+        营业记录未找到
+    </div>
+</section>

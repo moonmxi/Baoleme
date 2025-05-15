@@ -1,0 +1,86 @@
+/* 全局提示容器 */
+.global-alert {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 100%;
+    max-width: 400px;
+}
+
+/* 提示样式增强 */
+.alert {
+    padding: 15px 25px;
+    margin: 0 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    animation: slideDown 0.5s ease;
+}
+
+.alert-success {
+    color: #155724;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.15);
+}
+
+.alert-warning {
+    color: #ff4444;
+    background: #ffe6e6;
+    border: 1px solid #ffaaaa;
+    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.15);
+}
+
+.error-message {
+    background: #ffe6e6;
+    color: #ff4444;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #ffaaaa;
+    animation: slideDown 0.5s ease;
+}
+
+/* 添加图标间距 */
+.alert-success::before {
+    content: "✓";
+    margin-right: 12px;
+    font-weight: bold;
+}
+
+.alert-warning::before {
+    content: "⚠";
+    margin-right: 12px;
+    font-weight: bold;
+}
+
+/* 入场动画 */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 新增通用操作链接类 */
+.action-link {
+    color: #007bff;
+    transition: opacity 0.2s;
+    text-decoration: none;
+}
+
+.action-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}

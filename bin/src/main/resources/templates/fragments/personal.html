@@ -1,0 +1,26 @@
+<section id="personal" class="content-area" th:fragment="main-personal">
+    <h2>个人中心</h2>
+    <div class="settings">
+        <!-- 用户信息展示 -->
+        <div class="user-info">
+            <span th:if="${username}" th:text="'欢迎，' + ${username} + '！'" class="welcome-text">欢迎，用户名！</span>
+            <span th:unless="${username}" class="login-prompt">
+                <a href="/merchant/login" class="action-link">
+                    <i class="icon-edit"></i> 请先登录
+                </a>
+            </span>
+        </div>
+
+        <!-- 添加条件判断 -->
+        <div class="action-buttons" th:if="${username}">
+            <a href="/merchant/edit-profile" class="action-link">
+                <i class="icon-edit"></i> 编辑资料
+            </a>
+            <form th:action="@{/merchant/logout}" method="post" class="logout-form">
+                <button type="submit" class="btn-exit">
+                    <i class="icon-logout"></i> 退出登录
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

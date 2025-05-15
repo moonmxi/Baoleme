@@ -1,0 +1,62 @@
+/* 订单表格样式 */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.data-table th, 
+.data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+}
+
+/* 状态标签 */
+.status-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+}
+
+.status-tag.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-tag.warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-tag.danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* 筛选按钮 */
+.order-filter {
+    margin: 1rem 0;
+    display: flex;
+    gap: 8px;
+}
+
+.order-filter button {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+}
+
+.order-filter button.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}

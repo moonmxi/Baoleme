@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @TableName("rider")
 public class Rider {
 
-    @TableId(type = IdType.ASSIGN_ID) // 使用雪花算法自动分配唯一ID
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     private String username;
@@ -19,8 +19,6 @@ public class Rider {
     private String password;
 
     private String phone;
-
-    private String idCard;
 
     private Integer orderStatus;    // -1=未激活, 0=接单中, 1=空闲
 

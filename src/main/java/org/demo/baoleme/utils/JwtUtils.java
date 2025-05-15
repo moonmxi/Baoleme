@@ -1,7 +1,10 @@
 package org.demo.baoleme.utils;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,8 +14,10 @@ import java.util.Map;
  */
 public class JwtUtils {
 
-    private static final String SECRET_KEY = "baoleme_secret_key";
+    private static final String SECRET = "baoleme_secret_key_1234567890123456"; // 至少 32 字符
     private static final long EXPIRE_TIME = 1000 * 60 * 60 * 24;
+
+    private static final Key KEY = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
     public static String createToken(Long userId, String role, String username) {
         Map<String, Object> claims = new HashMap<>();
@@ -26,14 +31,15 @@ public class JwtUtils {
                 .setClaims(claims)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + EXPIRE_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public static Map<String, Object> parsePayload(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(SECRET_KEY)
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(KEY)
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
 
@@ -49,8 +55,9 @@ public class JwtUtils {
 
     public static boolean isExpired(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(SECRET_KEY)
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(KEY)
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
             return claims.getExpiration().before(new Date());

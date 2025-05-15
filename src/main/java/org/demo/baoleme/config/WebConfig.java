@@ -14,11 +14,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor)
-                .addPathPatterns("/**")  // 拦截所有请求
+                .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/rider/register",
                         "/rider/login",
-                        "/error" // 可能需要放行 SpringBoot 错误页
+                        "/error"
                 );
     }
 }

@@ -2,6 +2,8 @@ package org.demo.baoleme.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.demo.baoleme.utils.JwtUtils;
+import org.demo.baoleme.utils.UserHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -10,12 +12,18 @@ import java.util.Map;
 @Component
 public class JwtInterceptor implements HandlerInterceptor {
 
+    public JwtInterceptor() {
+        System.out.println("✅ JwtInterceptor 已加载");
+    }
+
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws Exception {
 
-        // 清除 ThreadLocal 避免数据残留
+        String path = request.getRequestURI();
+        System.out.println("进入 JWT 拦截器，路径 = " + path);
+
         UserHolder.clear();
 
         String authHeader = request.getHeader("Authorization");
@@ -33,6 +41,8 @@ public class JwtInterceptor implements HandlerInterceptor {
         }
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"code\":401,\"message\":\"Token 无效或缺失\"}");
         return false;
     }
 }

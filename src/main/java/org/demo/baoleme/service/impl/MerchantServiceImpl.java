@@ -16,6 +16,8 @@ import java.util.List;
 public class MerchantServiceImpl implements MerchantService {
     private final MerchantMapper merchantMapper;
 
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Autowired
     public MerchantServiceImpl(MerchantMapper merchantMapper) {
         this.merchantMapper = merchantMapper;
@@ -23,6 +25,19 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public Merchant createMerchant(Merchant merchant) {
+        // 用户名或密码为空
+        if (!StringUtils.hasText(merchant.getUsername()) || !StringUtils.hasText(merchant.getPassword())) {
+            return null;
+        }
+
+        // 用户名或手机号已存在
+        if (merchantMapper.selectByUsername(merchant.getUsername()) != null ||
+                (merchant.getPhone() != null && merchantMapper.selectByPhone(merchant.getPhone()) != null)) {
+            return null;
+        }
+
+        merchant.setPassword(passwordEncoder.encode(merchant.getPassword()));
+
         merchantMapper.insertMerchant(merchant); // MyBatis自动回填id
         return merchant;
     }
@@ -49,7 +64,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public void deleteMerchant(Long id) {
-        merchantMapper.deleteById(id);
+    public boolean deleteMerchant(Long id) {
+        return merchantMapper.deleteById(id) > 0;
     }
 }

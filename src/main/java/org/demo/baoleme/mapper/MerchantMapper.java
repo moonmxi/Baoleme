@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Update;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Options;
 import org.demo.baoleme.pojo.Merchant;
+import org.demo.baoleme.pojo.Rider;
 
 import java.util.List;
 
@@ -23,6 +24,14 @@ public interface MerchantMapper extends BaseMapper<Merchant> {
     // 根据ID查询商户
     @Select("SELECT * FROM merchant WHERE id = #{id}")
     Merchant selectById(Long id);
+
+    /**
+     * 根据手机号查找商家
+     * @param phone 手机号
+     * @return Merchant 对象或 null
+     */
+    @Select("SELECT * FROM merchant WHERE phone = #{phone} LIMIT 1")
+    Merchant selectByPhone(String phone);
 
     // 查询所有商户
     @Select("SELECT * FROM merchant")

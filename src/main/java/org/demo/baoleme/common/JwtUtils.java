@@ -1,4 +1,4 @@
-package org.demo.baoleme.utils;
+package org.demo.baoleme.common;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

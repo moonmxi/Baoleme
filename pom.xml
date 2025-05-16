@@ -75,6 +75,19 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Jakarta Validation API（支持 @NotBlank @Pattern 等注解） -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+
+        <!-- Redis 依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
         <!-- 测试相关 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

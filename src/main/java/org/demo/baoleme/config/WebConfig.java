@@ -1,6 +1,6 @@
 package org.demo.baoleme.config;
 
-import org.demo.baoleme.utils.JwtInterceptor;
+import org.demo.baoleme.common.JwtInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;

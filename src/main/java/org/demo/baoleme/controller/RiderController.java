@@ -1,13 +1,14 @@
 package org.demo.baoleme.controller;
 
+import jakarta.validation.Valid;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.dto.request.*;
 import org.demo.baoleme.dto.response.*;
 import org.demo.baoleme.pojo.Rider;
 import org.demo.baoleme.service.RiderService;
-import org.demo.baoleme.utils.JwtUtils;
-import org.demo.baoleme.utils.UserHolder;
+import org.demo.baoleme.common.JwtUtils;
+import org.demo.baoleme.common.UserHolder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class RiderController {
     }
 
     @PostMapping("/register")
-    public CommonResponse register(@RequestBody RiderRegisterRequest request) {
+    public CommonResponse register(@Valid @RequestBody RiderRegisterRequest request) {
         System.out.println("收到注册请求: " + request);
         Rider rider = new Rider();
         BeanUtils.copyProperties(request, rider);
@@ -41,7 +42,7 @@ public class RiderController {
     }
 
     @PostMapping("/login")
-    public CommonResponse login(@RequestBody RiderLoginRequest request) {
+    public CommonResponse login(@Valid @RequestBody RiderLoginRequest request) {
         Rider result = riderService.login(request.getPhone(), request.getPassword());
         if (result == null) {
             return ResponseBuilder.fail("手机号或密码错误");
@@ -70,7 +71,7 @@ public class RiderController {
     }
 
     @PutMapping("/update")
-    public CommonResponse update(@RequestBody RiderUpdateRequest request) {
+    public CommonResponse update(@Valid @RequestBody RiderUpdateRequest request) {
         Rider rider = new Rider();
         rider.setId(UserHolder.getId());
         BeanUtils.copyProperties(request, rider);
@@ -79,7 +80,7 @@ public class RiderController {
     }
 
     @PatchMapping("/dispatch-mode")
-    public CommonResponse switchDispatchMode(@RequestBody RiderDispatchModeRequest request) {
+    public CommonResponse switchDispatchMode(@Valid @RequestBody RiderDispatchModeRequest request) {
         Rider rider = new Rider();
         rider.setId(UserHolder.getId());
         rider.setDispatchMode(request.getDispatchMode());
@@ -91,6 +92,17 @@ public class RiderController {
         resp.setCurrentMode(request.getDispatchMode());
         resp.setModeChangedAt(new Date().toString());
         return ResponseBuilder.ok(resp);
+    }
+
+    @PostMapping("/logout")
+    public CommonResponse logout() {
+        Long id = UserHolder.getId();
+        Rider rider = new Rider();
+        rider.setId(id);
+        rider.setOrderStatus(-1); // 设置为离线
+
+        boolean success = riderService.updateInfo(rider);
+        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("登出失败");
     }
 
     @DeleteMapping("/delete")

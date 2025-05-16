@@ -1,9 +1,7 @@
-package org.demo.baoleme.utils;
+package org.demo.baoleme.common;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.demo.baoleme.utils.JwtUtils;
-import org.demo.baoleme.utils.UserHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 

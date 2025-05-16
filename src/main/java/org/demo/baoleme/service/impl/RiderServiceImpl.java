@@ -3,7 +3,6 @@ package org.demo.baoleme.service.impl;
 import org.demo.baoleme.mapper.RiderMapper;
 import org.demo.baoleme.pojo.Rider;
 import org.demo.baoleme.service.RiderService;
-import org.demo.baoleme.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,32 +18,53 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public Rider register(Rider rider) {
-        if (!StringUtils.hasText(rider.getUsername()) || !StringUtils.hasText(rider.getPassword())) {
+        // 基本字段不能为空
+        if (!StringUtils.hasText(rider.getUsername())) {
+            System.out.println("注册失败：用户名为空");
+            return null;
+        }
+        if (!StringUtils.hasText(rider.getPassword())) {
+            System.out.println("注册失败：密码为空");
             return null;
         }
 
-        // 用户名或手机号已存在
-        if (riderMapper.selectByUsername(rider.getUsername()) != null ||
-                (rider.getPhone() != null && riderMapper.selectByPhone(rider.getPhone()) != null)) {
+        // 校验用户名是否已存在
+        if (riderMapper.selectByUsername(rider.getUsername()) != null) {
+            System.out.println("注册失败：用户名已存在");
             return null;
         }
 
+        // 校验手机号是否已存在
+        if (StringUtils.hasText(rider.getPhone()) && riderMapper.selectByPhone(rider.getPhone()) != null) {
+            System.out.println("注册失败：手机号已注册");
+            return null;
+        }
+
+        // 初始化字段
         rider.setPassword(passwordEncoder.encode(rider.getPassword()));
-        rider.setOrderStatus(-1);     // 未激活
-        rider.setDispatchMode(1);     // 自动接单
+        rider.setOrderStatus(-1);   // -1 表示未激活
+        rider.setDispatchMode(1);   // 默认开启自动接单
         rider.setBalance(0L);
 
-        return riderMapper.insert(rider) > 0 ? rider : null;
+        boolean inserted = riderMapper.insert(rider) > 0;
+        return inserted ? rider : null;
     }
 
     @Override
     public Rider login(String phone, String rawPassword) {
         Rider rider = riderMapper.selectByPhone(phone);
-        if (rider == null || !passwordEncoder.matches(rawPassword, rider.getPassword())) {
+        if (rider == null) {
+            System.out.println("登录失败：手机号不存在");
             return null;
         }
 
-        rider.setOrderStatus(1); // 登录后默认状态为空闲
+        if (!passwordEncoder.matches(rawPassword, rider.getPassword())) {
+            System.out.println("登录失败：密码错误");
+            return null;
+        }
+
+        // 登录成功，设置空闲状态
+        rider.setOrderStatus(1);
         riderMapper.updateById(rider);
         return rider;
     }
@@ -61,13 +81,13 @@ public class RiderServiceImpl implements RiderService {
         Rider existing = riderMapper.selectById(rider.getId());
         if (existing == null) return false;
 
-        if (rider.getUsername() != null) {
+        if (StringUtils.hasText(rider.getUsername())) {
             existing.setUsername(rider.getUsername());
         }
-        if (rider.getPassword() != null) {
+        if (StringUtils.hasText(rider.getPassword())) {
             existing.setPassword(passwordEncoder.encode(rider.getPassword()));
         }
-        if (rider.getPhone() != null) {
+        if (StringUtils.hasText(rider.getPhone())) {
             existing.setPhone(rider.getPhone());
         }
         if (rider.getDispatchMode() != null) {

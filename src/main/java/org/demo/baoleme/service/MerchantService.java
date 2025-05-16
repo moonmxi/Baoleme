@@ -15,5 +15,5 @@ public interface MerchantService {
     // 更新商户信息
     Merchant updateMerchant(Merchant merchant);
     // 删除商户
-    void deleteMerchant(Long id);
+    boolean deleteMerchant(Long id);
 }

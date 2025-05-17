@@ -1,4 +1,4 @@
-package org.demo.baoleme.dto.response;
+package org.demo.baoleme.dto.response.product;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -6,8 +6,6 @@ import lombok.Data;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class MerchantInfoResponse {
-    private Long userId;
-    private String username;
-    private String phone;
+public class ProductAddResponse {
+    private Long ProductId;
 }

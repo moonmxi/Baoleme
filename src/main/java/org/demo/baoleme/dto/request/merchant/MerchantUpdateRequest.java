@@ -1,4 +1,4 @@
-package org.demo.baoleme.dto.request;
+package org.demo.baoleme.dto.request.merchant;
 
 import lombok.Data;
 

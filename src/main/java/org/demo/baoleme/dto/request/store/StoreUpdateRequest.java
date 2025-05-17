@@ -1,4 +1,4 @@
-package org.demo.baoleme.dto.response.shop;
+package org.demo.baoleme.dto.request.store;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ShopUpdateResponse {
+public class StoreUpdateRequest {
     private Long id;
     private Long merchantId;
     private String name;

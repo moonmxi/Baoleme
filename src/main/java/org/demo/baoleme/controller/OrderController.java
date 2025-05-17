@@ -89,7 +89,7 @@ public class OrderController {
         OrderStatusRiderUpdateResponse response = new OrderStatusRiderUpdateResponse();
         response.setOrder_id(request.getOrder_id());
         response.setStatus(request.getTarget_status());
-        response.setUpdated_at(request.getTimestamp());
+        response.setUpdated_at(LocalDateTime.now());
 
         return ResponseBuilder.ok(response);
     }
@@ -124,7 +124,7 @@ public class OrderController {
     /**
      * 查询收入统计
      */
-    @GetMapping("/earnings")
+    @GetMapping("/rider-earnings")
     public CommonResponse getRiderEarnings() {
         Long riderId = UserHolder.getId();
         Map<String, Object> result = orderService.getRiderEarnings(riderId);

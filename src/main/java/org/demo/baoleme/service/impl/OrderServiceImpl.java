@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
         }
         try {
             // 加锁后执行数据库更新
-            return orderMapper.acceptOrder(orderId, riderId) > 0;
+            return orderMapper.grabOrder(orderId, riderId) > 0;
         } finally {
             redisLockUtil.unlock(lockKey, lockValue);
         }
@@ -54,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
             return orderMapper.completeOrder(orderId, riderId) > 0;
         } else {
             // 其他普通状态
+            System.out.println("1");
             return orderMapper.riderUpdateOrderStatus(orderId, riderId, targetStatus) > 0;
         }
     }

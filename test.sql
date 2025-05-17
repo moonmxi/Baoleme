@@ -3,6 +3,7 @@
 -- 一、用户表 user
 CREATE TABLE IF NOT EXISTS user (
                                     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                                    gander varchar(5) NOT NULL,
                                     username VARCHAR(50) NOT NULL UNIQUE,
                                     password VARCHAR(100) NOT NULL,
                                     phone VARCHAR(20),
@@ -158,7 +159,8 @@ CREATE TABLE IF NOT EXISTS cart (
 -- 十二、优惠券表 coupon
 CREATE TABLE IF NOT EXISTS coupon (
                                       id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                      code VARCHAR(50) NOT NULL UNIQUE,
+                                      user_id BIGINT NOT NULL,
+                                      merchant_id BIGINT,
                                       discount DECIMAL(5,2) NOT NULL,
                                       expiration_date DATE,
                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -178,16 +180,11 @@ CREATE TABLE IF NOT EXISTS message(
 -- 十四、收藏夹表 favorite
 CREATE TABLE IF NOT EXISTS favorite (
                                         user_id BIGINT NOT NULL,
-                                        product_id BIGINT,
-                                        shop_id BIGINT,
+                                        shop_id BIGINT NOT NULL,
                                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
--- 插入用户
-INSERT INTO user (id, username, password, phone) VALUES
-                                                     (10000001, 'user01', '123456', '13800000001'),
-                                                     (10000002, 'user02', '123456', '13800000002');
 
 -- 插入商家
 INSERT INTO merchant (id, username, password, phone) VALUES
@@ -232,13 +229,3 @@ INSERT INTO review (id, user_id, store_id, product_id, rating, comment) VALUES
 INSERT INTO cart (user_id, product_id, quantity) VALUES
                                                      (10000001, 60000001, 2),
                                                      (10000002, 60000002, 3);
-
--- 插入优惠券
-INSERT INTO coupon (id, code, discount, expiration_date) VALUES
-                                                             (10001, 'OFF10', 10.00, '2025-12-31'),
-                                                             (10002, 'OFF20', 20.00, '2025-12-31');
-
--- 插入收藏夹
-INSERT INTO favorite (user_id, product_id, shop_id) VALUES
-                                                        (10000001, 60000001, NULL),
-                                                        (10000002, NULL, 40000002);

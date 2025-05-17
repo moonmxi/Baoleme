@@ -16,6 +16,4 @@ public class OrderStatusRiderUpdateRequest {
     @NotNull(message = "目标状态不能为空")
     private Integer target_status;
 
-    @NotNull(message = "操作时间不能为空")
-    private LocalDateTime timestamp;
 }

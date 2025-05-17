@@ -23,7 +23,7 @@ public interface OrderMapper extends BaseMapper<Order> {
      * 尝试抢单（加乐观锁，确保 rider_id 为空时才能更新）
      */
     @Update("UPDATE `order` SET rider_id = #{riderId}, status = 1 WHERE id = #{orderId} AND rider_id IS NULL AND status = 0")
-    int acceptOrder(@Param("orderId") Long orderId, @Param("riderId") Long riderId);
+    int grabOrder(@Param("orderId") Long orderId, @Param("riderId") Long riderId);
 
     /**
      * 骑手取消订单（只能取消 rider_id 是自己并且订单状态是 1）

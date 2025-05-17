@@ -16,7 +16,7 @@ public class Store {
 
     private String name;
 
-    private String type;
+    private String desc;
 
     private String location;
 
@@ -37,6 +37,8 @@ public class Store {
 
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
+
+    private String image;
 
     /**
      * 店铺状态枚举（与数据库tinyint映射）

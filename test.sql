@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS merchant (
                                         username VARCHAR(50) NOT NULL UNIQUE,
                                         password VARCHAR(100) NOT NULL,
                                         phone VARCHAR(20),
+                                     avatar VARCHAR(50),
                                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=20000001;
 
@@ -66,6 +67,7 @@ CREATE TABLE IF NOT EXISTS product (
                                        rating DECIMAL(2,1),
                                        status TINYINT DEFAULT 1,
                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                     image VARCHAR(50),
                                        FOREIGN KEY (store_id) REFERENCES store(id)
 ) AUTO_INCREMENT=60000001;
 

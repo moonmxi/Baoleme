@@ -14,4 +14,5 @@ public class ProductViewResponse {
     private BigDecimal price;
     private Integer monthSales;
     private BigDecimal rating;
+    private String image;
 }

@@ -13,4 +13,5 @@ public class MerchantInfoResponse {
     private String username;
     private String phone;
     private LocalDateTime createdAt;
+    private String avatar;
 }

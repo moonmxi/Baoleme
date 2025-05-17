@@ -7,5 +7,6 @@ import lombok.Data;
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CouponCreateResponse {
+    private Long id;
     private String code;
 }

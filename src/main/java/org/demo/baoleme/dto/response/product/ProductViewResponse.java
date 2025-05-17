@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ProductListReadResponse {
+public class ProductViewResponse {
     private Long id;
     private String name;
     private BigDecimal price;

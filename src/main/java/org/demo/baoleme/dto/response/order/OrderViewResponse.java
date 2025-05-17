@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class OrderListReadResponse {
+public class OrderViewResponse {
     private Long orderId;
     private Long userName;
     private Order.OrderStatus status;

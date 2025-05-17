@@ -4,7 +4,7 @@ import lombok.Data;
 import org.demo.baoleme.pojo.Product;
 
 @Data
-public class ProductListReadRequest {
+public class ProductViewRequest {
     private Long storeId;
     private String category;
     private Product.ProductStatus status;

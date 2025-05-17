@@ -2,8 +2,12 @@ package org.demo.baoleme.controller;
 
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
-import org.demo.baoleme.dto.request.*;
-import org.demo.baoleme.dto.response.*;
+import org.demo.baoleme.dto.request.merchant.MerchantLoginRequest;
+import org.demo.baoleme.dto.request.merchant.MerchantRegisterRequest;
+import org.demo.baoleme.dto.request.merchant.MerchantUpdateRequest;
+import org.demo.baoleme.dto.response.merchant.MerchantInfoResponse;
+import org.demo.baoleme.dto.response.merchant.MerchantLoginResponse;
+import org.demo.baoleme.dto.response.merchant.MerchantRegisterResponse;
 import org.demo.baoleme.pojo.Merchant;
 import org.demo.baoleme.service.MerchantService;
 import org.demo.baoleme.common.JwtUtils;
@@ -11,8 +15,6 @@ import org.demo.baoleme.common.UserHolder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 
 @RestController
 @RequestMapping("/merchant")

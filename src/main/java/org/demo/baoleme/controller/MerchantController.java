@@ -68,7 +68,6 @@ public class MerchantController {
         // Step5: 构建返回参数
         MerchantLoginResponse response = new MerchantLoginResponse();
         response.setToken(token);
-        response.setUsername(result.getUsername());
         response.setUserId(result.getId());
         return ResponseBuilder.ok(response);
     }

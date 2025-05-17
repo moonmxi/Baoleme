@@ -20,4 +20,6 @@ public class Merchant {
     private String phone;
 
     private LocalDateTime createdAt;
+
+    private String avatar;
 }

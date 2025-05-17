@@ -44,12 +44,13 @@ CREATE TABLE IF NOT EXISTS store (
                                      id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                      merchant_id BIGINT NOT NULL,
                                      name VARCHAR(100) NOT NULL,
-                                     type VARCHAR(50),
+                                     'desc' VARCHAR(50),
                                      location VARCHAR(100),
                                      rating DECIMAL(2,1) DEFAULT 5.0,
                                      balance DECIMAL(10,2) DEFAULT 0.0,
                                      status TINYINT DEFAULT 1,
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                     image VARCHAR(50),
                                      FOREIGN KEY (merchant_id) REFERENCES merchant(id)
 ) AUTO_INCREMENT=50000001;
 

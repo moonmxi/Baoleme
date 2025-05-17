@@ -32,13 +32,10 @@ CREATE TABLE IF NOT EXISTS rider (
 ) AUTO_INCREMENT=30000001;
 
 -- 四、管理员表 administrator
-CREATE TABLE IF NOT EXISTS administrator (
+CREATE TABLE IF NOT EXISTS admin (
                                              id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                             username VARCHAR(50) NOT NULL UNIQUE,
-                                             password VARCHAR(100) NOT NULL,
-                                             phone VARCHAR(20),
-                                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) AUTO_INCREMENT=40000001;
+                                             password VARCHAR(100) NOT NULL
+) AUTO_INCREMENT=10001;
 
 -- 五、店铺表 store
 CREATE TABLE IF NOT EXISTS store (
@@ -229,3 +226,5 @@ INSERT INTO review (id, user_id, store_id, product_id, rating, comment) VALUES
 INSERT INTO cart (user_id, product_id, quantity) VALUES
                                                      (10000001, 60000001, 2),
                                                      (10000002, 60000002, 3);
+
+INSERT INTO admin(id, password) VALUES (10001, '123456'), (10002, '123456');

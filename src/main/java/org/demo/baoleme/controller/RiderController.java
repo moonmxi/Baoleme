@@ -10,15 +10,21 @@ import org.demo.baoleme.service.RiderService;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.UserHolder;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/rider")
 public class RiderController {
 
     private final RiderService riderService;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     public RiderController(RiderService riderService) {
         this.riderService = riderService;
@@ -49,6 +55,9 @@ public class RiderController {
         }
 
         String token = JwtUtils.createToken(result.getId(), "rider", result.getUsername());
+        // 将 token 写入 Redis，有效期 1 天
+        redisTemplate.opsForValue().set("rider:token:" + token, result.getId(), 1, TimeUnit.DAYS);
+
         RiderLoginResponse response = new RiderLoginResponse();
         response.setToken(token);
         response.setUsername(result.getUsername());
@@ -95,7 +104,10 @@ public class RiderController {
     }
 
     @PostMapping("/logout")
-    public CommonResponse logout() {
+    public CommonResponse logout(@RequestHeader("Authorization") String tokenHeader) {
+        String token = tokenHeader.replace("Bearer ", "");
+        redisTemplate.delete("rider:token:" + token);
+
         Long id = UserHolder.getId();
         Rider rider = new Rider();
         rider.setId(id);

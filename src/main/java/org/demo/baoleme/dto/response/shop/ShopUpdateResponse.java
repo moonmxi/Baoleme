@@ -3,7 +3,7 @@ package org.demo.baoleme.dto.response.shop;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
-import org.demo.baoleme.pojo.Shop;
+import org.demo.baoleme.pojo.Store;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,6 +18,6 @@ public class ShopUpdateResponse {
     private String location;
     private BigDecimal rating;
     private BigDecimal balance;
-    private Shop.ShopStatus status;
+    private Store.ShopStatus status;
     private LocalDateTime createdAt;
 }

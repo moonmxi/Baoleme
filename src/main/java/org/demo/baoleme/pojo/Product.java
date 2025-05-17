@@ -34,6 +34,8 @@ public class Product {
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
+    private String image;
+
     /**
      * 商品状态枚举
      */

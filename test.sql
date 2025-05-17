@@ -161,9 +161,15 @@ CREATE TABLE IF NOT EXISTS cart (
 CREATE TABLE IF NOT EXISTS coupon (
                                       id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                       code VARCHAR(50) NOT NULL UNIQUE,
+                                      'desc' VARCHAR(50) NOT NULL,
                                       discount DECIMAL(5,2) NOT NULL,
                                       expiration_date DATE,
                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                      start_at TIMESTAMP,
+                                      end_at TIMESTAMP,
+                                      type VARCHAR(20) NOT NULL COMMENT '优惠类型: DISCOUNT-折扣, FULL_REDUCE-满减',
+                                      full_amount int,
+                                      reduce_amount int,
 ) AUTO_INCREMENT=110000001;
 
 -- 十三、消息表 message

@@ -81,11 +81,12 @@ public class UserServiceImpl implements UserService {
     public boolean updateInfo(User user) {
         if (user == null || user.getId() == null) return false;
 
+        // 查询当前用户数据
         User existing = userMapper.selectById(user.getId());
         if (existing == null) return false;
 
+        // 检查并更新用户名（确保唯一）
         if (StringUtils.hasText(user.getUsername())) {
-            // 检查新用户名是否已被其他用户使用
             User byUsername = userMapper.selectByUsername(user.getUsername());
             if (byUsername != null && !byUsername.getId().equals(user.getId())) {
                 System.out.println("更新失败：用户名已被其他用户使用");
@@ -93,11 +94,14 @@ public class UserServiceImpl implements UserService {
             }
             existing.setUsername(user.getUsername());
         }
+
+        // 检查并更新密码（加密后保存）
         if (StringUtils.hasText(user.getPassword())) {
             existing.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+
+        // 检查并更新手机号（确保唯一）
         if (StringUtils.hasText(user.getPhone())) {
-            // 检查新手机号是否已被其他用户使用
             User byPhone = userMapper.selectByPhone(user.getPhone());
             if (byPhone != null && !byPhone.getId().equals(user.getId())) {
                 System.out.println("更新失败：手机号已被其他用户使用");
@@ -105,15 +109,21 @@ public class UserServiceImpl implements UserService {
             }
             existing.setPhone(user.getPhone());
         }
+
+        // 更新性别
         if (StringUtils.hasText(user.getGender())) {
             existing.setGender(user.getGender());
         }
+
+        // 更新头像
         if (StringUtils.hasText(user.getAvatar())) {
             existing.setAvatar(user.getAvatar());
         }
 
+        // 执行更新操作
         return userMapper.updateById(existing) > 0;
     }
+
 
     @Override
     public boolean cancelAccount(Long userId) {

@@ -4,5 +4,5 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/baoleme?useSSL=false&serverTimezone=UTC
     username: root
-    password: 88159918
+    password: wqy20050308
     driver-class-name: com.mysql.cj.jdbc.Driver

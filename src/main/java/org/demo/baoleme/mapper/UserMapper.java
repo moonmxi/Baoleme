@@ -28,7 +28,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @param username 用户名
      * @return User 对象或 null
      */
-    @Select("SELECT id, username, password, phone, gender, avatar, role, status " +
+    @Select("SELECT id, username, password, phone, gender, avatar " +
             "FROM user WHERE username = #{username} LIMIT 1")
     User selectByUsername(String username);
 
@@ -37,7 +37,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @param phone 手机号
      * @return User 对象或 null
      */
-    @Select("SELECT id, username, password, phone, gender, avatar, role, status " +
+    @Select("SELECT id, username, password, phone, gender, avatar " +
             "FROM user WHERE phone = #{phone} LIMIT 1")
     User selectByPhone(String phone);
 
@@ -47,7 +47,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 历史订单列表
      */
     @Select("SELECT o.product_id, p.name as product_name, o.create_time " +
-            "FROM orders o JOIN product p ON o.product_id = p.id " +
+            "FROM order o JOIN product p ON o.id = p.id " +
             "WHERE o.user_id = #{userId} AND o.status = 'completed' " +
             "ORDER BY o.create_time DESC")
     List<UserOrderHistoryResponse> selectOrderHistoryByUserId(Long userId);

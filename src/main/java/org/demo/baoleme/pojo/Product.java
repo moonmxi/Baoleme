@@ -29,23 +29,9 @@ public class Product {
     /**
      * 商品状态（1-上架，0-下架）
      */
-    private ProductStatus status = ProductStatus.ENABLED;
+    private int status;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    /**
-     * 商品状态枚举
-     */
-    public enum ProductStatus {
-        ENABLED(1),  // 上架
-        DISABLED(0); // 下架
-
-        @EnumValue
-        private final int code;
-
-        ProductStatus(int code) {
-            this.code = code;
-        }
-    }
 }

@@ -10,8 +10,11 @@ import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.UserService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 @RestController
@@ -19,6 +22,9 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -48,8 +54,14 @@ public class UserController {
         if (result == null) {
             return ResponseBuilder.fail("手机号或密码错误");
         }
-
+        String loginKey = "user:login:" + result.getId();
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(loginKey))) {
+            return ResponseBuilder.fail("该用户已登录，请先登出");
+        }
         String token = JwtUtils.createToken(result.getId(), "user", result.getUsername());
+        redisTemplate.opsForValue().set("user:token:" + token, result.getId(), 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(loginKey, token, 1, TimeUnit.DAYS);
+
         UserLoginResponse response = new UserLoginResponse();
         response.setToken(token);
         response.setUsername(result.getUsername());
@@ -58,11 +70,28 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public CommonResponse logout() {
-        // JWT is stateless, client should remove the token
-        return ResponseBuilder.ok();
-    }
+    public CommonResponse logout(@RequestHeader("Authorization") String tokenHeader) {
+        String token = tokenHeader.replace("Bearer ", "");
+        String tokenKey = "user:token:" + token;
 
+        Object userId = redisTemplate.opsForValue().get(tokenKey);
+        if (userId != null) {
+            String loginKey = "user:login:" + userId;
+            redisTemplate.delete(loginKey);       // ✅ 删除登录标识
+        }
+
+        redisTemplate.delete(tokenKey);          // ✅ 删除 token 本体
+
+        // 更新用户状态（如果需要）
+        Long id = UserHolder.getId();
+        User user = new User();
+        user.setId(id);
+        // 可以设置用户状态为离线或其他状态
+        // user.setStatus(0);
+
+        boolean success = userService.updateInfo(user);
+        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("登出失败");
+    }
     @GetMapping("/info")
     public CommonResponse getInfo() {
         Long id = UserHolder.getId();

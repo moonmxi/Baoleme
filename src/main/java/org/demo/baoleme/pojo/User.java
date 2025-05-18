@@ -3,7 +3,9 @@ package org.demo.baoleme.pojo;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
-
+import lombok.Data;
+import java.time.LocalDateTime;
+@Data
 @TableName("users")
 public class User {
     @TableId(type = IdType.AUTO)
@@ -14,6 +16,9 @@ public class User {
     private String avatar;
     private String password;
 
+
+
+    private LocalDateTime createdAt;
     public Long getId() {
         return id;
     }

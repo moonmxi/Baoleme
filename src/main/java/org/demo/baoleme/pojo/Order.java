@@ -1,22 +1,14 @@
 package org.demo.baoleme.pojo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * 订单实体
- */
 @Data
-@TableName("order")
+@TableName("`order`") // 使用反引号转义SQL保留关键字
 public class Order {
-
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     @TableField("user_id")
@@ -29,21 +21,43 @@ public class Order {
     private Long riderId;
 
     /**
-     * 订单状态
-     * 0：待接单  1：准备中  2：配送中  3：完成  4：取消
+     * 订单状态枚举
      */
-    @TableField("status")
-    private Integer status;
+    private OrderStatus status = OrderStatus.PENDING;
 
     @TableField("total_price")
     private BigDecimal totalPrice;
 
-    @TableField("created_at")
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @TableField("deadline")
+    /**
+     * 预计送达时间（需业务层设置，无自动填充）
+     */
     private LocalDateTime deadline;
 
-    @TableField("ended_at")
+    /**
+     * 订单结束时间（可空）
+     */
     private LocalDateTime endedAt;
+
+    /**
+     * 订单状态枚举定义
+     */
+    public enum OrderStatus {
+        PENDING(0, "等待处理"),
+        PREPARING(1, "准备中"),
+        DELIVERING(2, "配送中"),
+        COMPLETED(3, "已完成"),
+        CANCELLED(4, "已取消");
+
+        @EnumValue
+        private final int code;
+        private final String desc;
+
+        OrderStatus(int code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+    }
 }

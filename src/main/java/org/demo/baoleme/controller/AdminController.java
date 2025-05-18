@@ -40,10 +40,25 @@ public class AdminController {
             return ResponseBuilder.fail("账号或密码错误");
         }
 
-        String token = JwtUtils.createToken(admin.getId(), "admin", null);
-        String redisKey = "admin:token:" + token;
-        redisTemplate.opsForValue().set(redisKey, admin.getId(), 1, TimeUnit.DAYS); // 有效期1天
+        // 构建 Redis 中用于标识登录状态的 key
+        String redisLoginKey = "admin:login:" + admin.getId();
 
+        // 如果已经存在登录状态，则拒绝登录
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(redisLoginKey))) {
+            return ResponseBuilder.fail("该账户已登录，请先登出后再登录");
+        }
+
+        // 生成 token
+        String token = JwtUtils.createToken(admin.getId(), "admin", null);
+
+        // 将 token 存入 Redis（用于拦截器校验）
+        String redisTokenKey = "admin:token:" + token;
+        redisTemplate.opsForValue().set(redisTokenKey, admin.getId(), 1, TimeUnit.DAYS);
+
+        // 记录登录状态（防止重复登录）
+        redisTemplate.opsForValue().set(redisLoginKey, token, 1, TimeUnit.DAYS);
+
+        // 返回响应
         AdminLoginResponse response = new AdminLoginResponse();
         response.setId(admin.getId());
         response.setToken(token);
@@ -57,8 +72,16 @@ public class AdminController {
     @PostMapping("/logout")
     public CommonResponse logout(@RequestHeader("Authorization") String tokenHeader) {
         String token = tokenHeader.replace("Bearer ", "");
-        redisTemplate.delete("admin:token:" + token);
+        String redisTokenKey = "admin:token:" + token;
 
+        // 删除 token -> id 映射
+        Object userId = redisTemplate.opsForValue().get(redisTokenKey);
+        if (userId != null) {
+            String redisLoginKey = "admin:login:" + userId;
+            redisTemplate.delete(redisLoginKey);
+        }
+
+        redisTemplate.delete(redisTokenKey);
         return ResponseBuilder.ok("登出成功");
     }
 

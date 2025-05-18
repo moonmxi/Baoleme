@@ -60,9 +60,14 @@ public class RiderController {
             return ResponseBuilder.fail("手机号或密码错误");
         }
 
+        String loginKey = "rider:login:" + result.getId();
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(loginKey))) {
+            return ResponseBuilder.fail("该骑手已登录，请先登出");
+        }
+
         String token = JwtUtils.createToken(result.getId(), "rider", result.getUsername());
-        // 将 token 写入 Redis，有效期 1 天
         redisTemplate.opsForValue().set("rider:token:" + token, result.getId(), 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(loginKey, token, 1, TimeUnit.DAYS);
 
         RiderLoginResponse response = new RiderLoginResponse();
         response.setToken(token);
@@ -112,12 +117,21 @@ public class RiderController {
     @PostMapping("/logout")
     public CommonResponse logout(@RequestHeader("Authorization") String tokenHeader) {
         String token = tokenHeader.replace("Bearer ", "");
-        redisTemplate.delete("rider:token:" + token);
+        String tokenKey = "rider:token:" + token;
 
+        Object riderId = redisTemplate.opsForValue().get(tokenKey);
+        if (riderId != null) {
+            String loginKey = "rider:login:" + riderId;
+            redisTemplate.delete(loginKey);       // ✅ 删除登录标识
+        }
+
+        redisTemplate.delete(tokenKey);          // ✅ 删除 token 本体
+
+        // 设置为离线
         Long id = UserHolder.getId();
         Rider rider = new Rider();
         rider.setId(id);
-        rider.setOrderStatus(-1); // 设置为离线
+        rider.setOrderStatus(-1);
 
         boolean success = riderService.updateInfo(rider);
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("登出失败");

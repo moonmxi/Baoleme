@@ -2,7 +2,7 @@ package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
-import org.demo.baoleme.dto.response.*;
+import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.pojo.User;
 
 import java.util.List;
@@ -10,6 +10,19 @@ import java.util.List;
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 
+
+    @Select("SELECT id, username, password, phone, avatar, created_at " +
+            "FROM user WHERE id = #{id} LIMIT 1")
+    User selectById(Long id);
+
+    @Select("""
+        SELECT id, username, phone, avatar, created_at
+        FROM user
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    """)
+    List<User> selectUsersPaged(@Param("offset") int offset,
+                                @Param("limit") int limit);
     /**
      * 根据用户名查找用户
      * @param username 用户名
@@ -166,8 +179,8 @@ public interface UserMapper extends BaseMapper<User> {
             "FROM store WHERE type = #{type} OR #{type} IS NULL " +
             "LIMIT #{size} OFFSET #{offset}")
     List<UserGetShopResponse.Shop> selectShopsByType(@Param("type") String type,
-                                                  @Param("offset") int offset,
-                                                  @Param("size") int size);
+                                                     @Param("offset") int offset,
+                                                     @Param("size") int size);
 
     /**
      * 统计店铺数量
@@ -188,7 +201,7 @@ public interface UserMapper extends BaseMapper<User> {
             "WHERE (store_id = #{shopId} OR #{shopId} IS NULL) " +
             "AND (category = #{category} OR #{category} IS NULL)")
     List<UserGetProductResponse.Product> selectProducts(@Param("shopId") Long shopId,
-                                                     @Param("category") String category);
+                                                        @Param("category") String category);
 
     /**
      * 检查订单是否属于用户

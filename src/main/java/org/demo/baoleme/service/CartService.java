@@ -1,7 +1,9 @@
 package org.demo.baoleme.service;
 
-import org.demo.baoleme.dto.request.*;
-import org.demo.baoleme.dto.response.CartViewResponse;
+import org.demo.baoleme.dto.request.cart.AddToCartRequest;
+import org.demo.baoleme.dto.request.cart.RemoveCartRequest;
+import org.demo.baoleme.dto.request.cart.UpdateCartRequest;
+import org.demo.baoleme.dto.response.cart.CartViewResponse;
 
 public interface CartService {
     boolean addToCart(Long userId, AddToCartRequest request);

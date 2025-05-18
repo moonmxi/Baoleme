@@ -5,8 +5,8 @@ import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.UserHolder;
-import org.demo.baoleme.dto.request.*;
-import org.demo.baoleme.dto.response.*;
+import org.demo.baoleme.dto.request.user.*;
+import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.UserService;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +26,7 @@ public class UserController {
 
     @PostMapping("/register")
     public CommonResponse register(@Valid @RequestBody UserRegisterRequest request) {
+        System.out.println("收到注册请求: " + request);
         User user = new User();
         BeanUtils.copyProperties(request, user);
         User result = userService.register(user);

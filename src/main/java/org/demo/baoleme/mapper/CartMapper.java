@@ -2,7 +2,7 @@ package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
-import org.demo.baoleme.dto.response.CartItemResponse;
+import org.demo.baoleme.dto.response.cart.CartItemResponse;
 import org.demo.baoleme.pojo.CartItem;
 
 import java.util.List;

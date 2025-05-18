@@ -3,22 +3,34 @@ package org.demo.baoleme.controller;
 import jakarta.validation.Valid;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
-import org.demo.baoleme.dto.request.*;
-import org.demo.baoleme.dto.response.*;
+import org.demo.baoleme.dto.request.rider.RiderDispatchModeRequest;
+import org.demo.baoleme.dto.request.rider.RiderLoginRequest;
+import org.demo.baoleme.dto.request.rider.RiderRegisterRequest;
+import org.demo.baoleme.dto.request.rider.RiderUpdateRequest;
+import org.demo.baoleme.dto.response.rider.RiderDispatchModeResponse;
+import org.demo.baoleme.dto.response.rider.RiderInfoResponse;
+import org.demo.baoleme.dto.response.rider.RiderLoginResponse;
+import org.demo.baoleme.dto.response.rider.RiderRegisterResponse;
 import org.demo.baoleme.pojo.Rider;
 import org.demo.baoleme.service.RiderService;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.UserHolder;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/rider")
 public class RiderController {
 
     private final RiderService riderService;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     public RiderController(RiderService riderService) {
         this.riderService = riderService;
@@ -48,7 +60,15 @@ public class RiderController {
             return ResponseBuilder.fail("手机号或密码错误");
         }
 
+        String loginKey = "rider:login:" + result.getId();
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(loginKey))) {
+            return ResponseBuilder.fail("该骑手已登录，请先登出");
+        }
+
         String token = JwtUtils.createToken(result.getId(), "rider", result.getUsername());
+        redisTemplate.opsForValue().set("rider:token:" + token, result.getId(), 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(loginKey, token, 1, TimeUnit.DAYS);
+
         RiderLoginResponse response = new RiderLoginResponse();
         response.setToken(token);
         response.setUsername(result.getUsername());
@@ -95,11 +115,23 @@ public class RiderController {
     }
 
     @PostMapping("/logout")
-    public CommonResponse logout() {
+    public CommonResponse logout(@RequestHeader("Authorization") String tokenHeader) {
+        String token = tokenHeader.replace("Bearer ", "");
+        String tokenKey = "rider:token:" + token;
+
+        Object riderId = redisTemplate.opsForValue().get(tokenKey);
+        if (riderId != null) {
+            String loginKey = "rider:login:" + riderId;
+            redisTemplate.delete(loginKey);       // ✅ 删除登录标识
+        }
+
+        redisTemplate.delete(tokenKey);          // ✅ 删除 token 本体
+
+        // 设置为离线
         Long id = UserHolder.getId();
         Rider rider = new Rider();
         rider.setId(id);
-        rider.setOrderStatus(-1); // 设置为离线
+        rider.setOrderStatus(-1);
 
         boolean success = riderService.updateInfo(rider);
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("登出失败");

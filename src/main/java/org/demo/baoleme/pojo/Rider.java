@@ -26,5 +26,7 @@ public class Rider {
 
     private Long balance;
 
+    private String avatar;
+
     private LocalDateTime createdAt;
 }

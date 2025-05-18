@@ -1,9 +1,9 @@
 package org.demo.baoleme.service;
 
-import org.demo.baoleme.dto.response.*;
+import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.pojo.User;
-import org.demo.baoleme.dto.request.UserReviewRequest;
-import org.demo.baoleme.dto.request.UserCreateOrderRequest;
+import org.demo.baoleme.dto.request.user.UserReviewRequest;
+import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
 
 import java.util.List;
 

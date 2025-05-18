@@ -1,22 +1,13 @@
 package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Update;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.*;
 import org.demo.baoleme.pojo.Merchant;
 import org.demo.baoleme.pojo.Rider;
 
 import java.util.List;
 
 public interface MerchantMapper extends BaseMapper<Merchant> {
-    // 插入商户（返回自增主键）
-    @Insert("INSERT INTO merchant (username, password, phone, created_at) "
-            + "VALUES (#{username}, #{password}, #{phone}, #{createdAt})")
-    @Options(useGeneratedKeys = true, keyProperty = "id") // 获取自增主键
-    int insertMerchant(Merchant merchant);
 
     @Select("SELECT * FROM merchant WHERE username = #{username}")
     Merchant selectByUsername(String username);
@@ -42,7 +33,13 @@ public interface MerchantMapper extends BaseMapper<Merchant> {
             + "WHERE id = #{id}")
     int updateMerchant(Merchant merchant);
 
-    // 根据ID删除商户
-    @Delete("DELETE FROM merchant WHERE id = #{id}")
-    int deleteById(Long id);
+    @Select("""
+        SELECT id, username, phone, avatar, created_at
+        FROM merchant
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    """)
+    List<Merchant> selectMerchantsPaged(@Param("offset") int offset,
+                                        @Param("limit") int limit);
+
 }

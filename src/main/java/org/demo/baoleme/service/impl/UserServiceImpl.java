@@ -1,8 +1,8 @@
 package org.demo.baoleme.service.impl;
 
-import org.demo.baoleme.dto.request.UserCreateOrderRequest;
-import org.demo.baoleme.dto.request.UserReviewRequest;
-import org.demo.baoleme.dto.response.*;
+import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
+import org.demo.baoleme.dto.request.user.UserReviewRequest;
+import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.mapper.UserMapper;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.UserService;

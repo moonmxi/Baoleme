@@ -16,7 +16,4 @@ public interface MerchantService {
     Merchant updateMerchant(Merchant merchant);
     // 删除商户
     boolean deleteMerchant(Long id);
-
-    interface UserService {
-    }
 }

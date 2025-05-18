@@ -15,9 +15,11 @@ public class Merchant {
 
     private String username;
 
-    private String password;
+    private String password;    // 数据库中保存加密后的字符串
 
     private String phone;
 
     private LocalDateTime createdAt;
+
+    private String avatar;
 }

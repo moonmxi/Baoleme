@@ -2,8 +2,11 @@ package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.demo.baoleme.pojo.Rider;
+
+import java.util.List;
 
 @Mapper
 public interface RiderMapper extends BaseMapper<Rider> {
@@ -25,4 +28,12 @@ public interface RiderMapper extends BaseMapper<Rider> {
     @Select("SELECT id, username, password, phone,order_status, dispatch_mode, balance, created_at " +
             "FROM rider WHERE phone = #{phone} LIMIT 1")
     Rider selectByPhone(String phone);
+
+    @Select("""
+        SELECT id, username, phone, order_status, dispatch_mode, balance,  avatar, created_at
+        FROM rider
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    """)
+    List<Rider> selectRidersPaged(@Param("offset") int offset, @Param("limit") int limit);
 }

@@ -91,12 +91,50 @@ public class RiderController {
     }
 
     @PutMapping("/update")
-    public CommonResponse update(@Valid @RequestBody RiderUpdateRequest request) {
+    public CommonResponse update(@Valid @RequestBody RiderUpdateRequest request,
+                                 @RequestHeader("Authorization") String tokenHeader) {
+        Long id = UserHolder.getId();
+
+        // 查询旧数据，判断是否修改了 username
+        Rider before = riderService.getInfo(id);
+        if (before == null) {
+            return ResponseBuilder.fail("用户不存在");
+        }
+
+        // 组装更新 rider
         Rider rider = new Rider();
-        rider.setId(UserHolder.getId());
+        rider.setId(id);
         BeanUtils.copyProperties(request, rider);
+
         boolean success = riderService.updateInfo(rider);
-        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("更新失败，请检查请求字段");
+        if (!success) {
+            return ResponseBuilder.fail("更新失败，请检查字段");
+        }
+
+        // 判断是否修改了 username
+        boolean usernameChanged = request.getUsername() != null && !request.getUsername().equals(before.getUsername());
+        if (!usernameChanged) {
+            return ResponseBuilder.ok();  // 没改用户名，直接返回 OK
+        }
+
+        // ✅ 修改了 username，重新签发 token 并刷新 Redis
+        String oldToken = tokenHeader.replace("Bearer ", "");
+        String oldTokenKey = "rider:token:" + oldToken;
+        String oldLoginKey = "rider:login:" + id;
+
+        redisTemplate.delete(oldTokenKey);
+        redisTemplate.delete(oldLoginKey);
+
+        String newToken = JwtUtils.createToken(id, "rider", request.getUsername());
+        redisTemplate.opsForValue().set("rider:token:" + newToken, id, 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("rider:login:" + id, newToken, 1, TimeUnit.DAYS);
+
+        // 返回新的 token
+        RiderLoginResponse response = new RiderLoginResponse();
+        response.setToken(newToken);
+        response.setUsername(request.getUsername());
+        response.setUserId(id);
+        return ResponseBuilder.ok(response);
     }
 
     @PatchMapping("/dispatch-mode")

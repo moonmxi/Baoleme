@@ -29,7 +29,7 @@ public interface OrderMapper extends BaseMapper<Order> {
      * 骑手取消订单（只能取消 rider_id 是自己并且订单状态是 1）
      */
     @Update("UPDATE `order` SET rider_id = NULL, status = 0 WHERE id = #{orderId} AND rider_id = #{riderId} AND status = 1")
-    int cancelOrder(@Param("orderId") Long orderId, @Param("riderId") Long riderId);
+    int riderCancelOrder(@Param("orderId") Long orderId, @Param("riderId") Long riderId);
 
     /**
      * 骑手更新订单状态

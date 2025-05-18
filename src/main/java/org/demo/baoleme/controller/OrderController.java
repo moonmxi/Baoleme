@@ -3,14 +3,14 @@ package org.demo.baoleme.controller;
 import jakarta.validation.Valid;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
-import org.demo.baoleme.dto.request.OrderCancelRequest;
-import org.demo.baoleme.dto.request.OrderGrabRequest;
-import org.demo.baoleme.dto.request.OrderStatusRiderUpdateRequest;
-import org.demo.baoleme.dto.request.RiderOrderHistoryQueryRequest;
-import org.demo.baoleme.dto.response.OrderGrabResponse;
-import org.demo.baoleme.dto.response.OrderStatusRiderUpdateResponse;
-import org.demo.baoleme.dto.response.RiderEarningsResponse;
-import org.demo.baoleme.dto.response.RiderOrderHistoryResponse;
+import org.demo.baoleme.dto.request.order.OrderCancelRequest;
+import org.demo.baoleme.dto.request.order.OrderGrabRequest;
+import org.demo.baoleme.dto.request.order.OrderStatusRiderUpdateRequest;
+import org.demo.baoleme.dto.request.rider.RiderOrderHistoryQueryRequest;
+import org.demo.baoleme.dto.response.order.OrderGrabResponse;
+import org.demo.baoleme.dto.response.order.OrderStatusRiderUpdateResponse;
+import org.demo.baoleme.dto.response.rider.RiderEarningsResponse;
+import org.demo.baoleme.dto.response.rider.RiderOrderHistoryResponse;
 import org.demo.baoleme.pojo.Order;
 import org.demo.baoleme.service.OrderService;
 import org.demo.baoleme.common.UserHolder;
@@ -65,7 +65,7 @@ public class OrderController {
     @PutMapping("/cancel")
     public CommonResponse cancelOrder(@Valid @RequestBody OrderCancelRequest request) {
         Long riderId = UserHolder.getId();
-        boolean ok = orderService.cancelOrder(request.getOrder_id(), riderId);
+        boolean ok = orderService.riderCancelOrder(request.getOrder_id(), riderId);
         if (!ok) {
             return ResponseBuilder.fail("当前状态不可取消或订单不存在");
         }

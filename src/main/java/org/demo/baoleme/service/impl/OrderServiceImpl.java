@@ -43,8 +43,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean cancelOrder(Long orderId, Long riderId) {
-        return orderMapper.cancelOrder(orderId, riderId) > 0;
+    public boolean riderCancelOrder(Long orderId, Long riderId) {
+        return orderMapper.riderCancelOrder(orderId, riderId) > 0;
     }
 
     @Override

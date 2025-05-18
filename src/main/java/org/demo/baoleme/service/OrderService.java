@@ -20,7 +20,7 @@ public interface OrderService {
     /**
      * 骑手取消已接订单
      */
-    boolean cancelOrder(Long orderId, Long riderId);
+    boolean riderCancelOrder(Long orderId, Long riderId);
 
     /**
      * 骑手更新订单状态

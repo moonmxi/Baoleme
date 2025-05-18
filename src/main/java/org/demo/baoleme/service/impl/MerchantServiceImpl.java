@@ -38,7 +38,7 @@ public class MerchantServiceImpl implements MerchantService {
 
         merchant.setPassword(passwordEncoder.encode(merchant.getPassword()));
 
-        merchantMapper.insertMerchant(merchant); // MyBatis自动回填id
+        merchantMapper.insert(merchant); // MyBatis自动回填id
         return merchant;
     }
 

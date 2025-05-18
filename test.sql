@@ -210,7 +210,7 @@ INSERT INTO rider (id, username, password, phone, order_status, dispatch_mode, b
                                                                                             (30000002, 'rider02', '123456', '19900000002', 1, 0, 200);
 
 -- 插入店铺
-INSERT INTO store (id, merchant_id, name, location) VALUES
+INSERT INTO store (id, merchant_id, name, description,  location) VALUES
                                                               (40000001, 20000001, 'store01', '快餐', '北京'),
                                                               (40000002, 20000002, 'store02', '饮品', '上海');
 

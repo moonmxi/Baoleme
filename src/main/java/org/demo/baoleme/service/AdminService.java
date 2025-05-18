@@ -5,12 +5,12 @@ import org.demo.baoleme.pojo.Admin;
 public interface AdminService {
 
     /**
-     * 登录验证，返回 token
+     * 登录验证管理员账号密码
      */
-    String login(Long adminId, String password);
+    Admin login(Long id, String password);
 
     /**
-     * 登出操作（清除 Redis 中的 token）
+     * 查询管理员信息（可用于 /info 接口）
      */
-    boolean logout(Long adminId);
+    Admin getInfo(Long id);
 }

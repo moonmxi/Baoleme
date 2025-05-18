@@ -3,10 +3,10 @@
 -- 一、用户表 user
 CREATE TABLE IF NOT EXISTS user (
                                     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                    gander varchar(5) NOT NULL,
                                     username VARCHAR(50) NOT NULL UNIQUE,
                                     password VARCHAR(100) NOT NULL,
                                     phone VARCHAR(20),
+                                    avatar VARCHAR(50),
                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=10000001;
 
@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS merchant (
                                         username VARCHAR(50) NOT NULL UNIQUE,
                                         password VARCHAR(100) NOT NULL,
                                         phone VARCHAR(20),
+                                        avatar VARCHAR(50),
                                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=20000001;
 
@@ -28,26 +29,28 @@ CREATE TABLE IF NOT EXISTS rider (
                                      dispatch_mode INT DEFAULT 1,
                                      phone VARCHAR(20),
                                      balance BIGINT,
+                                     avatar VARCHAR(50),
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=30000001;
 
 -- 四、管理员表 administrator
 CREATE TABLE IF NOT EXISTS admin (
-                                             id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                             password VARCHAR(100) NOT NULL
-) AUTO_INCREMENT=10001;
+                                            id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                                            password VARCHAR(100) NOT NULL
+) AUTO_INCREMENT=40000001;
 
 -- 五、店铺表 store
 CREATE TABLE IF NOT EXISTS store (
                                      id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                      merchant_id BIGINT NOT NULL,
                                      name VARCHAR(100) NOT NULL,
-                                     type VARCHAR(50),
+                                     description VARCHAR(50),
                                      location VARCHAR(100),
                                      rating DECIMAL(2,1) DEFAULT 5.0,
                                      balance DECIMAL(10,2) DEFAULT 0.0,
                                      status TINYINT DEFAULT 1,
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                     image VARCHAR(50),
                                      FOREIGN KEY (merchant_id) REFERENCES merchant(id)
 ) AUTO_INCREMENT=50000001;
 
@@ -59,8 +62,11 @@ CREATE TABLE IF NOT EXISTS product (
                                        description VARCHAR(255),
                                        price DECIMAL(10,2) NOT NULL,
                                        category VARCHAR(50),
+                                       stock int,
+                                       rating DECIMAL(2,1),
                                        status TINYINT DEFAULT 1,
                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                       image VARCHAR(50),
                                        FOREIGN KEY (store_id) REFERENCES store(id)
 ) AUTO_INCREMENT=60000001;
 
@@ -156,11 +162,16 @@ CREATE TABLE IF NOT EXISTS cart (
 -- 十二、优惠券表 coupon
 CREATE TABLE IF NOT EXISTS coupon (
                                       id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                      user_id BIGINT NOT NULL,
-                                      merchant_id BIGINT,
+                                      code VARCHAR(50) NOT NULL UNIQUE,
+                                      description VARCHAR(50) NOT NULL,
                                       discount DECIMAL(5,2) NOT NULL,
                                       expiration_date DATE,
-                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                      start_at TIMESTAMP,
+                                      end_at TIMESTAMP,
+                                      type VARCHAR(20) NOT NULL COMMENT '优惠类型: DISCOUNT-折扣, FULL_REDUCE-满减',
+                                      full_amount int,
+                                      reduce_amount int
 ) AUTO_INCREMENT=110000001;
 
 -- 十三、消息表 message
@@ -177,20 +188,21 @@ CREATE TABLE IF NOT EXISTS message(
 -- 十四、收藏夹表 favorite
 CREATE TABLE IF NOT EXISTS favorite (
                                         user_id BIGINT NOT NULL,
-                                        shop_id BIGINT NOT NULL,
+                                        product_id BIGINT,
+                                        shop_id BIGINT,
                                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
+-- 插入用户
+INSERT INTO user (id, username, password, phone) VALUES
+                                                     (10000001, 'user01', '123456', '13800000001'),
+                                                     (10000002, 'user02', '123456', '13800000002');
 
 -- 插入商家
 INSERT INTO merchant (id, username, password, phone) VALUES
                                                          (20000001, 'merchant01', '123456', '13900000001'),
                                                          (20000002, 'merchant02', '123456', '13900000002');
-
--- 插入管理员
-INSERT INTO administrator (id, username, password, phone) VALUES
-    (50000001, 'admin01', '123456', '13700000001');
 
 -- 插入骑手
 INSERT INTO rider (id, username, password, phone, order_status, dispatch_mode, balance) VALUES
@@ -198,7 +210,7 @@ INSERT INTO rider (id, username, password, phone, order_status, dispatch_mode, b
                                                                                             (30000002, 'rider02', '123456', '19900000002', 1, 0, 200);
 
 -- 插入店铺
-INSERT INTO store (id, merchant_id, name, type, location) VALUES
+INSERT INTO store (id, merchant_id, name, location) VALUES
                                                               (40000001, 20000001, 'store01', '快餐', '北京'),
                                                               (40000002, 20000002, 'store02', '饮品', '上海');
 
@@ -227,4 +239,12 @@ INSERT INTO cart (user_id, product_id, quantity) VALUES
                                                      (10000001, 60000001, 2),
                                                      (10000002, 60000002, 3);
 
-INSERT INTO admin(id, password) VALUES (10001, '123456'), (10002, '123456');
+-- 插入优惠券
+INSERT INTO coupon (id, code, discount, expiration_date) VALUES
+                                                             (10001, 'OFF10', 10.00, '2025-12-31'),
+                                                             (10002, 'OFF20', 20.00, '2025-12-31');
+
+-- 插入收藏夹
+INSERT INTO favorite (user_id, product_id, shop_id) VALUES
+                                                        (10000001, 60000001, NULL),
+                                                        (10000002, NULL, 40000002);

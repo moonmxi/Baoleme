@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class OrderGrabResponse {
-    private Long order_id;
+    private Long orderId;
     private String status = "ACCEPTED";
-    private LocalDateTime pickup_deadline;
+    private LocalDateTime pickupDeadline;
 }

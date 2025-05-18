@@ -8,13 +8,13 @@ import lombok.Data;
 @Data
 public class AdminDeleteRequest {
 
-    private String user_name;
+    private String userName;
 
-    private String rider_name;
+    private String riderName;
 
-    private String merchant_name;
+    private String merchantName;
 
-    private String store_name;
+    private String storeName;
 
-    private String product_name;
+    private String productName;
 }

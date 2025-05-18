@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 public class AdminUserQueryRequest {
     private Integer page;
-    private Integer page_size;
+    private Integer pageSize;
 }

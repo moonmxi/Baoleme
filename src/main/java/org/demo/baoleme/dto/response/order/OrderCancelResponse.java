@@ -7,6 +7,6 @@ import lombok.Data;
  */
 @Data
 public class OrderCancelResponse {
-    private Long order_id;
+    private Long orderId;
     private String status;
 }

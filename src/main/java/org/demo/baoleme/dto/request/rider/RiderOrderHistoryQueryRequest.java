@@ -2,14 +2,16 @@ package org.demo.baoleme.dto.request.rider;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * 骑手订单历史查询请求
  */
 @Data
 public class RiderOrderHistoryQueryRequest {
     private Integer status;
-    private String start_time;
-    private String end_time;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private Integer page;
-    private Integer page_size;
+    private Integer pageSize;
 }

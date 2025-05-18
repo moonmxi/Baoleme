@@ -9,9 +9,9 @@ import lombok.Data;
 @Data
 public class OrderStatusRiderUpdateRequest {
     @NotNull(message = "订单ID不能为空")
-    private Long order_id;
+    private Long orderId;
 
     @NotNull(message = "目标状态不能为空")
-    private Integer target_status;
+    private Integer targetStatus;
 
 }

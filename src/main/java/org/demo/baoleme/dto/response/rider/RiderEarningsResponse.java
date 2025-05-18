@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  */
 @Data
 public class RiderEarningsResponse {
-    private BigDecimal total_earnings;
-    private BigDecimal current_month;
-    private Integer completed_orders;
+    private BigDecimal totalEarnings;
+    private BigDecimal currentMonth;
+    private Integer completedOrders;
 }

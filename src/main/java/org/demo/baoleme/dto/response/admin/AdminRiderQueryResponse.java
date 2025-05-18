@@ -16,13 +16,13 @@ public class AdminRiderQueryResponse {
 
     private String phone;
 
-    private Integer order_status;
+    private Integer orderStatus;
 
-    private Integer dispatch_mode;
+    private Integer dispatchMode;
 
     private Long balance;
 
     private String avatar;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }

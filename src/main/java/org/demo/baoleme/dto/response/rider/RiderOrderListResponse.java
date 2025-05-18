@@ -15,10 +15,10 @@ public class RiderOrderListResponse {
 
     @Data
     public static class OrderRecord {
-        private Long order_id;
+        private Long orderId;
         private String status;
-        private BigDecimal total_amount;
-        private BigDecimal delivery_fee;
-        private LocalDateTime completed_at;
+        private BigDecimal totalAmount;
+        private BigDecimal deliveryFee;
+        private LocalDateTime completedAt;
     }
 }

@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 public class OrderCancelRequest {
     @NotNull(message = "订单ID不能为空")
-    private Long order_id;
+    private Long orderId;
 }

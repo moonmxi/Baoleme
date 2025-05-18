@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
  */
 @Data
 public class RiderOrderHistoryResponse {
-    private Long order_id;
+    private Long orderId;
     private Integer status;
-    private BigDecimal total_amount;
-    private LocalDateTime completed_at;
+    private BigDecimal totalAmount;
+    private LocalDateTime completedAt;
 }

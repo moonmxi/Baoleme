@@ -13,5 +13,5 @@ public class AdminMerchantQueryRequest {
 
     @NotNull
     @Min(1)
-    private Integer page_size;
+    private Integer pageSize;
 }

@@ -14,6 +14,6 @@ public class AdminStoreQueryResponse {
     private BigDecimal rating;
     private BigDecimal balance;
     private int status;
-    private LocalDateTime created_at;
+    private LocalDateTime createAt;
     private String image;
 }

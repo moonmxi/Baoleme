@@ -2,6 +2,7 @@ package org.demo.baoleme.service;
 
 import org.demo.baoleme.pojo.Order;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public interface OrderService {
     /**
      * 查询骑手接单历史
      */
-    List<Order> getRiderOrders(Long riderId, Integer status, String startTime, String endTime, int page, int pageSize);
+    List<Order> getRiderOrders(Long riderId, Integer status, LocalDateTime startTime, LocalDateTime endTime, int page, int pageSize);
 
     /**
      * 查询骑手收入统计

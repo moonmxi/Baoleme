@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class OrderStatusRiderUpdateResponse {
-    private Long order_id;
+    private Long orderId;
     private Integer status;
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 }

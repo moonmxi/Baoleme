@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -51,8 +52,8 @@ public interface OrderMapper extends BaseMapper<Order> {
             """)
     List<Order> selectRiderOrders(@Param("riderId") Long riderId,
                                   @Param("status") Integer status,
-                                  @Param("startTime") String startTime,
-                                  @Param("endTime") String endTime,
+                                  @Param("startTime") LocalDateTime startTime,
+                                  @Param("endTime") LocalDateTime endTime,
                                   @Param("offset") int offset,
                                   @Param("limit") int limit);
 
@@ -80,5 +81,25 @@ public interface OrderMapper extends BaseMapper<Order> {
      */
     @Select("SELECT * FROM `order` WHERE id = #{orderId}")
     Order selectById(@Param("orderId") Long orderId);
+
+    @Select("""
+    SELECT * FROM `order`
+    WHERE (#{userId} IS NULL OR user_id = #{userId})
+      AND (#{storeId} IS NULL OR store_id = #{storeId})
+      AND (#{riderId} IS NULL OR rider_id = #{riderId})
+      AND (#{status} IS NULL OR status = #{status})
+      AND (#{createdAt} IS NULL OR created_at >= #{createdAt})
+      AND (#{endedAt} IS NULL OR ended_at <= #{endedAt})
+    ORDER BY created_at DESC
+    LIMIT #{offset}, #{limit}
+""")
+    List<Order> selectOrdersPaged(@Param("userId") Long userId,
+                                  @Param("storeId") Long storeId,
+                                  @Param("riderId") Long riderId,
+                                  @Param("status") Integer status,
+                                  @Param("createdAt") LocalDateTime createdAt,
+                                  @Param("endedAt") LocalDateTime endedAt,
+                                  @Param("offset") int offset,
+                                  @Param("limit") int limit);
 
 }

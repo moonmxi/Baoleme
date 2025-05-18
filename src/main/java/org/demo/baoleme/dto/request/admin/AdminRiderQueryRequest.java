@@ -16,5 +16,5 @@ public class AdminRiderQueryRequest {
 
     @NotNull
     @Min(1)
-    private Integer page_size;
+    private Integer pageSize;
 }

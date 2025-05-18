@@ -6,6 +6,7 @@ import org.demo.baoleme.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,6 +29,12 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
+
+    @Autowired
+    private ReviewMapper reviewMapper;
 
     @Override
     public Admin login(Long id, String password) {
@@ -90,5 +97,26 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public boolean deleteProductByNameAndStore(String productName, String storeName) {
         return productMapper.deleteByNameAndStore(productName, storeName) > 0;
+    }
+
+    @Override
+    public List<Order> getAllOrdersPaged(Long userId,
+                                         Long storeId,
+                                         Long riderId,
+                                         Integer status,
+                                         LocalDateTime createdAt,
+                                         LocalDateTime endedAt,
+                                         int page,
+                                         int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return orderMapper.selectOrdersPaged(userId, storeId, riderId, status, createdAt, endedAt, offset, pageSize);
+    }
+
+    @Override
+    public List<Review> getReviewsByCondition(Long userId, Long storeId, Long productId,
+                                              LocalDateTime startTime, LocalDateTime endTime,
+                                              int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return reviewMapper.selectReviewsByCondition(userId, storeId, productId, startTime, endTime, offset, pageSize);
     }
 }

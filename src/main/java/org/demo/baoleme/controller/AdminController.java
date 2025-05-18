@@ -95,7 +95,7 @@ public class AdminController {
         }
 
         int page = request.getPage();
-        int pageSize = request.getPage_size();
+        int pageSize = request.getPageSize();
         List<User> userList = adminService.getAllUsersPaged(page, pageSize);
 
         List<AdminUserQueryResponse> responses = userList.stream().map(user -> {
@@ -104,7 +104,7 @@ public class AdminController {
             resp.setUsername(user.getUsername());
             resp.setPhone(user.getPhone());
             resp.setAvatar(user.getAvatar());
-            resp.setCreated_at(user.getCreatedAt());
+            resp.setCreatedAt(user.getCreatedAt());
             return resp;
         }).toList();
 
@@ -122,7 +122,7 @@ public class AdminController {
         }
 
         int page = request.getPage();
-        int pageSize = request.getPage_size();
+        int pageSize = request.getPageSize();
         List<Rider> riderList = adminService.getAllRidersPaged(page, pageSize);
 
         List<AdminRiderQueryResponse> responses = riderList.stream().map(rider -> {
@@ -130,11 +130,11 @@ public class AdminController {
             resp.setId(rider.getId());
             resp.setUsername(rider.getUsername());
             resp.setPhone(rider.getPhone());
-            resp.setOrder_status(rider.getOrderStatus());
-            resp.setDispatch_mode(rider.getDispatchMode());
+            resp.setOrderStatus(rider.getOrderStatus());
+            resp.setDispatchMode(rider.getDispatchMode());
             resp.setBalance(rider.getBalance());
             resp.setAvatar(rider.getAvatar());
-            resp.setCreated_at(rider.getCreatedAt());
+            resp.setCreatedAt(rider.getCreatedAt());
             return resp;
         }).toList();
 
@@ -149,7 +149,7 @@ public class AdminController {
         }
 
         int page = request.getPage();
-        int pageSize = request.getPage_size();
+        int pageSize = request.getPageSize();
         List<Merchant> merchantList = adminService.getAllMerchantsPaged(page, pageSize);
 
         List<AdminMerchantQueryResponse> responses = merchantList.stream().map(merchant -> {
@@ -158,7 +158,7 @@ public class AdminController {
             resp.setUsername(merchant.getUsername());
             resp.setPhone(merchant.getPhone());
             resp.setAvatar(merchant.getAvatar());
-            resp.setCreated_at(merchant.getCreatedAt());
+            resp.setCreatedAt(merchant.getCreatedAt());
             return resp;
         }).toList();
 
@@ -173,7 +173,7 @@ public class AdminController {
         }
 
         int page = request.getPage();
-        int pageSize = request.getPage_size();
+        int pageSize = request.getPageSize();
         List<Store> storeList = adminService.getAllStoresPaged(page, pageSize);
 
         List<AdminStoreQueryResponse> responses = storeList.stream().map(store -> {
@@ -185,7 +185,7 @@ public class AdminController {
             resp.setRating(store.getRating());
             resp.setBalance(store.getBalance());
             resp.setStatus(store.getStatus());
-            resp.setCreated_at(store.getCreatedAt());
+            resp.setCreateAt(store.getCreatedAt());
             resp.setImage(store.getImage());
             return resp;
         }).toList();
@@ -200,11 +200,11 @@ public class AdminController {
             return ResponseBuilder.fail("无权限访问，仅管理员可操作");
         }
 
-        boolean hasAny = request.getUser_name() != null ||
-                request.getRider_name() != null ||
-                request.getMerchant_name() != null ||
-                request.getStore_name() != null ||
-                request.getProduct_name() != null;
+        boolean hasAny = request.getUserName() != null ||
+                request.getRiderName() != null ||
+                request.getMerchantName() != null ||
+                request.getStoreName() != null ||
+                request.getProductName() != null;
 
         if (!hasAny) {
             return ResponseBuilder.fail("至少提供一个删除目标");
@@ -213,34 +213,34 @@ public class AdminController {
         List<String> failed = new ArrayList<>();
 
         // 删除用户
-        if (request.getUser_name() != null &&
-                !adminService.deleteUserByUsername(request.getUser_name())) {
+        if (request.getUserName() != null &&
+                !adminService.deleteUserByUsername(request.getUserName())) {
             failed.add("用户删除失败");
         }
 
         // 删除骑手
-        if (request.getRider_name() != null &&
-                !adminService.deleteRiderByUsername(request.getRider_name())) {
+        if (request.getRiderName() != null &&
+                !adminService.deleteRiderByUsername(request.getRiderName())) {
             failed.add("骑手删除失败");
         }
 
         // 删除商家
-        if (request.getMerchant_name() != null &&
-                !adminService.deleteMerchantByUsername(request.getMerchant_name())) {
+        if (request.getMerchantName() != null &&
+                !adminService.deleteMerchantByUsername(request.getMerchantName())) {
             failed.add("商家删除失败");
         }
 
         // 删除商品（需要店铺名）
-        if (request.getProduct_name() != null) {
-            if (request.getStore_name() == null) {
+        if (request.getProductName() != null) {
+            if (request.getStoreName() == null) {
                 return ResponseBuilder.fail("删除商品必须同时提供所属店铺名");
             }
-            if (!adminService.deleteProductByNameAndStore(request.getProduct_name(), request.getStore_name())) {
+            if (!adminService.deleteProductByNameAndStore(request.getProductName(), request.getStoreName())) {
                 failed.add("商品删除失败");
             }
-        } else if (request.getStore_name() != null) {
+        } else if (request.getStoreName() != null) {
             // 删除店铺（仅当未指定商品时才删除店铺）
-            if (!adminService.deleteStoreByName(request.getStore_name())) {
+            if (!adminService.deleteStoreByName(request.getStoreName())) {
                 failed.add("店铺删除失败");
             }
         }
@@ -250,5 +250,43 @@ public class AdminController {
         }
 
         return ResponseBuilder.ok("删除成功");
+    }
+
+    /**
+     * 管理员分页查看订单
+     */
+    @PostMapping("/orderlist")
+    public CommonResponse getOrderList(@Valid @RequestBody AdminOrderQueryRequest request) {
+        // 身份校验
+        if (!"admin".equals(UserHolder.getRole())) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+
+        List<Order> orders = adminService.getAllOrdersPaged(
+                request.getUserId(),
+                request.getStoreId(),
+                request.getRiderId(),
+                request.getStatus(),
+                request.getCreatedAt(),
+                request.getEndedAt(),
+                request.getPage(),
+                request.getPage_size()
+        );
+
+        List<AdminOrderQueryResponse> responses = orders.stream().map(order -> {
+            AdminOrderQueryResponse resp = new AdminOrderQueryResponse();
+            resp.setOrderId(order.getId());
+            resp.setUserId(order.getUserId());
+            resp.setStoreId(order.getStoreId());
+            resp.setRiderId(order.getRiderId());
+            resp.setStatus(order.getStatus());
+            resp.setTotalPrice(order.getTotalPrice());
+            resp.setCreatedAt(order.getCreatedAt());
+            resp.setDeadline(order.getDeadline());
+            resp.setEndedAt(order.getEndedAt());
+            return resp;
+        }).toList();
+
+        return ResponseBuilder.ok(Map.of("orders", responses));
     }
 }

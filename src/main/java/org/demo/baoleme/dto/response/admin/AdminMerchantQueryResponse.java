@@ -10,5 +10,5 @@ public class AdminMerchantQueryResponse {
     private String username;
     private String phone;
     private String avatar;
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }

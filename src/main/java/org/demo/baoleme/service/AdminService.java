@@ -2,6 +2,7 @@ package org.demo.baoleme.service;
 
 import org.demo.baoleme.pojo.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AdminService {
@@ -36,4 +37,20 @@ public interface AdminService {
     boolean deleteStoreByName(String storeName);
 
     boolean deleteProductByNameAndStore(String productName, String storeName);
+
+    List<Order> getAllOrdersPaged(Long userId,
+                                  Long storeId,
+                                  Long riderId,
+                                  Integer status,
+                                  LocalDateTime createdAt,
+                                  LocalDateTime endedAt,
+                                  int page,
+                                  int pageSize);
+
+    /**
+     * 按条件分页查询评价
+     */
+    List<Review> getReviewsByCondition(Long userId, Long storeId, Long productId,
+                                       LocalDateTime startTime, LocalDateTime endTime,
+                                       int page, int pageSize);
 }

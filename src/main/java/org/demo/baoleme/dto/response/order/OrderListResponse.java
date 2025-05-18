@@ -14,11 +14,11 @@ public class OrderListResponse {
 
     @Data
     public static class OrderBrief {
-        private Long order_id;
-        private String shop_name;
-        private String shop_location;
-        private String delivery_address;
-        private BigDecimal total_amount;
-        private Integer estimated_time;
+        private Long orderId;
+        private String shopName;
+        private String shopLocation;
+        private String deliveryAddress;
+        private BigDecimal totalAmount;
+        private Integer estimatedTime;
     }
 }

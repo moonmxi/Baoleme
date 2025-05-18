@@ -7,6 +7,7 @@ import org.demo.baoleme.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getRiderOrders(Long riderId, Integer status, String startTime, String endTime, int page, int pageSize) {
+    public List<Order> getRiderOrders(Long riderId, Integer status, LocalDateTime startTime, LocalDateTime endTime, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
         return orderMapper.selectRiderOrders(riderId, status, startTime, endTime, offset, pageSize);
     }

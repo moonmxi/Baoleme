@@ -47,14 +47,14 @@ public class OrderController {
     @PutMapping("/grab")
     public CommonResponse grabOrder(@Valid @RequestBody OrderGrabRequest request) {
         Long riderId = UserHolder.getId();
-        boolean ok = orderService.grabOrder(request.getOrder_id(), riderId);
+        boolean ok = orderService.grabOrder(request.getOrderId(), riderId);
         if (!ok) {
             return ResponseBuilder.fail("订单已被抢或不存在");
         }
 
         OrderGrabResponse response = new OrderGrabResponse();
-        response.setOrder_id(request.getOrder_id());
-        response.setPickup_deadline(LocalDateTime.now().plusMinutes(30)); // 假设30分钟取货
+        response.setOrderId(request.getOrderId());
+        response.setPickupDeadline(LocalDateTime.now().plusMinutes(30)); // 假设30分钟取货
 
         return ResponseBuilder.ok(response);
     }
@@ -65,12 +65,12 @@ public class OrderController {
     @PutMapping("/cancel")
     public CommonResponse cancelOrder(@Valid @RequestBody OrderCancelRequest request) {
         Long riderId = UserHolder.getId();
-        boolean ok = orderService.riderCancelOrder(request.getOrder_id(), riderId);
+        boolean ok = orderService.riderCancelOrder(request.getOrderId(), riderId);
         if (!ok) {
             return ResponseBuilder.fail("当前状态不可取消或订单不存在");
         }
         return ResponseBuilder.ok(Map.of(
-                "order_id", request.getOrder_id(),
+                "order_id", request.getOrderId(),
                 "status", "CANCELLED"
         ));
     }
@@ -81,15 +81,15 @@ public class OrderController {
     @PostMapping("/rider-update-status")
     public CommonResponse updateOrderStatus(@Valid @RequestBody OrderStatusRiderUpdateRequest request) {
         Long riderId = UserHolder.getId();
-        boolean ok = orderService.riderUpdateOrderStatus(request.getOrder_id(), riderId, request.getTarget_status());
+        boolean ok = orderService.riderUpdateOrderStatus(request.getOrderId(), riderId, request.getTargetStatus());
         if (!ok) {
             return ResponseBuilder.fail("订单状态更新失败");
         }
 
         OrderStatusRiderUpdateResponse response = new OrderStatusRiderUpdateResponse();
-        response.setOrder_id(request.getOrder_id());
-        response.setStatus(request.getTarget_status());
-        response.setUpdated_at(LocalDateTime.now());
+        response.setOrderId(request.getOrderId());
+        response.setStatus(request.getTargetStatus());
+        response.setUpdatedAt(LocalDateTime.now());
 
         return ResponseBuilder.ok(response);
     }
@@ -103,18 +103,18 @@ public class OrderController {
         List<Order> orders = orderService.getRiderOrders(
                 riderId,
                 request.getStatus(),
-                request.getStart_time(),
-                request.getEnd_time(),
+                request.getStartTime(),
+                request.getEndTime(),
                 request.getPage(),
-                request.getPage_size()
+                request.getPageSize()
         );
 
         List<RiderOrderHistoryResponse> responses = orders.stream().map(order -> {
             RiderOrderHistoryResponse resp = new RiderOrderHistoryResponse();
-            resp.setOrder_id(order.getId());
+            resp.setOrderId(order.getId());
             resp.setStatus(order.getStatus());
-            resp.setTotal_amount(order.getTotalPrice());
-            resp.setCompleted_at(order.getEndedAt());
+            resp.setTotalAmount(order.getTotalPrice());
+            resp.setCompletedAt(order.getEndedAt());
             return resp;
         }).toList();
 
@@ -130,9 +130,9 @@ public class OrderController {
         Map<String, Object> result = orderService.getRiderEarnings(riderId);
 
         RiderEarningsResponse response = new RiderEarningsResponse();
-        response.setCompleted_orders(((Number) result.getOrDefault("completed_orders", 0)).intValue());
-        response.setTotal_earnings((BigDecimal) result.getOrDefault("total_earnings", BigDecimal.ZERO));
-        response.setCurrent_month((BigDecimal) result.getOrDefault("current_month", BigDecimal.ZERO));
+        response.setCompletedOrders(((Number) result.getOrDefault("completed_orders", 0)).intValue());
+        response.setTotalEarnings((BigDecimal) result.getOrDefault("total_earnings", BigDecimal.ZERO));
+        response.setCurrentMonth((BigDecimal) result.getOrDefault("current_month", BigDecimal.ZERO));
 
         return ResponseBuilder.ok(response);
     }

@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS admin (
 CREATE TABLE IF NOT EXISTS store (
                                      id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                      merchant_id BIGINT NOT NULL,
-                                     name VARCHAR(100) NOT NULL,
+                                     name VARCHAR(100) NOT NULL UNIQUE ,
                                      description VARCHAR(50),
                                      location VARCHAR(100),
                                      rating DECIMAL(2,1) DEFAULT 5.0,

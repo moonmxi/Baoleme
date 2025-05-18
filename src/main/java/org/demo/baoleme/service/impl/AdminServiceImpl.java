@@ -26,6 +26,9 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private StoreMapper storeMapper;
 
+    @Autowired
+    private ProductMapper productMapper;
+
     @Override
     public Admin login(Long id, String password) {
         Admin admin = adminMapper.selectById(id);
@@ -62,5 +65,30 @@ public class AdminServiceImpl implements AdminService {
     public List<Store> getAllStoresPaged(int page, int pageSize) {
         int offset = (page - 1) * pageSize;
         return storeMapper.selectStoresPaged(offset, pageSize);
+    }
+
+    @Override
+    public boolean deleteUserByUsername(String username) {
+        return userMapper.deleteByUsername(username) > 0;
+    }
+
+    @Override
+    public boolean deleteRiderByUsername(String username) {
+        return riderMapper.deleteByUsername(username) > 0;
+    }
+
+    @Override
+    public boolean deleteMerchantByUsername(String username) {
+        return merchantMapper.deleteByUsername(username) > 0;
+    }
+
+    @Override
+    public boolean deleteStoreByName(String storeName) {
+        return storeMapper.deleteByName(storeName) > 0;
+    }
+
+    @Override
+    public boolean deleteProductByNameAndStore(String productName, String storeName) {
+        return productMapper.deleteByNameAndStore(productName, storeName) > 0;
     }
 }

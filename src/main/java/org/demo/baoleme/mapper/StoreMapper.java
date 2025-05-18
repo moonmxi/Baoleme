@@ -1,5 +1,6 @@
 package org.demo.baoleme.mapper;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -17,4 +18,7 @@ public interface StoreMapper {
     LIMIT #{offset}, #{limit}
 """)
     List<Store> selectStoresPaged(@Param("offset") int offset, @Param("limit") int limit);
+
+    @Delete("DELETE FROM store WHERE name = #{storeName}")
+    int deleteByName(@Param("storeName") String storeName);
 }

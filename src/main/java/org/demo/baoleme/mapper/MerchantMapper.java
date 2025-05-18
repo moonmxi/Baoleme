@@ -35,11 +35,14 @@ public interface MerchantMapper extends BaseMapper<Merchant> {
 
     @Select("""
         SELECT id, username, phone, avatar, created_at
-        FROM merchant
-        ORDER BY created_at DESC
-        LIMIT #{offset}, #{limit}
+                FROM merchant
+                ORDER BY created_at DESC
+                LIMIT #{offset}, #{limit};
     """)
     List<Merchant> selectMerchantsPaged(@Param("offset") int offset,
                                         @Param("limit") int limit);
+
+    @Delete("DELETE FROM merchant WHERE username = #{username}")
+    int deleteByUsername(@Param("username") String username);
 
 }

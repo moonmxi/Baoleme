@@ -1,6 +1,7 @@
 package org.demo.baoleme.controller;
 
 import jakarta.validation.Valid;
+import org.apache.ibatis.annotations.Delete;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.ResponseBuilder;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -189,5 +191,64 @@ public class AdminController {
         }).toList();
 
         return ResponseBuilder.ok(Map.of("stores", responses));
+    }
+
+    @DeleteMapping("/delete")
+    public CommonResponse delete(@RequestBody AdminDeleteRequest request) {
+        String role = UserHolder.getRole();
+        if (!"admin".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+
+        boolean hasAny = request.getUser_name() != null ||
+                request.getRider_name() != null ||
+                request.getMerchant_name() != null ||
+                request.getStore_name() != null ||
+                request.getProduct_name() != null;
+
+        if (!hasAny) {
+            return ResponseBuilder.fail("至少提供一个删除目标");
+        }
+
+        List<String> failed = new ArrayList<>();
+
+        // 删除用户
+        if (request.getUser_name() != null &&
+                !adminService.deleteUserByUsername(request.getUser_name())) {
+            failed.add("用户删除失败");
+        }
+
+        // 删除骑手
+        if (request.getRider_name() != null &&
+                !adminService.deleteRiderByUsername(request.getRider_name())) {
+            failed.add("骑手删除失败");
+        }
+
+        // 删除商家
+        if (request.getMerchant_name() != null &&
+                !adminService.deleteMerchantByUsername(request.getMerchant_name())) {
+            failed.add("商家删除失败");
+        }
+
+        // 删除商品（需要店铺名）
+        if (request.getProduct_name() != null) {
+            if (request.getStore_name() == null) {
+                return ResponseBuilder.fail("删除商品必须同时提供所属店铺名");
+            }
+            if (!adminService.deleteProductByNameAndStore(request.getProduct_name(), request.getStore_name())) {
+                failed.add("商品删除失败");
+            }
+        } else if (request.getStore_name() != null) {
+            // 删除店铺（仅当未指定商品时才删除店铺）
+            if (!adminService.deleteStoreByName(request.getStore_name())) {
+                failed.add("店铺删除失败");
+            }
+        }
+
+        if (!failed.isEmpty()) {
+            return ResponseBuilder.fail("删除失败：" + String.join("；", failed));
+        }
+
+        return ResponseBuilder.ok("删除成功");
     }
 }

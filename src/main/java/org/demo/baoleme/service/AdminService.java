@@ -26,4 +26,14 @@ public interface AdminService {
     List<Merchant> getAllMerchantsPaged(int page, int pageSize);
 
     List<Store> getAllStoresPaged(int page, int pageSize);
+
+    boolean deleteUserByUsername(String username);
+
+    boolean deleteRiderByUsername(String username);
+
+    boolean deleteMerchantByUsername(String username);
+
+    boolean deleteStoreByName(String storeName);
+
+    boolean deleteProductByNameAndStore(String productName, String storeName);
 }

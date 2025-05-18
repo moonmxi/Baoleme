@@ -1,6 +1,7 @@
 package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -22,6 +23,7 @@ public interface RiderMapper extends BaseMapper<Rider> {
 
     /**
      * 根据手机号查找骑手
+     *
      * @param phone 手机号
      * @return Rider 对象或 null
      */
@@ -36,4 +38,7 @@ public interface RiderMapper extends BaseMapper<Rider> {
         LIMIT #{offset}, #{limit}
     """)
     List<Rider> selectRidersPaged(@Param("offset") int offset, @Param("limit") int limit);
+
+    @Delete("DELETE FROM rider WHERE username = #{username}")
+    int deleteByUsername(@Param("username") String username);
 }

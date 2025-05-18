@@ -1,6 +1,7 @@
 package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Param;
@@ -24,12 +25,15 @@ public interface UserMapper extends BaseMapper<User> {
     User selectById(Long id);
 
     @Select("""
-        SELECT id, username, phone, avatar, created_at
-        FROM user
-        ORDER BY created_at DESC
-        LIMIT #{offset}, #{limit}
-    """)
+                SELECT id, username, phone, avatar, created_at
+                FROM user
+                ORDER BY created_at DESC
+                LIMIT #{offset}, #{limit}
+            """)
     List<User> selectUsersPaged(@Param("offset") int offset,
                                 @Param("limit") int limit);
+
+    @Delete("DELETE FROM user WHERE username = #{username}")
+    int deleteByUsername(@Param("username") String username);
 
 }

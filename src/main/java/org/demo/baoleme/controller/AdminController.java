@@ -289,4 +289,67 @@ public class AdminController {
 
         return ResponseBuilder.ok(Map.of("orders", responses));
     }
+
+    @PostMapping("/reviewlist")
+    public CommonResponse getReviewList(@Valid @RequestBody AdminReviewQueryRequest request) {
+        String role = UserHolder.getRole();
+        if (!"admin".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+
+        int page = request.getPage();
+        int pageSize = request.getPageSize();
+
+        List<Review> reviews = adminService.getReviewsByCondition(
+                request.getUserId(),
+                request.getStoreId(),
+                request.getProductId(),
+                request.getStartTime(),
+                request.getEndTime(),
+                page,
+                pageSize,
+                request.getStartRating(),
+                request.getEndRating()
+        );
+
+        List<AdminReviewQueryResponse> responses = reviews.stream().map(review -> {
+            AdminReviewQueryResponse resp = new AdminReviewQueryResponse();
+            resp.setId(review.getId());
+            resp.setUserId(review.getUserId());
+            resp.setStoreId(review.getStoreId());
+            resp.setProductId(review.getProductId());
+            resp.setRating(review.getRating());
+            resp.setComment(review.getComment());
+            resp.setCreatedAt(review.getCreatedAt());
+            return resp;
+        }).toList();
+
+        return ResponseBuilder.ok(Map.of("reviews", responses));
+    }
+
+    @PostMapping("/search")
+    public CommonResponse searchStoreAndProduct(@Valid @RequestBody AdminSearchRequest request) {
+        String role = UserHolder.getRole();
+        if (!"admin".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+
+        String keyword = request.getKeyWord();
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return ResponseBuilder.fail("关键词不能为空");
+        }
+
+        List<Map<String, Object>> raw = adminService.searchStoreAndProductByKeyword(keyword.trim());
+
+        List<AdminSearchResponse> responses = raw.stream().map(item -> {
+            AdminSearchResponse resp = new AdminSearchResponse();
+            resp.setStoreId((Long) item.get("store_id"));
+            resp.setStoreName((String) item.get("store_name"));
+            resp.setProducts((Map<String, Long>) item.get("products"));
+            return resp;
+        }).toList();
+
+        return ResponseBuilder.ok(Map.of("results", responses));
+    }
+
 }

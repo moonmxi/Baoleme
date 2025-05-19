@@ -27,7 +27,7 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("""
                 SELECT id, username, phone, avatar, created_at
                 FROM user
-                ORDER BY created_at DESC
+                ORDER BY id DESC
                 LIMIT #{offset}, #{limit}
             """)
     List<User> selectUsersPaged(@Param("offset") int offset,

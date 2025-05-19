@@ -36,7 +36,7 @@ public interface MerchantMapper extends BaseMapper<Merchant> {
     @Select("""
         SELECT id, username, phone, avatar, created_at
                 FROM merchant
-                ORDER BY created_at DESC
+                ORDER BY id DESC
                 LIMIT #{offset}, #{limit};
     """)
     List<Merchant> selectMerchantsPaged(@Param("offset") int offset,

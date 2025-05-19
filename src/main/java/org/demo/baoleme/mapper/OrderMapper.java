@@ -90,7 +90,7 @@ public interface OrderMapper extends BaseMapper<Order> {
       AND (#{status} IS NULL OR status = #{status})
       AND (#{createdAt} IS NULL OR created_at >= #{createdAt})
       AND (#{endedAt} IS NULL OR ended_at <= #{endedAt})
-    ORDER BY created_at DESC
+    ORDER BY id DESC
     LIMIT #{offset}, #{limit}
 """)
     List<Order> selectOrdersPaged(@Param("userId") Long userId,

@@ -2,8 +2,10 @@ package org.demo.baoleme.service;
 
 import org.demo.baoleme.pojo.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface AdminService {
 
@@ -52,5 +54,12 @@ public interface AdminService {
      */
     List<Review> getReviewsByCondition(Long userId, Long storeId, Long productId,
                                        LocalDateTime startTime, LocalDateTime endTime,
-                                       int page, int pageSize);
+                                       int page, int pageSize, BigDecimal startSating, BigDecimal endSating);
+
+    /**
+     * 根据关键词搜索店铺与商品信息
+     */
+    List<Map<String, Object>> searchStoreAndProductByKeyword(String keyword);
+
+
 }

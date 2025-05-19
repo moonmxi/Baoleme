@@ -34,7 +34,7 @@ public interface RiderMapper extends BaseMapper<Rider> {
     @Select("""
         SELECT id, username, phone, order_status, dispatch_mode, balance,  avatar, created_at
         FROM rider
-        ORDER BY created_at DESC
+        ORDER BY id DESC
         LIMIT #{offset}, #{limit}
     """)
     List<Rider> selectRidersPaged(@Param("offset") int offset, @Param("limit") int limit);

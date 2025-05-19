@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.demo.baoleme.pojo.Review;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +20,8 @@ public interface ReviewMapper {
           AND (#{productId} IS NULL OR product_id = #{productId})
           AND (#{startTime} IS NULL OR created_at >= #{startTime})
           AND (#{endTime} IS NULL OR created_at <= #{endTime})
+          AND (#{startRating} IS NULL OR rating >= #{startRating})
+          AND (#{endRating} IS NULL OR rating <= #{endRating})
         ORDER BY created_at DESC
         LIMIT #{offset}, #{limit}
     """)
@@ -28,6 +31,8 @@ public interface ReviewMapper {
                                     @Param("startTime") LocalDateTime startTime,
                                     @Param("endTime") LocalDateTime endTime,
                                     @Param("offset") int offset,
-                                    @Param("limit") int limit);
+                                    @Param("limit") int limit,
+                                          @Param("startRating") BigDecimal startRating,
+                                    @Param("endRating") BigDecimal endRating);
 
 }

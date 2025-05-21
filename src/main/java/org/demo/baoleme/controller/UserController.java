@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.List;
 
@@ -123,23 +124,25 @@ public class UserController {
         return ResponseBuilder.ok(orders);
     }
 
-    @PostMapping("/favorite/store")
+    @PostMapping("/favorite")
     public CommonResponse favoriteStore(@Valid @RequestBody UserFavoriteRequest request) {
         Long userId = UserHolder.getId();
         boolean success = userService.favoriteStore(userId, request.getStoreId());
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("收藏失败");
     }
 
-    @GetMapping("/favorite/watch/store")
+    @GetMapping("/favorite/watch")
     public CommonResponse getFavoriteStores() {
         Long userId = UserHolder.getId();
+
         List<UserFavoriteResponse> stores = userService.getFavoriteStores(userId);
         return ResponseBuilder.ok(stores);
     }
 
-    @GetMapping("/coupons")
+    @GetMapping("/coupon")
     public CommonResponse getUserCoupons() {
         Long userId = UserHolder.getId();
+
         List<UserCouponResponse> coupons = userService.getUserCoupons(userId);
         return ResponseBuilder.ok(coupons);
     }
@@ -147,7 +150,7 @@ public class UserController {
     @PostMapping("/coupon/claim")
     public CommonResponse claimCoupon(@Valid @RequestBody UserClaimCouponRequest request) {
         Long userId = UserHolder.getId();
-        boolean success = userService.claimCoupon(userId, request.getCouponId());
+        boolean success = userService.claimCoupon(userId, request.getType());
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("领取失败");
     }
 
@@ -158,15 +161,27 @@ public class UserController {
         return ResponseBuilder.ok(response);
     }
 
-    @GetMapping("/search")
-    public CommonResponse search(@RequestParam String keyword,
-                                 @RequestParam(defaultValue = "1") int page,
-                                 @RequestParam(defaultValue = "10") int size) {
-        UserSearchResponse response = userService.search(keyword, page, size);
-        return ResponseBuilder.ok(response);
+    @PostMapping("/search")
+    public CommonResponse searchStoreAndProduct(@Valid @RequestBody UserSearchRequest request) {
+        String keyword = request.getKeyWord();
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return ResponseBuilder.fail("关键词不能为空");
+        }
+
+        List<Map<String, Object>> raw = userService.searchStoreAndProductByKeyword(keyword.trim());
+
+        List<UserSearchResponse> responses = raw.stream().map(item -> {
+            UserSearchResponse resp = new UserSearchResponse();
+            resp.setStoreId((Long) item.get("store_id"));
+            resp.setStoreName((String) item.get("store_name"));
+            resp.setProducts((Map<String, Long>) item.get("products"));
+            return resp;
+        }).toList();
+
+        return ResponseBuilder.ok(Map.of("results", responses));
     }
 
-    @GetMapping("/shops")
+    @GetMapping("/stores")
     public CommonResponse getShops(@RequestParam(required = false) String type,
                                    @RequestParam(defaultValue = "1") int page,
                                    @RequestParam(defaultValue = "10") int size) {

@@ -10,7 +10,7 @@ import lombok.Data;
  * 管理员实体类，仅包含 id 和 password
  */
 @Data
-@TableName("administrator")
+@TableName("admin")
 public class Admin {
 
     @TableId(type = IdType.ASSIGN_ID)

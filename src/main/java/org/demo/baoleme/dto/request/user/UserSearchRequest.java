@@ -3,7 +3,5 @@ import lombok.Data;
 
 @Data
 public class UserSearchRequest {
-    private String keyword;
-    private int page;
-    private int size;
+    private String keyWord;
 }

@@ -6,6 +6,7 @@ import org.demo.baoleme.dto.request.user.UserReviewRequest;
 import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户业务接口
@@ -81,10 +82,10 @@ public interface UserService {
     /**
      * 领取优惠券
      * @param userId 用户ID
-     * @param couponId 优惠券ID
+     * @param type 优惠券
      * @return 是否成功
      */
-    boolean claimCoupon(Long userId, Long couponId);
+    boolean claimCoupon(Long userId, Integer type);
 
     /**
      * 获取当前订单
@@ -96,11 +97,9 @@ public interface UserService {
     /**
      * 全局搜索
      * @param keyword 关键词
-     * @param page 页码
-     * @param size 每页大小
      * @return 搜索结果
      */
-    UserSearchResponse search(String keyword, int page, int size);
+    List<Map<String, Object>> searchStoreAndProductByKeyword(String keyword);
 
     /**
      * 获取商家列表
@@ -135,5 +134,4 @@ public interface UserService {
      */
     UserCreateOrderResponse placeOrder(Long userId, UserCreateOrderRequest request);
 
-    UserCreateOrderResponse placeOrder(Long userId, UserCreateOrderResponse request);
 }

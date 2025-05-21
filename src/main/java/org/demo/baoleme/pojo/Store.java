@@ -39,4 +39,5 @@ public class Store {
     private LocalDateTime createdAt;
 
     private String image;
+
 }

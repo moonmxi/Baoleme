@@ -8,4 +8,6 @@ public class UserReviewRequest {
     private int rating;
     private String comment;
     private StringArraySerializer images;
+    private String storeName;
+    private String productName;
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@TableName("cart_item")
+@TableName("cart")
 public class CartItem {
     private Long id;
     private Long userId;
@@ -14,4 +14,5 @@ public class CartItem {
     private Integer quantity;
     private Date createTime;
     private Date updateTime;
+    private String imageUrl;
 }

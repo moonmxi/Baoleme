@@ -1,11 +1,10 @@
 package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.*;
+import org.demo.baoleme.dto.response.user.UserCurrentOrderResponse;
+import org.demo.baoleme.dto.response.user.UserOrderHistoryResponse;
 import org.demo.baoleme.pojo.Order;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 import java.util.Map;
@@ -81,4 +80,56 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Select("SELECT * FROM `order` WHERE id = #{orderId}")
     Order selectById(@Param("orderId") Long orderId);
 
+    @Select("""
+    SELECT oi.product_id, p.name AS product_name, o.created_at AS create_time
+    FROM order_item oi
+    JOIN product p ON oi.product_id = p.id
+    JOIN `order` o ON oi.order_id = o.id
+    WHERE o.user_id = #{userId} AND o.status = 3 -- 假设 3 是 completed
+    ORDER BY o.created_at DESC
+""")
+    List<UserOrderHistoryResponse> selectOrderHistoryByUserId(Long userId);
+
+    @Select("""
+    SELECT oi.product_id, p.name AS product_name, o.created_at AS create_time
+    FROM order_item oi
+    JOIN product p ON oi.product_id = p.id
+    JOIN `order` o ON oi.order_id = o.id
+    WHERE o.user_id = #{userId} AND o.status IN (0, 1)
+    ORDER BY o.created_at DESC
+""")
+    List<UserCurrentOrderResponse.OrderItem> selectCurrentOrdersByUserId(Long userId);
+
+    @Select("""
+    SELECT MAX(DATE_ADD(o.created_at, INTERVAL 30 MINUTE)) AS predict_time
+    FROM `order` o
+    WHERE o.user_id = #{userId} AND o.status IN (0, 1)
+""")
+    String selectPredictTimeByUserId(Long userId);
+
+    @Select("SELECT COUNT(*) > 0 FROM `order` WHERE user_id = #{userId} AND id = #{orderId}")
+    boolean existsUserOrder(Long userId, Long orderId);
+    @Select("SELECT COUNT(*) > 0 FROM review WHERE user_id = #{userId} AND store_id = #{storeId}")
+    boolean existsReview(Long userId, Long orderId);
+
+    @Insert("""
+    INSERT INTO review(user_id, store_id, product_id, rating, comment)
+    VALUES (
+        #{userId},
+        (SELECT id FROM store WHERE name = #{storeName}),
+        CASE 
+            WHEN #{productName} IS NOT NULL 
+            THEN (SELECT id FROM product WHERE name = #{productName} AND store_id = (SELECT id FROM store WHERE name = #{storeName}))
+            ELSE NULL
+        END,
+        #{rating},
+        #{comment}
+    )
+""")
+    int insertReviewByNames(@Param("userId") Long userId,
+                            @Param("orderId") Long orderId,
+                            @Param("storeName") String storeName,
+                            @Param("productName") String productName,
+                            @Param("rating") Integer rating,
+                            @Param("comment") String comment);
 }

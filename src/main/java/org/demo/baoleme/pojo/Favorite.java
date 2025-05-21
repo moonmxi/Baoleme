@@ -3,9 +3,10 @@ package org.demo.baoleme.pojo;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
-
-@TableName("favorite_stores")  // 指定数据库表名
-public class FavoriteStore {
+import lombok.Data;
+@Data
+@TableName("favorite")  // 指定数据库表名
+public class Favorite {
     @TableId(type = IdType.AUTO)  // 主键自增
     private Long id;
 

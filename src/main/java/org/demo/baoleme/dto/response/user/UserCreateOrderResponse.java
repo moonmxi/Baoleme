@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -15,10 +17,15 @@ public class UserCreateOrderResponse {
     private Long addressId;
     private Long couponId;
     private String remark;
-    private Double totalPrice;
+    private BigDecimal totalPrice;
     private String status;
     private String payUrl;
     private List<OrderItem> items;
+    private LocalDateTime createdAt;
+
+    public void setCreateTime(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     @Data
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

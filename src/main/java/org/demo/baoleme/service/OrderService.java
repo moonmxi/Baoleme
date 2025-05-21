@@ -1,6 +1,9 @@
 package org.demo.baoleme.service;
 
+import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
+import org.demo.baoleme.dto.response.user.UserCreateOrderResponse;
 import org.demo.baoleme.pojo.Order;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -41,4 +44,11 @@ public interface OrderService {
      * 查询单个订单
      */
     Order getOrderById(Long orderId);
+
+
+
+    @Transactional
+    UserCreateOrderResponse createOrder(Long userId, UserCreateOrderRequest request);
+
+
 }

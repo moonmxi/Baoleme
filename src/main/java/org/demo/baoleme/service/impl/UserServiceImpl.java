@@ -1,17 +1,23 @@
 package org.demo.baoleme.service.impl;
 
+import ch.qos.logback.classic.Logger;
 import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
 import org.demo.baoleme.dto.request.user.UserReviewRequest;
 import org.demo.baoleme.dto.response.user.*;
-import org.demo.baoleme.mapper.UserMapper;
-import org.demo.baoleme.pojo.User;
+import org.demo.baoleme.mapper.*;
+import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -19,11 +25,24 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private StoreMapper storeMapper;
+
+    @Autowired
+    private ProductMapper productMapper;
+
+    @Autowired
+    private CouponMapper couponMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
+
+    private Logger log;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    // 用户核心功能保持不变
     @Override
     public User register(User user) {
-        // 基本字段不能为空
         if (!StringUtils.hasText(user.getUsername())) {
             System.out.println("注册失败：用户名为空");
             return null;
@@ -37,21 +56,17 @@ public class UserServiceImpl implements UserService {
             return null;
         }
 
-        // 校验用户名是否已存在
         if (userMapper.selectByUsername(user.getUsername()) != null) {
             System.out.println("注册失败：用户名已存在");
             return null;
         }
 
-        // 校验手机号是否已存在
         if (userMapper.selectByPhone(user.getPhone()) != null) {
             System.out.println("注册失败：手机号已注册");
             return null;
         }
 
-        // 初始化字段
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
         boolean inserted = userMapper.insert(user) > 0;
         return inserted ? user : null;
     }
@@ -81,11 +96,9 @@ public class UserServiceImpl implements UserService {
     public boolean updateInfo(User user) {
         if (user == null || user.getId() == null) return false;
 
-        // 查询当前用户数据
         User existing = userMapper.selectById(user.getId());
         if (existing == null) return false;
 
-        // 检查并更新用户名（确保唯一）
         if (StringUtils.hasText(user.getUsername())) {
             User byUsername = userMapper.selectByUsername(user.getUsername());
             if (byUsername != null && !byUsername.getId().equals(user.getId())) {
@@ -94,13 +107,9 @@ public class UserServiceImpl implements UserService {
             }
             existing.setUsername(user.getUsername());
         }
-
-        // 检查并更新密码（加密后保存）
         if (StringUtils.hasText(user.getPassword())) {
             existing.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-
-        // 检查并更新手机号（确保唯一）
         if (StringUtils.hasText(user.getPhone())) {
             User byPhone = userMapper.selectByPhone(user.getPhone());
             if (byPhone != null && !byPhone.getId().equals(user.getId())) {
@@ -109,39 +118,24 @@ public class UserServiceImpl implements UserService {
             }
             existing.setPhone(user.getPhone());
         }
-
-        // 更新性别
         if (StringUtils.hasText(user.getGender())) {
             existing.setGender(user.getGender());
         }
-
-        // 更新头像
         if (StringUtils.hasText(user.getAvatar())) {
             existing.setAvatar(user.getAvatar());
         }
 
-        // 执行更新操作
         return userMapper.updateById(existing) > 0;
     }
 
-
     @Override
     public boolean cancelAccount(Long userId) {
-        // 软删除，设置状态为0表示已注销
-        User user = userMapper.selectById(userId);
-        if (user == null) return false;
-
-        return userMapper.updateById(user) > 0;
+        return false;
     }
 
-    @Override
-    public List<UserOrderHistoryResponse> getOrderHistory(Long userId) {
-        return userMapper.selectOrderHistoryByUserId(userId);
-    }
-
+    // 收藏功能保持不变
     @Override
     public boolean favoriteStore(Long userId, Long storeId) {
-        // 检查是否已收藏
         if (userMapper.existsFavorite(userId, storeId)) {
             System.out.println("收藏失败：已收藏该店铺");
             return false;
@@ -154,37 +148,104 @@ public class UserServiceImpl implements UserService {
         return userMapper.selectFavoriteStoresByUserId(userId);
     }
 
+    // 优惠券功能转移到CouponMapper
     @Override
     public List<UserCouponResponse> getUserCoupons(Long userId) {
-        return userMapper.selectUserCouponsByUserId(userId);
+        return couponMapper.selectUserCouponsByUserId(userId);
     }
 
     @Override
-    public boolean claimCoupon(Long userId, Long couponId) {
-        // 检查是否已领取
-        if (userMapper.existsUserCoupon(userId, couponId)) {
-            System.out.println("领取失败：已领取该优惠券");
+    public boolean claimCoupon(Long userId, Integer type) {
+        // 验证type是否为有效值(1或2)
+        if (type != 1 && type != 2) {
+            System.out.println("领取失败：无效的优惠券类型");
             return false;
         }
-        return userMapper.insertUserCoupon(userId, couponId) > 0;
+
+        // 从数据库中获取一张指定类型且未分配用户的优惠券
+        Coupon availableCoupon = couponMapper.selectAvailableCouponByType(type);
+        if (availableCoupon == null) {
+            System.out.println("领取失败：该类型优惠券已领完或不存在");
+            return false;
+        }
+
+        // 检查用户是否已经领取过这张优惠券(如果需要)
+        if (couponMapper.existsUserCoupon(userId, availableCoupon.getId())) {
+            System.out.println("领取失败：用户已领取过该优惠券");
+            return false;
+        }
+
+        // 更新优惠券的用户ID
+        Coupon updateCoupon = new Coupon();
+        updateCoupon.setId(availableCoupon.getId());
+        updateCoupon.setUserId(userId);
+
+        int result = couponMapper.updateUserCoupon(availableCoupon.getId(), userId);
+        if (result <= 0) {
+            System.out.println("领取失败：更新优惠券用户ID失败");
+            return false;
+        }
+
+        System.out.println("优惠券领取成功");
+        return true;
+    }
+
+    // 订单功能转移到OrderMapper
+    @Override
+    public List<UserOrderHistoryResponse> getOrderHistory(Long userId) {
+        return orderMapper.selectOrderHistoryByUserId(userId);
     }
 
     @Override
     public UserCurrentOrderResponse getCurrentOrders(Long userId) {
         UserCurrentOrderResponse response = new UserCurrentOrderResponse();
-        response.setData(userMapper.selectCurrentOrdersByUserId(userId));
-        response.setPredictTime(userMapper.selectPredictTimeByUserId(userId));
+        response.setData(orderMapper.selectCurrentOrdersByUserId(userId));
+        response.setPredictTime(orderMapper.selectPredictTimeByUserId(userId));
         return response;
     }
 
     @Override
-    public UserSearchResponse search(String keyword, int page, int size) {
-        UserSearchResponse response = new UserSearchResponse();
-        response.setProducts(userMapper.searchProducts(keyword, page, size));
-        response.setShops(userMapper.searchShops(keyword, page, size));
-        response.setTotal(userMapper.countSearchResults(keyword));
-        return response;
+    public List<Map<String, Object>> searchStoreAndProductByKeyword(String keyword) {
+        List<Map<String, Object>> stores = storeMapper.searchStoresByKeyword(keyword);
+        List<Map<String, Object>> products = storeMapper.searchProductsByKeyword(keyword);
+
+        Map<Long, Map<String, Object>> resultMap = new LinkedHashMap<>();
+
+        // 添加店铺
+        for (Map<String, Object> store : stores) {
+            Long storeId = ((Number) store.get("id")).longValue();
+            String storeName = (String) store.get("name");
+
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("store_id", storeId);
+            entry.put("store_name", storeName);
+            entry.put("products", new LinkedHashMap<String, Long>());
+
+            resultMap.put(storeId, entry);
+        }
+
+        // 添加商品
+        for (Map<String, Object> product : products) {
+            Long storeId = ((Number) product.get("store_id")).longValue();
+            String storeName = (String) product.get("store_name");
+            String productName = (String) product.get("product_name");
+            Long productId = ((Number) product.get("product_id")).longValue();
+
+            if (!resultMap.containsKey(storeId)) {
+                Map<String, Object> entry = new LinkedHashMap<>();
+                entry.put("store_id", storeId);
+                entry.put("store_name", storeName);
+                entry.put("products", new LinkedHashMap<String, Long>());
+                resultMap.put(storeId, entry);
+            }
+
+            Map<String, Long> productMap = (Map<String, Long>) resultMap.get(storeId).get("products");
+            productMap.put(productName, productId);
+        }
+
+        return new ArrayList<>(resultMap.values());
     }
+
 
     @Override
     public UserGetShopResponse getShops(String type, int page, int size) {
@@ -201,54 +262,57 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
+    // 评价功能转移到OrderMapper
     @Override
     public boolean submitReview(Long userId, UserReviewRequest request) {
-        // 检查订单是否属于该用户
-        if (!userMapper.existsUserOrder(userId, request.getOrderId())) {
-            System.out.println("评价失败：订单不属于该用户");
-            return false;
-        }
-        // 检查是否已评价
-        if (userMapper.existsReview(userId, request.getOrderId())) {
-            System.out.println("评价失败：已评价过该订单");
-            return false;
-        }
-        return userMapper.insertReview(userId, request.getOrderId(),
-                request.getRating(), request.getComment()) > 0;
+        return orderMapper.insertReviewByNames(
+                userId,
+                request.getOrderId(),
+                request.getStoreName(),
+                request.getProductName(),
+                request.getRating(),
+                request.getComment()
+        ) > 0;
     }
 
+    // 下单功能
     @Override
     public UserCreateOrderResponse placeOrder(Long userId, UserCreateOrderRequest request) {
-        return null;
-    }
-
-    @Override
-    public UserCreateOrderResponse placeOrder(Long userId, UserCreateOrderResponse request) {
-        // 1. 验证店铺和商品是否存在
         if (!userMapper.existsShop(request.getStoreId())) {
             System.out.println("下单失败：店铺不存在");
             return null;
         }
 
-        for (UserCreateOrderResponse.OrderItem item : request.getItems()) {
-            if (!userMapper.existsProduct(item.getProductId())) {
-                System.out.println("下单失败：商品不存在");
+        // 检查商品是否存在
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            System.out.println("下单失败：订单项不能为空");
+            return null;
+        }
+
+        for (OrderItem item : request.getItems()) {
+            if (item.getProductId() == null || !userMapper.existsProduct(item.getProductId())) {
+                System.out.println("下单失败：商品不存在或未指定");
+                return null;
+            }
+            if (item.getQuantity() == null || item.getQuantity() <= 0) {
+                System.out.println("下单失败：商品数量无效");
+                return null;
+            }
+            if (item.getPrice() == null || item.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                System.out.println("下单失败：商品价格无效");
                 return null;
             }
         }
 
-        // 2. 验证优惠券是否可用
         if (request.getCouponId() != null &&
-                !userMapper.isCouponValid(userId, request.getCouponId())) {
+                !couponMapper.isCouponValid(userId, request.getCouponId())) {
             System.out.println("下单失败：优惠券不可用");
             return null;
         }
 
-        // 3. 创建订单
+        // 实际订单创建逻辑应放在OrderService中
         UserCreateOrderResponse response = new UserCreateOrderResponse();
-        // 这里应该实现完整的订单创建逻辑
-        // 包括计算总价、生成订单号、设置支付URL等
-
+        // 订单创建逻辑...
         return response;
     }
 }

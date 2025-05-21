@@ -3,5 +3,7 @@ import lombok.Data;
 
 @Data
 public class UserClaimCouponRequest {
-    private Long couponId;
+    private Integer type;
+
+
 }

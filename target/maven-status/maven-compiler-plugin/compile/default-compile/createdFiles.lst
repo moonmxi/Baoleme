@@ -1,0 +1,14 @@
+org/demo/baoleme/pojo/Rider.class
+org/demo/baoleme/dto/response/RiderLoginResponse.class
+org/demo/baoleme/dto/request/RiderUpdateRequest.class
+org/demo/baoleme/dto/response/RiderRegisterResponse.class
+org/demo/baoleme/dto/request/RiderDispatchModeRequest.class
+org/demo/baoleme/service/RiderService.class
+org/demo/baoleme/controller/RiderController.class
+org/demo/baoleme/mapper/RiderMapper.class
+org/demo/baoleme/service/impl/RiderServiceImpl.class
+org/demo/baoleme/BaolemeApplication.class
+org/demo/baoleme/dto/response/RiderDispatchModeResponse.class
+org/demo/baoleme/dto/request/RiderLoginRequest.class
+org/demo/baoleme/dto/response/RiderInfoResponse.class
+org/demo/baoleme/dto/request/RiderRegisterRequest.class

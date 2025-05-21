@@ -7,6 +7,11 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 数据库约束
+ * not null: id,username,password,phone
+ * unique: id,username
+ */
 @Data
 @TableName("merchant")
 public class Merchant {

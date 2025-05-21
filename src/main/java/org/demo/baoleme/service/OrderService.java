@@ -1,6 +1,9 @@
 package org.demo.baoleme.service;
 
+import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
+import org.demo.baoleme.dto.response.user.UserCreateOrderResponse;
 import org.demo.baoleme.pojo.Order;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,4 +45,14 @@ public interface OrderService {
      * 查询单个订单
      */
     Order getOrderById(Long orderId);
+
+    @Transactional
+    UserCreateOrderResponse createOrder(Long userId, UserCreateOrderRequest request);
+
+    List<Order> getOrderByStoreId(Long storeId);
+
+    List<Order> getOrdersByMerchant(Long storeId, Integer status, int page, int pageSize);
+
+    boolean updateOrderByMerchant(Long orderId, Long storeId, Integer newStatus);
+
 }

@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS user (
                                     id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                     username VARCHAR(50) NOT NULL UNIQUE,
                                     password VARCHAR(100) NOT NULL,
+                                    description VARCHAR(100),
+                                    location VARCHAR(100),
+                                    gender varchar(2),
                                     phone VARCHAR(20),
                                     avatar VARCHAR(50),
                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -47,7 +50,6 @@ CREATE TABLE IF NOT EXISTS store (
                                      description VARCHAR(50),
                                      location VARCHAR(100),
                                      rating DECIMAL(2,1) DEFAULT 5.0,
-                                     balance DECIMAL(10,2) DEFAULT 0.0,
                                      status TINYINT DEFAULT 1,
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                      image VARCHAR(50),
@@ -97,7 +99,11 @@ CREATE TABLE IF NOT EXISTS `order` (
                                        store_id BIGINT NOT NULL,
                                        rider_id BIGINT,
                                        status INT DEFAULT 0,
+                                       user_location VARCHAR(100),
+                                       store_location VARCHAR(100),
                                        total_price DECIMAL(10,2),
+                                       actual_price DECIMAL(10,2),
+                                       delivery_price  DECIMAL(10,2),
                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                        deadline TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                        ended_at TIMESTAMP NULL,
@@ -128,8 +134,6 @@ CREATE TABLE IF NOT EXISTS order_item (
                                           order_id BIGINT NOT NULL,
                                           product_id BIGINT NOT NULL,
                                           quantity INT NOT NULL DEFAULT 1,
-                                          delivery_price DECIMAL(10,2) NOT NULL,
-                                          price DECIMAL(10,2) NOT NULL,
                                           FOREIGN KEY (order_id) REFERENCES `order`(id),
                                           FOREIGN KEY (product_id) REFERENCES product(id)
 ) AUTO_INCREMENT=90000001;
@@ -141,7 +145,8 @@ CREATE TABLE IF NOT EXISTS review (
                                       store_id BIGINT,
                                       product_id BIGINT,
                                       rating INT NOT NULL,
-                                      comment TEXT,
+                                      comment varchar(300),
+                                      image  VARCHAR(50),
                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                       FOREIGN KEY (user_id) REFERENCES user(id),
                                       FOREIGN KEY (store_id) REFERENCES store(id),
@@ -162,16 +167,15 @@ CREATE TABLE IF NOT EXISTS cart (
 -- 十二、优惠券表 coupon
 CREATE TABLE IF NOT EXISTS coupon (
                                       id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                      code VARCHAR(50) NOT NULL UNIQUE,
-                                      description VARCHAR(50) NOT NULL,
+                                      user_id BIGINT NOT NULL,
+                                      store_id BIGINT NOT NULL,
+                                      type int NOT NULL,
                                       discount DECIMAL(5,2) NOT NULL,
-                                      expiration_date DATE,
+                                      expiration_date DATETIME,
                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                      start_at TIMESTAMP,
-                                      end_at TIMESTAMP,
-                                      type VARCHAR(20) NOT NULL COMMENT '优惠类型: DISCOUNT-折扣, FULL_REDUCE-满减',
-                                      full_amount int,
-                                      reduce_amount int
+                                      is_used BOOLEAN DEFAULT FALSE,
+                                      full_amount DECIMAL(10, 2),
+                                      reduce_amount DECIMAL(10, 2)
 ) AUTO_INCREMENT=110000001;
 
 -- 十三、消息表 message
@@ -179,72 +183,102 @@ CREATE TABLE IF NOT EXISTS message(
                                       id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                       content VARCHAR(300) NOT NULL,
                                       sender_id BIGINT NOT NULL,
-                                      receive_id BIGINT NOT NULL,
+                                      receiver_id BIGINT NOT NULL,
+                                      sender_role VARCHAR(10) NOT NULL,
+                                      receiver_role VARCHAR(10) NOT NULL,
                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                       FOREIGN KEY (sender_id) REFERENCES user(id),
-                                      FOREIGN KEY (receive_id) REFERENCES user(id)
+                                      FOREIGN KEY (receiver_id) REFERENCES user(id)
 ) AUTO_INCREMENT=120000001;
 
 -- 十四、收藏夹表 favorite
 CREATE TABLE IF NOT EXISTS favorite (
                                         user_id BIGINT NOT NULL,
                                         product_id BIGINT,
-                                        shop_id BIGINT,
+                                        store_id BIGINT,
                                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 一、用户表 user 三条插入语句
+INSERT INTO user (username, password, description, location, gender, phone, avatar) VALUES
+                                                                                        ('alice', 'pwd123456', '热爱美食的学生', '天津', '女', '13800001111', 'avatar1.jpg'),
+                                                                                        ('bob', 'pwd234567', '程序员', '北京', '男', '13900002222', 'avatar2.jpg'),
+                                                                                        ('charlie', 'pwd345678', '爱运动的大学生', '上海', '男', '13700003333', 'avatar3.jpg');
 
--- 插入用户
-INSERT INTO user (id, username, password, phone) VALUES
-                                                     (10000001, 'user01', '123456', '13800000001'),
-                                                     (10000002, 'user02', '123456', '13800000002');
+-- 二、商家表 merchant 三条插入语句
+INSERT INTO merchant (username, password, phone, avatar) VALUES
+                                                             ('foodking', 'mkpass123', '13100004444', 'merchant1.png'),
+                                                             ('tastyhouse', 'mkpass234', '13200005555', 'merchant2.png'),
+                                                             ('quickbites', 'mkpass345', '13300006666', 'merchant3.png');
 
--- 插入商家
-INSERT INTO merchant (id, username, password, phone) VALUES
-                                                         (20000001, 'merchant01', '123456', '13900000001'),
-                                                         (20000002, 'merchant02', '123456', '13900000002');
+-- 三、骑手表 rider 三条插入语句
+INSERT INTO rider (username, password, order_status, dispatch_mode, phone, balance, avatar) VALUES
+                                                                                                ('rider01', 'rdpass123', 1, 1, '15000001111', 1000, 'rider1.jpg'),
+                                                                                                ('rider02', 'rdpass234', 1, 2, '15000002222', 500, 'rider2.jpg'),
+                                                                                                ('rider03', 'rdpass345', 0, 1, '15000003333', 300, 'rider3.jpg');
 
--- 插入骑手
-INSERT INTO rider (id, username, password, phone, order_status, dispatch_mode, balance) VALUES
-                                                                                            (30000001, 'rider01', '123456', '19900000001', 1, 1, 100),
-                                                                                            (30000002, 'rider02', '123456', '19900000002', 1, 0, 200);
+-- 四、管理员表 admin 三条插入语句
+INSERT INTO admin (password) VALUES
+                                 ('adminpass123'),
+                                 ('adminpass234'),
+                                 ('adminpass345');
 
--- 插入店铺
-INSERT INTO store (id, merchant_id, name, description,  location) VALUES
-                                                              (40000001, 20000001, 'store01', '快餐', '北京'),
-                                                              (40000002, 20000002, 'store02', '饮品', '上海');
+-- 五、店铺表 store 三条插入语句
+INSERT INTO store (merchant_id, name, description, location, rating, status, image) VALUES
+                                                                                        (20000001, '美味炸鸡', '校园内最好吃的炸鸡店', '天津校园内A区', 4.8, 1, 'store1.jpg'),
+                                                                                        (20000002, '健康沙拉', '新鲜健康，绿色食品', '天津校园内B区', 4.5, 1, 'store2.jpg'),
+                                                                                        (20000003, '快餐小馆', '快捷实惠，味道不错', '天津校园内C区', 4.0, 1, 'store3.jpg');
 
--- 插入商品
-INSERT INTO product (id, store_id, name, description, price, category) VALUES
-                                                                           (60000001, 40000001, '汉堡', '美味汉堡', 20.00, '食品'),
-                                                                           (60000002, 40000002, '奶茶', '香浓奶茶', 15.00, '饮品');
+-- 六、商品表 product 三条插入语句
+INSERT INTO product (store_id, name, description, price, category, stock, rating, status, image) VALUES
+                                                                                                     (50000001, '炸鸡翅', '香辣可口炸鸡翅', 15.00, '炸鸡', 100, 4.7, 1, 'prod1.jpg'),
+                                                                                                     (50000001, '薯条', '黄金脆薯条', 8.00, '小吃', 200, 4.3, 1, 'prod2.jpg'),
+                                                                                                     (50000002, '凯撒沙拉', '新鲜蔬菜搭配特制酱汁', 20.00, '沙拉', 50, 4.6, 1, 'prod3.jpg');
 
--- 插入订单
-INSERT INTO `order` (id, user_id, store_id, rider_id, status, total_price, created_at, deadline) VALUES
-                                                                                                     (70000001, 10000001, 40000001, 30000001, 2, 35.00, NOW(), DATE_ADD(NOW(), INTERVAL 45 MINUTE)),
-                                                                                                     (70000002, 10000002, 40000002, 30000002, 1, 25.00, NOW(), DATE_ADD(NOW(), INTERVAL 45 MINUTE));
+-- 七、销量表 sales 三条插入语句
+INSERT INTO sales (product_id, store_id, sale_date, quantity, unit_price, payment_method, customer_id) VALUES
+                                                                                                           (60000001, 50000001, '2025-05-20', 2, 15.00, '微信支付', 10000001),
+                                                                                                           (60000002, 50000001, '2025-05-20', 1, 8.00, '支付宝', 10000002),
+                                                                                                           (60000003, 50000002, '2025-05-19', 3, 20.00, '现金', 10000003);
 
--- 插入订单明细
-INSERT INTO order_item (id, order_id, product_id, quantity, delivery_price, price) VALUES
-                                                                                       (80000001, 70000001, 60000001, 2, 5.00, 20.00),
-                                                                                       (80000002, 70000002, 60000002, 1, 5.00, 15.00);
+-- 八、订单表 order 三条插入语句
+INSERT INTO `order` (user_id, store_id, rider_id, status, user_location, store_location, total_price, actual_price, delivery_price, ended_at) VALUES
+                                                                                                                                                  (10000001, 50000001, 30000001, 2, '天津校园A宿舍楼', '天津校园内A区', 38.00, 35.00, 3.00, NULL),
+                                                                                                                                                  (10000002, 50000002, 30000002, 1, '天津校园B宿舍楼', '天津校园内B区', 20.00, 20.00, 0.00, NULL),
+                                                                                                                                                  (10000003, 50000003, NULL, 0, '天津校园C宿舍楼', '天津校园内C区', 15.00, 15.00, 0.00, NULL);
 
--- 插入评价
-INSERT INTO review (id, user_id, store_id, product_id, rating, comment) VALUES
-                                                                            (90000001, 10000001, 40000001, 60000001, 5, '很好吃'),
-                                                                            (90000002, 10000002, 40000002, 60000002, 4, '不错喝');
+-- 九、订单明细表 order_item 三条插入语句
+INSERT INTO order_item (order_id, product_id, quantity) VALUES
+                                                            (80000001, 60000001, 2),
+                                                            (80000001, 60000002, 1),
+                                                            (80000002, 60000003, 1);
 
--- 插入购物车
+-- 十、评价表 review 三条插入语句
+INSERT INTO review (user_id, store_id, product_id, rating, comment, image) VALUES
+                                                                               (10000001, 50000001, 60000001, 5, '味道很好，配送快', 'review1.jpg'),
+                                                                               (10000002, 50000002, 60000003, 4, '沙拉很新鲜', NULL),
+                                                                               (10000003, 50000001, 60000002, 3, '薯条稍微油腻', 'review2.jpg');
+
+-- 十一、购物车表 cart 三条插入语句
 INSERT INTO cart (user_id, product_id, quantity) VALUES
-                                                     (10000001, 60000001, 2),
-                                                     (10000002, 60000002, 3);
+                                                     (10000001, 60000001, 1),
+                                                     (10000002, 60000002, 2),
+                                                     (10000003, 60000003, 1);
 
--- 插入优惠券
-INSERT INTO coupon (id, code, discount, expiration_date) VALUES
-                                                             (10001, 'OFF10', 10.00, '2025-12-31'),
-                                                             (10002, 'OFF20', 20.00, '2025-12-31');
+-- 十二、优惠券表 coupon 三条插入语句
+INSERT INTO coupon (user_id, store_id, type, discount, expiration_date, is_used, full_amount, reduce_amount) VALUES
+                                                                                                                 (10000001, 50000001, 1, 0.90, '2025-06-30 23:59:59', FALSE, 50.00, 5.00),
+                                                                                                                 (10000002, 50000002, 2, 0.80, '2025-07-15 23:59:59', FALSE, 100.00, 20.00),
+                                                                                                                 (10000003, 50000003, 1, 0.85, '2025-05-31 23:59:59', TRUE, 30.00, 3.00);
 
--- 插入收藏夹
-INSERT INTO favorite (user_id, product_id, shop_id) VALUES
-                                                        (10000001, 60000001, NULL),
-                                                        (10000002, NULL, 40000002);
+-- 十三、消息表 message 三条插入语句
+INSERT INTO message (content, sender_id, receiver_id, sender_role, receiver_role) VALUES
+                                                                                      ('您好，请问订单什么时候送达？', 10000001, 10000002, 'user', 'merchant'),
+                                                                                      ('订单已确认，我们正在备餐。', 10000002, 10000001, 'merchant', 'user'),
+                                                                                      ('骑手已经出发，请耐心等待。', 10000003, 10000001, 'rider', 'user');
+
+-- 十四、收藏夹表 favorite 三条插入语句
+INSERT INTO favorite (user_id, product_id, store_id) VALUES
+                                                         (10000001, 60000001, NULL),
+                                                         (10000002, NULL, 50000002),
+                                                         (10000003, 60000003, 50000003);

@@ -1,19 +1,17 @@
 package org.demo.baoleme.mapper;
 
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.*;
 import org.demo.baoleme.pojo.Store;
 
 import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface StoreMapper {
+public interface StoreMapper extends BaseMapper<Store> {
 
     @Select("""
-    SELECT id, name, description, location, rating, balance, status, created_at, image
+    SELECT id, name, description, location, rating, status, created_at, image
     FROM store
     ORDER BY id DESC
     LIMIT #{offset}, #{limit}
@@ -46,4 +44,13 @@ public interface StoreMapper {
         WHERE p.name LIKE CONCAT('%', #{keyword}, '%')
         """)
     List<Map<String, Object>> searchProductsByKeyword(@Param("keyword") String keyword);
+
+    /**
+     * 更新店铺信息
+     * @param store 店铺对象
+     * @return 受影响的行数
+     */
+    @Update("UPDATE store SET name=#{name}, `description`=#{description}, location=#{location}, rating=#{rating}, balance=#{balance}, status=#{status}, image=#{image}, merchant_id=#{merchantId} WHERE id = #{id}")
+    int updateStore(Store store);
+
 }

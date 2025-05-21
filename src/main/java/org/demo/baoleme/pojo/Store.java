@@ -26,11 +26,6 @@ public class Store {
     private BigDecimal rating = BigDecimal.valueOf(5.0);
 
     /**
-     * 余额（decimal(10,2), 默认0.0）
-     */
-    private BigDecimal balance = BigDecimal.ZERO;
-
-    /**
      * 状态（1-开启，0-关闭）
      */
     private int status = 0;

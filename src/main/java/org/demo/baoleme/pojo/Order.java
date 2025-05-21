@@ -35,8 +35,20 @@ public class Order {
     @TableField("status")
     private Integer status;
 
+    @TableField("user_location")
+    private String userLocation;
+
+    @TableField("store_location")
+    private String storeLocation;
+
     @TableField("total_price")
     private BigDecimal totalPrice;
+
+    @TableField("actual_price")
+    private BigDecimal actualPrice;
+
+    @TableField("delivery_price")
+    private BigDecimal deliveryPrice;
 
     @TableField("created_at")
     private LocalDateTime createdAt;

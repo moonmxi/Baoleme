@@ -13,7 +13,7 @@ public interface MerchantService {
     // 查询所有商户
     List<Merchant> getAllMerchants();
     // 更新商户信息
-    Merchant updateMerchant(Merchant merchant);
+    Merchant updateInfo(Merchant merchant);
     // 删除商户
     boolean deleteMerchant(Long id);
 }

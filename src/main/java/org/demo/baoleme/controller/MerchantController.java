@@ -1,5 +1,6 @@
 package org.demo.baoleme.controller;
 
+import jakarta.validation.Valid;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.dto.request.merchant.*;
@@ -30,7 +31,9 @@ public class MerchantController {
     }
 
     @PostMapping("/register")
-    public CommonResponse register(@RequestBody MerchantRegisterRequest request) {
+    public CommonResponse register(
+            @RequestBody @Valid MerchantRegisterRequest request
+    ) {
         System.out.println("收到注册请求: " + request);
 
         // Step1: 创建Merchant对象并拷贝属性
@@ -56,7 +59,9 @@ public class MerchantController {
     }
 
     @PostMapping("/login")
-    public CommonResponse login(@RequestBody MerchantLoginRequest request) {
+    public CommonResponse login(
+            @RequestBody @Valid MerchantLoginRequest request
+    ) {
         System.out.println("收到登录请求: " + request);
 
         // Step1: 根据用户名查询商家

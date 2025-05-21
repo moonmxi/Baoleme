@@ -10,6 +10,7 @@ public interface MerchantService {
     // 根据ID查询商户
     Merchant getMerchantById(Long id);
     Merchant getMerchantByUsername(String username);
+    Merchant getMerchantByPhone(String phone);
     // 查询所有商户
     List<Merchant> getAllMerchants();
     // 更新商户信息

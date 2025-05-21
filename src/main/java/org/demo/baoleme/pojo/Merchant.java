@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 /**
  * 数据库约束：
  * not null: id,username,password,phone；
- * unique: id,username
+ * unique: id,username, phone
  */
 @Data
 @TableName("merchant")

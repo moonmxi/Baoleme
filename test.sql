@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS merchant (
                                         id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                         username VARCHAR(50) NOT NULL UNIQUE,
                                         password VARCHAR(100) NOT NULL,
-                                        phone VARCHAR(20),
+                                        phone VARCHAR(20) UNIQUE,
                                         avatar VARCHAR(50),
                                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=20000001;

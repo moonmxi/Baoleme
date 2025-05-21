@@ -42,6 +42,9 @@ public class Order {
     @TableField("total_price")
     private BigDecimal totalPrice;
 
+    @TableField("actual_price")
+    private BigDecimal actualPrice;
+
     @TableField("created_at")
     private LocalDateTime createdAt;
 
@@ -53,26 +56,6 @@ public class Order {
 
     @TableField("remark")
     private String remark;
-
-    // 订单编号生成器（示例用简单实现，实际生产环境建议用更健壮的方案）
-    private static final AtomicLong ORDER_NUMBER_SEQUENCE = new AtomicLong(1000);
-
-    /**
-     * 生成订单编号（格式：ORD+时间戳+序列号）
-     */
-    public static String generateOrderNumber() {
-        return "ORD" + System.currentTimeMillis() + ORDER_NUMBER_SEQUENCE.getAndIncrement();
-    }
-
-    /**
-     * 生成订单ID（由MyBatis-Plus自动生成，此方法仅作备用）
-     */
-    public static Long generateOrderId() {
-        // 实际生产中使用MyBatis-Plus的IdType.ASSIGN_ID策略即可
-        // 这里只是示例，不建议在生产中使用
-        return System.currentTimeMillis() + ORDER_NUMBER_SEQUENCE.getAndIncrement();
-    }
-
 
     public void setOrderId(Long id) {
         this.id = id;

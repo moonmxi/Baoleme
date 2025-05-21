@@ -44,21 +44,6 @@ public interface UserMapper extends BaseMapper<User> {
 """)
     List<UserFavoriteResponse> selectFavoriteStoresByUserId(Long userId);
 
-    @Select("SELECT p.id as product_id, p.name as product_name, p.price, s.name as shop_name " +
-            "FROM product p JOIN store s ON p.store_id = s.id " +
-            "WHERE p.name LIKE CONCAT('%', #{keyword}, '%') " +
-            "LIMIT #{size} OFFSET #{offset}")
-    List<UserSearchResponse.Product> searchProducts(String keyword,
-                                                    @Param("offset") int offset,
-                                                    @Param("size") int size);
-
-    @Select("SELECT id as shop_id, name as shop_name, rating " +
-            "FROM store WHERE name LIKE CONCAT('%', #{keyword}, '%') " +
-            "LIMIT #{size} OFFSET #{offset}")
-    List<UserSearchResponse.Shop> searchShops(String keyword,
-                                              @Param("offset") int offset,
-                                              @Param("size") int size);
-
     @Select("SELECT (SELECT COUNT(*) FROM product WHERE name LIKE CONCAT('%', #{keyword}, '%')) + " +
             "(SELECT COUNT(*) FROM store WHERE name LIKE CONCAT('%', #{keyword}, '%')) as total")
     int countSearchResults(String keyword);

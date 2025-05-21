@@ -8,7 +8,6 @@ import java.util.List;
 
 @Data
 public class UserCreateOrderRequest {
-    public BigDecimal getTotalPrice;
     private Long addressId;  // 修正拼写错误：addresId -> addressId
     private Long storeId;
     private Long couponId;

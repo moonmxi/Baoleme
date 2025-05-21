@@ -100,6 +100,7 @@ CREATE TABLE IF NOT EXISTS `order` (
                                        address VARCHAR(50),
                                        status INT DEFAULT 0,
                                        total_price DECIMAL(10,2),
+                                       actual_price DECIMAL(10,2),
                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                        deadline TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                        ended_at TIMESTAMP NULL,

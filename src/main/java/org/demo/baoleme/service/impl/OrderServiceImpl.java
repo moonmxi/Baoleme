@@ -101,6 +101,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public UserCreateOrderResponse createOrder(Long userId, UserCreateOrderRequest request) {
+        UserCreateOrderResponse response = new UserCreateOrderResponse();
         // 1. 参数校验
         if (userId == null || request == null) {
             throw new IllegalArgumentException("参数不能为空");
@@ -145,19 +146,25 @@ public class OrderServiceImpl implements OrderService {
 
         // 6. 计算总金额
         BigDecimal totalAmount = calculateTotalAmount(request.getItems());
-        BigDecimal actualAmount = totalAmount;
+        BigDecimal actualAmount = null;
+        //配送费未定
 
         // 应用优惠券折扣
         if (coupon != null) {
-            actualAmount = applyCouponDiscount(totalAmount, coupon);
+            if(coupon.getType()==1){
+                actualAmount = applyCouponDiscount(totalAmount, coupon);
+            }else if (coupon.getType()==2){
+                BigDecimal reduceAmount = coupon.getReduceAmount();
+                actualAmount = totalAmount.subtract(reduceAmount);
+            }
         }
 
         // 7. 创建订单
         Order order = new Order();
         order.setUserId(userId);
         order.setStoreId(request.getStoreId());
-        order.setOrderId(Order.generateOrderId());
-        order.setTotalPrice(request.getTotalPrice);
+        order.setTotalPrice(totalAmount);
+        order.setActualPrice(actualAmount);
         order.setStatus(0); // 0-待支付
         order.setRemark(request.getRemark());
         order.setAddress(request.getAddress());
@@ -183,14 +190,6 @@ public class OrderServiceImpl implements OrderService {
             couponMapper.markAsUsed(coupon.getId());
         }
 
-        // 10. 构建响应
-        UserCreateOrderResponse response = new UserCreateOrderResponse();
-        response.setOrderId(order.getId());
-        response.setOrderId(order.getOrderId());
-        response.setTotalPrice(order.getTotalPrice());
-        response.setStatus(String.valueOf(order.getStatus()));
-        response.setCreateTime(order.getCreatedAt());
-
         return response;
     }
 
@@ -212,8 +211,8 @@ public class OrderServiceImpl implements OrderService {
         return totalAmount;
     }
 
-    private String generateOrderNumber() {
-        return "ORD" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) +
-                UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-    }
+//    private String generateOrderNumber() {
+//        return "ORD" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) +
+//                UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+//    }
 }

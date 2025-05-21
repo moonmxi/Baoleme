@@ -181,19 +181,23 @@ public class UserController {
         return ResponseBuilder.ok(Map.of("results", responses));
     }
 
-    @GetMapping("/stores")
-    public CommonResponse getShops(@RequestParam(required = false) String type,
-                                   @RequestParam(defaultValue = "1") int page,
-                                   @RequestParam(defaultValue = "10") int size) {
-        UserGetShopResponse response = userService.getShops(type, page, size);
-        return ResponseBuilder.ok(response);
-    }
+    @RestController
+    @RequestMapping("/stores")
+    public class StoreController {
 
-    @GetMapping("/products")
-    public CommonResponse getProducts(@RequestParam(required = false) Long shopId,
-                                      @RequestParam(required = false) String category) {
-        UserGetProductResponse response = userService.getProducts(shopId, category);
-        return ResponseBuilder.ok(response);
+        @GetMapping
+        public UserGetShopResponse getShops(UserGetShopRequest request) {
+            //筛选store-type
+            UserGetShopResponse response = userService.getShopsByType(type);
+
+            return ResponseBuilder.ok(response);
+        }
+
+        @GetMapping("/stores/{storeId}/products")
+        public UserGetProductResponse getProductsByStore(Long storeId, UserGetProductRequest request) {
+            UserGetProductResponse response = userService.getProducts(storeId, category);
+            return ResponseBuilder.ok(response);
+        }
     }
 
     @PostMapping("/review")

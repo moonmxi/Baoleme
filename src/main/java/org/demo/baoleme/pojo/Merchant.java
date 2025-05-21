@@ -8,8 +8,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 数据库约束
- * not null: id,username,password,phone
+ * 数据库约束：
+ * not null: id,username,password,phone；
  * unique: id,username
  */
 @Data

@@ -148,14 +148,13 @@ public class OrderController {
         if (request.getNewStatus() == null){
             return ResponseBuilder.fail("订单更新失败：商家未设置新状态");
         }
-        if (request.getCancelReason() == null){
+        if (request.getNewStatus() == 4 && request.getCancelReason() == null){
             return ResponseBuilder.fail("订单更新失败：商家未设置取消原因");
         }
 
         // Step 1: 调用Service层执行更新
         boolean ok = orderService.updateOrderByMerchant(
                 request.getId(),
-                request.getStoreId(),
                 request.getNewStatus()
         );
 

@@ -215,17 +215,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean updateOrderByMerchant(Long orderId, Long storeId, Integer newStatus) {
+    public boolean updateOrderByMerchant(Long orderId, Integer newStatus) {
         // Step 1: 查询订单当前状态和店铺ID
         Order order = orderMapper.selectById(orderId);
-        if (order == null || !order.getStoreId().equals(storeId)) {
-            return false; // 订单不存在或店铺不匹配
+        if (order == null) {
+            return false; // 订单不存在
         }
 
         // Step 2: 执行更新操作
         int rowsUpdated = orderMapper.updateByMerchant(
                 orderId,
-                storeId,
                 newStatus
         );
 

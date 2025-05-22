@@ -53,6 +53,6 @@ public interface OrderService {
 
     List<Order> getOrdersByMerchant(Long storeId, Integer status, int page, int pageSize);
 
-    boolean updateOrderByMerchant(Long orderId, Long storeId, Integer newStatus);
+    boolean updateOrderByMerchant(Long orderId, Integer newStatus);
 
 }

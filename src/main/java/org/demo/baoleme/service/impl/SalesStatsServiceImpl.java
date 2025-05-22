@@ -76,7 +76,7 @@ public class SalesStatsServiceImpl implements SalesStatsService {
     @Override
     @Transactional(readOnly = true)
     public List<Product> getPopularProducts(Long storeId, LocalDate startDate, LocalDate endDate) {
-        // 由于未定义 popularProduct，这里返回所有商品
+        // TODO: 由于未定义 popularProduct，这里返回所有商品
         return productMapper.selectByStoreId(storeId);
     }
 }

@@ -26,10 +26,10 @@ public class MerchantServiceImpl implements MerchantService {
     @Override
     public Merchant createMerchant(Merchant merchant) {
         // Step1: 验证基础参数有效性
-        if (merchant != null
-                && !StringUtils.hasText(merchant.getUsername())
-                && !StringUtils.hasText(merchant.getPassword())
-                && !StringUtils.hasText(merchant.getPhone())
+        if (merchant == null
+                || !StringUtils.hasText(merchant.getUsername())
+                || !StringUtils.hasText(merchant.getPassword())
+                || !StringUtils.hasText(merchant.getPhone())
         ) {
             return null;
         }

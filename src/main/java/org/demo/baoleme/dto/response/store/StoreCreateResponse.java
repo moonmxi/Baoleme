@@ -12,12 +12,4 @@ import java.time.LocalDateTime;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class StoreCreateResponse {
     private Long id;
-    private Long merchantId;
-    private String name;
-    private String desc;
-    private String location;
-    private BigDecimal rating;
-    private Integer status;
-    private LocalDateTime createdAt;
-    private String image;
 }

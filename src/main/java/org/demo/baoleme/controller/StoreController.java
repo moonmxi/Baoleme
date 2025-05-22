@@ -46,7 +46,7 @@ public class StoreController {
 
         // Step6: 构建响应数据
         StoreCreateResponse response = new StoreCreateResponse();
-        BeanUtils.copyProperties(createdStore, response);
+        response.setId(createdStore.getId());
 
         System.out.println("创建成功，响应: " + response);
         return ResponseBuilder.ok(response);

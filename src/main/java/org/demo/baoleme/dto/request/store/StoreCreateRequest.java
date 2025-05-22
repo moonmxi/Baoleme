@@ -1,18 +1,17 @@
 package org.demo.baoleme.dto.request.store;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.demo.baoleme.pojo.Store;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 public class StoreCreateRequest {
+    @NotBlank(message = "店铺名不能为空")
     private String name;
+
     private String desc;
     private String location;
-    private BigDecimal rating;
-    private int status;
-    private LocalDateTime createdAt;
     private String image;
 }

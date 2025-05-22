@@ -1,9 +1,11 @@
 package org.demo.baoleme.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.mapper.*;
 import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.ProductService;
+import org.demo.baoleme.service.StoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private final StoreMapper storeMapper;
+    @Autowired
+    private StoreService storeService;
 
     public ProductServiceImpl(
             ProductMapper productMapper,
@@ -93,49 +97,82 @@ public class ProductServiceImpl implements ProductService {
         return page;
     }
 
+    /* ========================= 商品更新 ========================= */
+
     @Override
     @Transactional
     public boolean updateProduct(Product product) {
-        // Step1: 校验product或ID是否为空
+        // Step1: 基础参数校验
         if (product == null || product.getId() == null) {
+            System.out.println("[WARN] 更新失败：商品参数不完整");
             return false;
         }
 
-        // Step2: 动态更新非空字段
-        UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", product.getId());
-        if (product.getName() != null) {
-            updateWrapper.set("name", product.getName());
-        }
-        if (product.getPrice() != null) {
-            updateWrapper.set("price", product.getPrice());
-        }
-        if (product.getStatus() != null) {
-            updateWrapper.set("status", product.getStatus());
-        }
-        if (product.getStoreId() != null) {
-            updateWrapper.set("store_id", product.getStoreId());
-        }
+        // Step2: 获取持久化对象
+        Product existing = getExistingProduct(product.getId());
+        if (existing == null) return false;
 
-        // Step3: 执行更新操作
-        int result = productMapper.update(null, updateWrapper);
-        return result > 0;
+        // Step3: 安全合并字段更新
+        applyProductUpdates(product, existing);
+
+        // Step4: 执行更新操作
+        return productMapper.updateById(existing) > 0;
     }
 
     @Override
     @Transactional
     public boolean updateProductStatus(Long productId, int status) {
-        // Step1: 校验productId是否为空
-        if (productId == null) {
+        // Step1: 参数有效性校验
+        if (productId == null || (status != 0 && status != 1)) {
+            System.out.println("[WARN] 状态更新失败：参数不合法");
             return false;
         }
 
-        // Step2: 更新商品状态
-        Product product = new Product();
-        product.setId(productId);
-        product.setStatus(status);
-        int result = productMapper.updateById(product);
-        return result > 0;
+        // Step2: 获取持久化对象
+        Product existing = getExistingProduct(productId);
+        if (existing == null) return false;
+
+        // Step3: 应用状态更新
+        existing.setStatus(status);
+
+        // Step4: 执行更新
+        return productMapper.updateById(existing) > 0;
+    }
+
+    /* ------------------------- 安全更新策略 ------------------------- */
+
+    /**
+     * 安全合并商品字段更新
+     * @param source 包含新数据的源对象
+     * @param target 需要更新的目标对象
+     */
+    private void applyProductUpdates(Product source, Product target) {
+        // 名称更新
+        if (source.getName() != null) {
+            target.setName(source.getName());
+        }
+
+        // 价格更新
+        if (source.getPrice() != null) {
+            target.setPrice(source.getPrice());
+        }
+
+        // 状态更新（需通过专用方法）
+        // 状态更新应使用updateProductStatus方法
+    }
+
+    /**
+     * 获取存在的商品对象
+     */
+    private Product getExistingProduct(Long productId) {
+        Product existing = productMapper.selectById(productId);
+        if (existing == null) {
+            System.out.println("[WARN] 操作失败：商品不存在 ID=" + productId);
+            return null;
+        }
+        if(!storeService.validateStoreOwnership(existing.getStoreId(), UserHolder.getId()))
+            return null;
+        return existing;
     }
 
     @Override
@@ -145,6 +182,9 @@ public class ProductServiceImpl implements ProductService {
         if (productId == null) {
             return false;
         }
+
+        Product existing = getExistingProduct(productId);
+        if(existing == null) return false;
 
         // Step2: 执行删除操作
         int result = productMapper.deleteById(productId);

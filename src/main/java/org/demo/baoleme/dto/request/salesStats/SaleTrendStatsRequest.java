@@ -1,12 +1,15 @@
 package org.demo.baoleme.dto.request.salesStats;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class SaleTrendStatsRequest {
+    @NotBlank(message = "店铺id不能为空")
     private Long storeId;
-    private TimeAxis type;
+
+    private TimeAxis type = TimeAxis.BY_DAY;
     private int numOfRecentDays = 30;
 
     public enum TimeAxis {

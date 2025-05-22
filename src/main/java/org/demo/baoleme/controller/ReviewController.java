@@ -2,12 +2,16 @@ package org.demo.baoleme.controller;
 
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
+import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.review.ReviewReadRequest;
 import org.demo.baoleme.dto.response.review.ReviewPageResponse;
 import org.demo.baoleme.dto.response.review.ReviewReadResponse;
+import org.demo.baoleme.mapper.UserMapper;
 import org.demo.baoleme.pojo.Page;
 import org.demo.baoleme.pojo.Review;
 import org.demo.baoleme.service.ReviewService;
+import org.demo.baoleme.service.StoreService;
+import org.demo.baoleme.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,9 +22,15 @@ import java.util.stream.Collectors;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final StoreService storeService;
+    private final UserMapper userMapper;
+    private final UserService userService;
 
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, StoreService storeService, UserMapper userMapper, UserService userService) {
         this.reviewService = reviewService;
+        this.storeService = storeService;
+        this.userMapper = userMapper;
+        this.userService = userService;
     }
 
     @PostMapping("/list")
@@ -33,6 +43,10 @@ public class ReviewController {
         Long storeId = request.getStoreId();
         int page = request.getPage();
         int pageSize = request.getPageSize();
+
+        if(!storeService.validateStoreOwnership(storeId, UserHolder.getId())){
+            return ResponseBuilder.fail("无权查看");
+        }
 
         // Step1: 验证分页参数合法性
         if (page < 1 || pageSize < 1) {
@@ -61,6 +75,10 @@ public class ReviewController {
         System.out.println("收到请求：" + request);
 
         Long storeId = request.getStoreId();
+
+        if(!storeService.validateStoreOwnership(storeId, UserHolder.getId())){
+            return ResponseBuilder.fail("无权查看");
+        }
 
         // Step1: 验证分页参数合法性
         if (request.getPage() < 1 || request.getPageSize() < 1) {
@@ -115,6 +133,8 @@ public class ReviewController {
         // 转换评论列表
         List<ReviewReadResponse> reviews = reviewPage.getList().stream().map(review -> {
             ReviewReadResponse item = new ReviewReadResponse();
+            // TODO: 目前使用占位符
+            // TODO: userService.getUserById()
             item.setUsername("用户" + review.getUserId());  // 用户占位逻辑
             item.setRating(review.getRating());
             item.setComment(review.getComment());

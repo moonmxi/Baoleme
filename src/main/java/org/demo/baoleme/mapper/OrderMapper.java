@@ -154,10 +154,9 @@ public interface OrderMapper extends BaseMapper<Order> {
                             @Param("rating") Integer rating,
                             @Param("comment") String comment);
 
-    @Update("UPDATE `order` SET status = #{newStatus} WHERE id = #{orderId} AND store_id = #{storeId}")
+    @Update("UPDATE `order` SET status = #{newStatus} WHERE id = #{orderId}")
     int updateByMerchant(
             @Param("orderId") Long orderId,
-            @Param("storeId") Long storeId,
             @Param("newStatus") Integer newStatus
     );
 

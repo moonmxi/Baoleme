@@ -2,6 +2,7 @@ package org.demo.baoleme.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.demo.baoleme.mapper.StoreMapper;
+import org.demo.baoleme.pojo.Merchant;
 import org.demo.baoleme.pojo.Store;
 import org.demo.baoleme.service.StoreService;
 import org.springframework.stereotype.Service;
@@ -115,10 +116,11 @@ public class StoreServiceImpl implements StoreService {
             return false;
         }
 
-        // Step4:
+        // Step4: 安全更新字段
+        applyUpdates(store, existing);
 
-        // Step4: 执行更新
-        return storeMapper.updateById(store) > 0;
+        // Step5: 执行更新
+        return storeMapper.updateById(existing) > 0;
     }
 
     /**
@@ -209,6 +211,41 @@ public class StoreServiceImpl implements StoreService {
      */
     private boolean validateUpdateParams(Store store) {
         return store.getId() != null;
+    }
+
+    /**
+     * 安全字段更新策略
+     */
+    private void applyUpdates(Store source, Store target) {
+        // Step1: 更新店铺名
+        if (StringUtils.hasText(source.getName())) {
+            target.setName(source.getName());
+        }
+
+        // Step2: 更新描述
+        if (StringUtils.hasText(source.getDescription())) {
+            target.setDescription(source.getDescription());
+        }
+
+        // Step3: 更新地点
+        if (StringUtils.hasText(source.getLocation())) {
+            target.setLocation(source.getLocation());
+        }
+
+        // Step4: 更新评分
+        if (source.getRating() != null) {
+            target.setRating(source.getRating());
+        }
+
+        // Step5: 更新状态
+        if (source.getStatus() != null) {
+            target.setStatus(source.getStatus());
+        }
+
+        // Step6: 更新图片
+        if (StringUtils.hasText(source.getImage())) {
+            target.setImage(source.getImage());
+        }
     }
 
     /**

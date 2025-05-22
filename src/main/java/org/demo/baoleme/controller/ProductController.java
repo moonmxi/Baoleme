@@ -2,11 +2,14 @@ package org.demo.baoleme.controller;
 
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
+import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.product.*;
 import org.demo.baoleme.dto.response.product.*;
+import org.demo.baoleme.mapper.StoreMapper;
 import org.demo.baoleme.pojo.Page;
 import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.service.ProductService;
+import org.demo.baoleme.service.StoreService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +22,15 @@ import java.util.stream.Collectors;
 public class ProductController {
 
     private final ProductService productService;
+    private final StoreService storeService;
 
     @Autowired
-    public ProductController(ProductService productService) {
+    public ProductController(
+            ProductService productService,
+            StoreService storeService
+    ) {
         this.productService = productService;
+        this.storeService = storeService;
     }
 
     @PostMapping("/create")
@@ -36,6 +44,8 @@ public class ProductController {
         // Step1: 创建 Product 对象并拷贝属性
         Product product = new Product();
         BeanUtils.copyProperties(request, product);
+
+        if (!validateStoreOwnerShip(product)) return ResponseBuilder.fail("商品创建失败，商家没有权限");
 
         // Step2: 调用 Service 创建商品
         Product createdProduct = productService.createProduct(product);
@@ -67,6 +77,8 @@ public class ProductController {
         // Step1: 查询商品详情
         Product product = productService.getProductById(productId);
 
+        if (!validateStoreOwnerShip(product)) return ResponseBuilder.fail("商品创建失败，商家没有权限");
+
         // Step2: 验证查询结果
         if (product == null) {
             CommonResponse errorResponse = ResponseBuilder.fail("商品不存在");
@@ -92,6 +104,9 @@ public class ProductController {
         Long storeId = request.getStoreId();
         int currentPage = request.getPage();       // 新增页码参数
         int pageSize = request.getPageSize(); // 新增分页大小参数
+
+        if (!storeService.validateStoreOwnership(storeId, UserHolder.getId()))
+            return ResponseBuilder.fail("商品创建失败，商家没有权限");
 
         // Step2: 调用Service获取分页数据
         Page<Product> page = productService.getProductsByStore(storeId, currentPage, pageSize);
@@ -191,5 +206,10 @@ public class ProductController {
                 ResponseBuilder.fail("删除失败，商品可能不存在");
         System.out.println("Response Body: " + response);
         return response;
+    }
+
+    private boolean validateStoreOwnerShip(Product product) {
+        Long merchantId = UserHolder.getId();
+        return storeService.validateStoreOwnership(product.getStoreId(), merchantId);
     }
 }

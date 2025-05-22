@@ -5,13 +5,16 @@ import org.demo.baoleme.dto.response.salesStats.SaleTrendData;
 import org.demo.baoleme.mapper.ProductMapper;
 import org.demo.baoleme.mapper.SaleMapper;
 import org.demo.baoleme.pojo.Product;
+import org.demo.baoleme.pojo.ProductSalesDTO;
 import org.demo.baoleme.service.SalesStatsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SalesStatsServiceImpl implements SalesStatsService {
@@ -76,7 +79,24 @@ public class SalesStatsServiceImpl implements SalesStatsService {
     @Override
     @Transactional(readOnly = true)
     public List<Product> getPopularProducts(Long storeId, LocalDate startDate, LocalDate endDate) {
-        // 由于未定义 popularProduct，这里返回所有商品
-        return productMapper.selectByStoreId(storeId);
+        // Step2: 获取销量数据
+        List<ProductSalesDTO> salesData = saleMapper.selectTop3ProductsByStore(storeId);
+        if (salesData.isEmpty()) return List.of();
+
+        // Step3: 提取商品ID集合
+        List<Long> productIds = salesData.stream()
+                .map(ProductSalesDTO::getProductId)
+                .collect(Collectors.toList());
+
+        // Step4: 批量查询商品详情
+        return productMapper.selectBatchIds(productIds).stream()
+                .sorted(Comparator.comparingInt(p ->
+                        -salesData.stream()
+                                .filter(d -> d.getProductId().equals(p.getId()))
+                                .findFirst()
+                                .map(ProductSalesDTO::getTotalQuantity)
+                                .orElse(0)
+                )) // 按销量降序排序
+                .collect(Collectors.toList());
     }
 }

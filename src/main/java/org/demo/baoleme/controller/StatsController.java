@@ -3,10 +3,12 @@ package org.demo.baoleme.controller;
 import jakarta.validation.Valid;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
+import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.salesStats.*;
 import org.demo.baoleme.dto.response.salesStats.*;
 import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.service.SalesStatsService;
+import org.demo.baoleme.service.StoreService;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -18,9 +20,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/stats-store")
 public class StatsController {
     private final SalesStatsService salesStatsService;
+    private final StoreService storeService;
 
-    public StatsController(SalesStatsService salesStatsService) {
+    public StatsController(SalesStatsService salesStatsService, StoreService storeService) {
         this.salesStatsService = salesStatsService;
+        this.storeService = storeService;
     }
 
     @PostMapping("/overview")
@@ -28,6 +32,10 @@ public class StatsController {
             @RequestHeader("Authorization") String tokenHeader,
             @Valid @RequestBody SaleOverviewStatsRequest request
     ) {
+        if(!storeService.validateStoreOwnership(request.getStoreId(), UserHolder.getId())){
+            return ResponseBuilder.fail("商家无权查看");
+        }
+
         // Step 1: 解析时间范围
         LocalDate[] dateRange = resolveTimeRange(request.getTimeRange());
         LocalDate startDate = dateRange[0];
@@ -52,6 +60,10 @@ public class StatsController {
             @RequestHeader("Authorization") String tokenHeader,
             @Valid @RequestBody SaleTrendStatsRequest request
     ) {
+        if(!storeService.validateStoreOwnership(request.getStoreId(), UserHolder.getId())){
+            return ResponseBuilder.fail("商家无权查看");
+        }
+
         // Step 1: 调用服务层获取趋势数据
         List<SaleTrendData> trendData = salesStatsService.getSalesTrend(
                 request.getStoreId(),

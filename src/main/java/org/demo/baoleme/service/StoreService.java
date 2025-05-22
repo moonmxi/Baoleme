@@ -49,5 +49,11 @@ public interface StoreService {
      */
     boolean deleteStore(Long storeId);
 
+    /**
+     * 验证所有关系
+     * @param storeId 店铺ID
+     * @param merchantId 商家ID
+     * @return true if the store belongs to the merchant
+     */
     boolean validateStoreOwnership(Long storeId, Long merchantId);
 }

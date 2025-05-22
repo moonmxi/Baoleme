@@ -2,12 +2,14 @@ package org.demo.baoleme.controller;
 
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
+import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.review.ReviewReadRequest;
 import org.demo.baoleme.dto.response.review.ReviewPageResponse;
 import org.demo.baoleme.dto.response.review.ReviewReadResponse;
 import org.demo.baoleme.pojo.Page;
 import org.demo.baoleme.pojo.Review;
 import org.demo.baoleme.service.ReviewService;
+import org.demo.baoleme.service.StoreService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,9 +20,11 @@ import java.util.stream.Collectors;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final StoreService storeService;
 
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, StoreService storeService) {
         this.reviewService = reviewService;
+        this.storeService = storeService;
     }
 
     @PostMapping("/list")
@@ -33,6 +37,10 @@ public class ReviewController {
         Long storeId = request.getStoreId();
         int page = request.getPage();
         int pageSize = request.getPageSize();
+
+        if(!storeService.validateStoreOwnership(storeId, UserHolder.getId())){
+            return ResponseBuilder.fail("无权查看");
+        }
 
         // Step1: 验证分页参数合法性
         if (page < 1 || pageSize < 1) {
@@ -61,6 +69,10 @@ public class ReviewController {
         System.out.println("收到请求：" + request);
 
         Long storeId = request.getStoreId();
+
+        if(!storeService.validateStoreOwnership(storeId, UserHolder.getId())){
+            return ResponseBuilder.fail("无权查看");
+        }
 
         // Step1: 验证分页参数合法性
         if (request.getPage() < 1 || request.getPageSize() < 1) {

@@ -194,6 +194,7 @@ public class OrderController {
         if (request.getStoreId() == null) {
             return ResponseBuilder.fail("订单查看失败：未提供store_id字段");
         }
+
         Long storeId = request.getStoreId();
         Long merchantId = UserHolder.getId();
         if(!storeService.validateStoreOwnership(storeId, merchantId)){

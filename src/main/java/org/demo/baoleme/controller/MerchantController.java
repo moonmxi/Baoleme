@@ -147,6 +147,8 @@ public class MerchantController {
         MerchantUpdateResponse response = new MerchantUpdateResponse();
         response.setUsername(request.getUsername());
         response.setUserId(id);
+        response.setPhone(newMerchant.getPhone());
+        response.setAvatar(newMerchant.getAvatar());
 
         // Step6: 检查用户名是否发生变更
         boolean usernameChanged = request.getUsername() != null

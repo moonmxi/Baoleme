@@ -1,15 +1,8 @@
 package org.demo.baoleme.controller;
 
-import org.demo.baoleme.common.CommonResponse;
-import org.demo.baoleme.common.ResponseBuilder;
-import org.demo.baoleme.common.UserHolder;
-import org.demo.baoleme.dto.request.store.StoreCreateRequest;
-import org.demo.baoleme.dto.request.store.StoreDeleteRequest;
-import org.demo.baoleme.dto.request.store.StoreUpdateRequest;
-import org.demo.baoleme.dto.request.store.StoreViewInfoRequest;
-import org.demo.baoleme.dto.response.store.StoreCreateResponse;
-import org.demo.baoleme.dto.response.store.StoreUpdateResponse;
-import org.demo.baoleme.dto.response.store.StoreViewInfoResponse;
+import org.demo.baoleme.common.*;
+import org.demo.baoleme.dto.request.store.*;
+import org.demo.baoleme.dto.response.store.*;
 import org.demo.baoleme.pojo.Store;
 import org.demo.baoleme.service.StoreService;
 import org.springframework.beans.BeanUtils;
@@ -30,28 +23,28 @@ public class StoreController {
             @RequestHeader("Authorization") String tokenHeader,
             @RequestBody StoreCreateRequest request
     ) {
-        System.out.println("收到创建请求: " + request); // 错误修正：更新->创建
+        System.out.println("收到创建请求: " + request);
 
-        // Step1: 获取商户ID
+        // Step1: 从上下文获取商户ID
         Long merchantId = UserHolder.getId();
 
-        // Step2: 初始化店铺对象
+        // Step2: 初始化店铺实体对象
         Store store = new Store();
         store.setMerchantId(merchantId);
 
-        // Step3: 拷贝请求参数
+        // Step3: 复制请求参数到领域模型
         BeanUtils.copyProperties(request, store);
 
-        // Step4: 执行创建操作
+        // Step4: 调用服务层创建店铺
         Store createdStore = storeService.createStore(store);
 
-        // Step5: 处理创建结果
+        // Step5: 处理创建失败场景
         if (createdStore == null) {
-            System.out.println("创建失败，店铺ID: " + request.getName());
+            System.out.println("创建失败，店铺名称: " + request.getName());
             return ResponseBuilder.fail("店铺创建失败，参数校验不通过");
         }
 
-        // Step6: 构造响应体
+        // Step6: 构建响应数据
         StoreCreateResponse response = new StoreCreateResponse();
         BeanUtils.copyProperties(createdStore, response);
 
@@ -66,21 +59,22 @@ public class StoreController {
     ) {
         System.out.println("收到查询请求: " + request);
 
-        // Step1: 提取店铺ID
+        // Step1: 提取请求中的店铺ID
         Long storeId = request.getStoreId();
 
+        // Step2: 验证店铺归属权
         if (!validateStoreOwnership(storeId)) return ResponseBuilder.fail("店铺不属于您");
 
-        // Step2: 执行数据库查询
+        // Step3: 查询店铺详细信息
         Store store = storeService.getStoreById(storeId);
 
-        // Step3: 处理空结果
+        // Step4: 处理无效店铺ID场景
         if (store == null) {
             System.out.println("查询失败，无效店铺ID: " + storeId);
             return ResponseBuilder.fail("店铺ID不存在");
         }
 
-        // Step4: 数据转换
+        // Step5: 转换领域模型为响应对象
         StoreViewInfoResponse response = new StoreViewInfoResponse();
         BeanUtils.copyProperties(store, response);
 
@@ -95,25 +89,26 @@ public class StoreController {
     ) {
         System.out.println("收到更新请求: " + request);
 
-        // Step1: 初始化领域对象
+        // Step1: 初始化待更新的店铺对象
         Store store = new Store();
         store.setId(request.getId());
 
+        // Step2: 验证店铺操作权限
         if (!validateStoreOwnership(store.getId())) return ResponseBuilder.fail("店铺不属于您");
 
-        // Step2: 拷贝更新字段
+        // Step3: 复制更新字段到领域模型
         BeanUtils.copyProperties(request, store);
 
-        // Step3: 执行更新操作
+        // Step4: 执行数据库更新操作
         boolean success = storeService.updateStore(store);
 
-        // Step4: 处理失败场景
+        // Step5: 处理更新失败场景
         if (!success) {
             System.out.println("更新失败，店铺ID: " + request.getId());
             return ResponseBuilder.fail("店铺信息更新失败");
         }
 
-        // Step5: 构造响应数据
+        // Step6: 构建更新响应数据
         StoreUpdateResponse response = new StoreUpdateResponse();
         BeanUtils.copyProperties(store, response);
 
@@ -132,18 +127,19 @@ public class StoreController {
         Long storeId = request.getId();
         int status = request.getStatus();
 
+        // Step2: 验证店铺归属权
         if (!validateStoreOwnership(storeId)) return ResponseBuilder.fail("店铺不属于您");
 
-        // Step2: 校验状态值
+        // Step3: 校验状态值合法性
         if (status < 0 || status > 1) {
             System.out.println("非法状态值: " + status);
             return ResponseBuilder.fail("状态值必须是0或1");
         }
 
-        // Step3: 执行状态修改
+        // Step4: 执行状态切换操作
         boolean success = storeService.toggleStoreStatus(storeId, status);
 
-        // Step4: 返回操作结果
+        // Step5: 生成操作结果响应
         System.out.println(success ? "状态修改成功" : "状态修改失败");
         return success ?
                 ResponseBuilder.ok("店铺状态更新成功") :
@@ -160,20 +156,29 @@ public class StoreController {
         // Step1: 获取目标店铺ID
         Long storeId = request.getStoreId();
 
+        // Step2: 验证删除权限
         if (!validateStoreOwnership(storeId)) return ResponseBuilder.fail("店铺不属于您");
 
-        // Step2: 执行删除操作
+        // Step3: 执行软删除操作
         boolean success = storeService.deleteStore(storeId);
 
-        // Step3: 处理操作结果
+        // Step4: 返回操作结果
         System.out.println(success ? "删除成功" : "删除失败");
         return success ?
                 ResponseBuilder.ok("店铺数据已删除") :
                 ResponseBuilder.fail("删除操作失败，店铺可能不存在");
     }
 
+    /**
+     * Step风格权限验证方法
+     * Step1: 从上下文获取当前商户ID
+     * Step2: 调用服务层验证店铺归属关系
+     */
     private boolean validateStoreOwnership(Long storeId) {
+        // Step1: 获取当前操作者ID
         Long merchantId = UserHolder.getId();
+
+        // Step2: 验证店铺与商户的归属关系
         return storeService.validateStoreOwnership(storeId, merchantId);
     }
 }

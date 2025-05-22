@@ -101,6 +101,7 @@ public class ProductServiceImpl implements ProductService {
             return false;
         }
 
+        // TODO: 使用existing可以获得storeId
         // Step2: 动态更新非空字段
         UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", product.getId());
@@ -112,9 +113,6 @@ public class ProductServiceImpl implements ProductService {
         }
         if (product.getStatus() != null) {
             updateWrapper.set("status", product.getStatus());
-        }
-        if (product.getStoreId() != null) {
-            updateWrapper.set("store_id", product.getStoreId());
         }
 
         // Step3: 执行更新操作
@@ -131,6 +129,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // Step2: 更新商品状态
+        // TODO: 使用existing
         Product product = new Product();
         product.setId(productId);
         product.setStatus(status);
@@ -145,6 +144,8 @@ public class ProductServiceImpl implements ProductService {
         if (productId == null) {
             return false;
         }
+
+        // TODO: 需要existing
 
         // Step2: 执行删除操作
         int result = productMapper.deleteById(productId);

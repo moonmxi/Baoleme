@@ -17,5 +17,5 @@ public class ProductUpdateRequest {
     private String category;
     private Integer stock;
     private String image;
-    private Integer status;
+//    private Integer status;
 }

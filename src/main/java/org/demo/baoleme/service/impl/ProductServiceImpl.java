@@ -183,7 +183,6 @@ public class ProductServiceImpl implements ProductService {
             return false;
         }
 
-        // TODO: 需要existing
         Product existing = getExistingProduct(productId);
         if(existing == null) return false;
 

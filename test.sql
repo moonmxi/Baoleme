@@ -64,9 +64,9 @@ CREATE TABLE IF NOT EXISTS product (
                                        description VARCHAR(255),
                                        price DECIMAL(10,2) NOT NULL,
                                        category VARCHAR(50),
-                                       stock int,
+                                       stock int not null,
                                        rating DECIMAL(2,1),
-                                       status TINYINT DEFAULT 1,
+                                       status TINYINT DEFAULT 0,
                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                        image VARCHAR(50),
                                        FOREIGN KEY (store_id) REFERENCES store(id)

@@ -115,6 +115,7 @@ public class ReviewController {
         // 转换评论列表
         List<ReviewReadResponse> reviews = reviewPage.getList().stream().map(review -> {
             ReviewReadResponse item = new ReviewReadResponse();
+            // TODO: 目前使用占位符
             item.setUsername("用户" + review.getUserId());  // 用户占位逻辑
             item.setRating(review.getRating());
             item.setComment(review.getComment());

@@ -51,8 +51,10 @@ public interface OrderService {
 
     List<Order> getOrderByStoreId(Long storeId);
 
-    List<Order> getOrdersByMerchant(Long storeId, Integer status, int page, int pageSize);
+    List<Order> getOrdersByMerchant(Long storeId, int page, int pageSize);
 
-    boolean updateOrderByMerchant(Long orderId, Integer newStatus);
+    List<Order> getOrdersByMerchantAndStatus(Long storeId, Integer status, int page, int pageSize);
+
+    boolean updateOrderByMerchant(Long merchantId, Long orderId, Integer newStatus);
 
 }

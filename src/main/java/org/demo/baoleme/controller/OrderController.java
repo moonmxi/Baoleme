@@ -11,10 +11,12 @@ import org.demo.baoleme.dto.response.rider.RiderOrderHistoryResponse;
 import org.demo.baoleme.pojo.Order;
 import org.demo.baoleme.service.OrderService;
 import org.demo.baoleme.common.UserHolder;
+import org.demo.baoleme.service.StoreService;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +25,10 @@ import java.util.Map;
 public class OrderController {
 
     private final OrderService orderService;
+    private final StoreService storeService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, StoreService storeService) {
+        this.storeService = storeService;
         this.orderService = orderService;
     }
 
@@ -154,6 +158,7 @@ public class OrderController {
 
         // Step 1: 调用Service层执行更新
         boolean ok = orderService.updateOrderByMerchant(
+                UserHolder.getId(),
                 request.getId(),
                 request.getNewStatus()
         );
@@ -189,14 +194,28 @@ public class OrderController {
         if (request.getStoreId() == null) {
             return ResponseBuilder.fail("订单查看失败：未提供store_id字段");
         }
+        Long storeId = request.getStoreId();
+        Long merchantId = UserHolder.getId();
+        if(!storeService.validateStoreOwnership(storeId, merchantId)){
+            return ResponseBuilder.fail("订单查看失败：店铺不属于您");
+        }
 
         // Step 2: 调用Service分页查询
-        List<Order> orders = orderService.getOrdersByMerchant(
-                request.getStoreId(),
-                request.getStatus(),
-                request.getPage(),
-                request.getPageSize()
-        );
+        List<Order> orders;
+        if (request.getStatus() == null) {
+            orders = orderService.getOrdersByMerchant(
+                    storeId,
+                    request.getPage(),
+                    request.getPageSize()
+            );
+        } else {
+            orders = orderService.getOrdersByMerchantAndStatus(
+                    storeId,
+                    request.getStatus(),
+                    request.getPage(),
+                    request.getPageSize()
+            );
+        }
 
         // Step 3: 转换为响应对象
         List<OrderReadByMerchantResponse> responses = orders.stream().map(order -> {

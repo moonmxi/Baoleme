@@ -6,6 +6,7 @@ import org.demo.baoleme.dto.response.user.UserCreateOrderResponse;
 import org.demo.baoleme.mapper.*;
 import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.OrderService;
+import org.demo.baoleme.service.StoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderItemMapper orderItemMapper;
+
+    private StoreMapper storeMapper;
+    @Autowired
+    private StoreService storeService;
 
     @Override
     public List<Order> getAvailableOrders(int page, int pageSize) {
@@ -209,17 +214,27 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getOrdersByMerchant(Long storeId, Integer status, int page, int pageSize) {
+    public List<Order> getOrdersByMerchant(Long storeId, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
         return orderMapper.selectByStoreIdUsingPage(storeId, offset, pageSize);
     }
 
     @Override
-    public boolean updateOrderByMerchant(Long orderId, Integer newStatus) {
+    public List<Order> getOrdersByMerchantAndStatus(Long storeId, Integer status, int page, int pageSize){
+        // TODO: status未实现
+        return List.of();
+    }
+
+    @Override
+    public boolean updateOrderByMerchant(Long merchantId, Long orderId, Integer newStatus) {
         // Step 1: 查询订单当前状态和店铺ID
         Order order = orderMapper.selectById(orderId);
         if (order == null) {
             return false; // 订单不存在
+        }
+
+        if(!storeService.validateStoreOwnership(order.getStoreId(), merchantId)){
+            return false; // 商家无权处理订单
         }
 
         // Step 2: 执行更新操作

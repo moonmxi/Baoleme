@@ -49,8 +49,8 @@ CREATE TABLE IF NOT EXISTS store (
                                      name VARCHAR(100) NOT NULL UNIQUE ,
                                      description VARCHAR(50),
                                      location VARCHAR(100),
-                                     rating DECIMAL(2,1) DEFAULT 5.0,
-                                     status TINYINT DEFAULT 1,
+                                     rating DECIMAL(2,1) DEFAULT 0,
+                                     status TINYINT DEFAULT 0,
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                      image VARCHAR(50),
                                      FOREIGN KEY (merchant_id) REFERENCES merchant(id)

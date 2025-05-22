@@ -8,6 +8,10 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * unique: id
+ * not null: id, store_id, name, price, stock
+ */
 @Data
 @TableName("product")
 public class Product {

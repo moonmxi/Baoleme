@@ -64,12 +64,12 @@ public class MerchantController {
     ) {
         System.out.println("收到登录请求: " + request);
 
-        // Step1: 根据用户名查询商家
-        Merchant result = merchantService.getMerchantByUsername(request.getUsername());
+        // Step1: 根据手机号查询商家
+        Merchant result = merchantService.getMerchantByPhone(request.getPhone());
 
         // Step2: 验证用户存在性
         if (result == null) {
-            return ResponseBuilder.fail("用户名不存在");
+            return ResponseBuilder.fail("手机号不存在");
         }
 
         // Step3: 验证密码匹配
@@ -168,7 +168,7 @@ public class MerchantController {
         redisTemplate.opsForValue().set("merchant:login:" + id, newToken, 1, TimeUnit.DAYS);
 
         // Step9: 设置响应中的新Token
-        response.setToken(newToken);
+        response.setNewToken(newToken);
 
         System.out.println("更新成功，响应: " + response);
         return ResponseBuilder.ok(response);
@@ -178,19 +178,7 @@ public class MerchantController {
     public CommonResponse logout(@RequestHeader("Authorization") String tokenHeader) {
         System.out.println("收到登出请求，Token: " + tokenHeader);
 
-        // Step1: 解析并提取原始Token
-        String token = tokenHeader.replace("Bearer ", "");
-        String tokenKey = "merchant:token:" + token;
-
-        // Step2: 获取并删除关联的登录状态
-        Object merchantId = redisTemplate.opsForValue().get(tokenKey);
-        if (merchantId != null) {
-            String loginKey = "merchant:login:" + merchantId;
-            redisTemplate.delete(loginKey);
-        }
-
-        // Step3: 删除Token本体
-        redisTemplate.delete(tokenKey);
+        removeToken(tokenHeader);
 
         // Step4: 返回操作结果
         return ResponseBuilder.ok();
@@ -206,7 +194,25 @@ public class MerchantController {
         // Step2: 执行删除操作
         boolean ok = merchantService.deleteMerchant(id);
 
+        removeToken(tokenHeader);
+
         // Step3: 返回操作结果
         return ok ? ResponseBuilder.ok() : ResponseBuilder.fail("注销失败");
+    }
+
+    private void removeToken(String tokenHeader) {
+        // Step1: 解析并提取原始Token
+        String token = tokenHeader.replace("Bearer ", "");
+        String tokenKey = "merchant:token:" + token;
+
+        // Step2: 获取并删除关联的登录状态
+        Object merchantId = redisTemplate.opsForValue().get(tokenKey);
+        if (merchantId != null) {
+            String loginKey = "merchant:login:" + merchantId;
+            redisTemplate.delete(loginKey);
+        }
+
+        // Step3: 删除Token本体
+        redisTemplate.delete(tokenKey);
     }
 }

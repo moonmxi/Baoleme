@@ -98,8 +98,9 @@ public class StoreController {
         System.out.println("收到更新请求: " + request);
 
         // Step1: 初始化待更新的店铺对象
+        Long storeId = request.getId();
         Store store = new Store();
-        store.setId(request.getId());
+        store.setId(storeId);
 
         // Step2: 验证店铺操作权限
         if (!validateStoreOwnership(store.getId())) return ResponseBuilder.fail("店铺不属于您");
@@ -110,6 +111,8 @@ public class StoreController {
         // Step4: 执行数据库更新操作
         boolean success = storeService.updateStore(store);
 
+        Store newStore = storeService.getStoreById(storeId);
+
         // Step5: 处理更新失败场景
         if (!success) {
             System.out.println("更新失败，店铺ID: " + request.getId());
@@ -118,7 +121,7 @@ public class StoreController {
 
         // Step6: 构建更新响应数据
         StoreUpdateResponse response = new StoreUpdateResponse();
-        BeanUtils.copyProperties(store, response);
+        BeanUtils.copyProperties(newStore, response);
 
         System.out.println("更新成功，响应: " + response);
         return ResponseBuilder.ok(response);

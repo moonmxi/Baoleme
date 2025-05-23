@@ -140,8 +140,9 @@ public class ProductController {
         System.out.println("Request Body: " + request);
 
         // Step1: 创建 Product 对象并设置 ID
+        Long productId = request.getProductId();
         Product product = new Product();
-        product.setId(request.getProductId());
+        product.setId(productId);
 
         // Step2: 拷贝请求参数
         // 可能会出现属性拷贝后数据类型不匹配的情况
@@ -149,6 +150,8 @@ public class ProductController {
 
         // Step3: 调用 Service 更新数据
         boolean success = productService.updateProduct(product);
+
+        Product newProduct = productService.getProductById(productId);
 
         // Step4: 处理更新结果
         if (!success) {
@@ -159,7 +162,8 @@ public class ProductController {
 
         // Step5: 构建响应体
         ProductUpdateResponse response = new ProductUpdateResponse();
-        BeanUtils.copyProperties(product, response);
+        BeanUtils.copyProperties(newProduct, response);
+
         System.out.println("Response Body: " + response);
         return ResponseBuilder.ok(response);
     }

@@ -6,9 +6,9 @@ import java.util.List;
 
 @Data
 public class UserReviewRequest {
-    private Long orderId;
+    private Long storeId;
+    private Long productId;//可选
     private int rating;
     private String comment;
-    private String productName;
     private List<String> images;
 }

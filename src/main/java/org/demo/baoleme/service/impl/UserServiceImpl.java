@@ -267,27 +267,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean submitReview(Long userId, UserReviewRequest request) {
-        // 根据订单 ID 查询订单
-        Order order = orderMapper.selectById(request.getOrderId());
-        if (order == null) {
-            throw new RuntimeException("订单不存在");
-        }
+    public UserReviewResponse submitReview(Long userId, UserReviewRequest request) {
+        UserReviewResponse response = new UserReviewResponse();
 
-        // 提取店铺 ID 和商品 ID（如果有）
-        Long storeId = order.getStoreId();
-        String productName = request.getProductName();
+        // 根据订单 ID 查询订单
+        Long storeId = request.getStoreId();
+        Long productId = request.getProductId();
+
         String storeName = storeMapper.getNameById();
+        String productName = productMapper.getNameById();
+
+        response.setComment(request.getComment());
+        response.setRating(request.getRating());
+        response.setImages(request.getImages() == null ? null : request.getImages());
+        response.setProductName(productName);
+        response.setStoreName(storeName);
 
         // 插入评论
-        return orderMapper.insertReview(
+        orderMapper.insertReview(
                 userId,
-                storeName,
-                productName,
+                storeId,
+                productId,
                 request.getRating(),
                 request.getComment(),
                 request.getImages() == null ? null : request.getImages().toString()
-        ) > 0;
+        );
+
+        return response;
     }
 
 }

@@ -189,8 +189,9 @@ public class UserController {
     @PostMapping("/review")
     public CommonResponse submitReview(@Valid @RequestBody UserReviewRequest request) {
         Long userId = UserHolder.getId();
-        boolean success = userService.submitReview(userId, request);
-        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("评价提交失败");
+        UserReviewResponse response = new UserReviewResponse();
+        userService.submitReview(userId, request);
+        return ResponseBuilder.ok(response);
     }
 
     @PostMapping("/order")

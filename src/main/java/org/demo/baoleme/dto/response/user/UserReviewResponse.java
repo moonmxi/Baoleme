@@ -7,7 +7,8 @@ import java.util.List;
 
 @Data
 public class UserReviewResponse {
-    private Long orderId;
+    private String productName;
+    private String storeName;
     private int rating;
     private String comment;
     private List<String> images;

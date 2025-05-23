@@ -113,12 +113,12 @@ public interface OrderMapper extends BaseMapper<Order> {
     boolean existsReview(Long userId, Long orderId);
 
     @Insert("""
-    INSERT INTO review(user_id, store_name, product_name, rating, comment, image)
-    VALUES (#{userId}, #{storeName}, #{productName}, #{rating}, #{comment}, #{image})
+    INSERT INTO review(user_id, store_id, product_id, rating, comment, image)
+    VALUES (#{userId}, #{storeId}, #{productId}, #{rating}, #{comment}, #{image})
 """)
     int insertReview(@Param("userId") Long userId,
-                     @Param("storeName") String storeName,
-                     @Param("productName") String productName,
+                     @Param("storeId") Long storeId,
+                     @Param("productId") Long productId,
                      @Param("rating") Integer rating,
                      @Param("comment") String comment,
                      @Param("image") String image);

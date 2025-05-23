@@ -121,6 +121,6 @@ public interface UserService {
      * @param request 评价请求
      * @return 是否成功
      */
-    boolean submitReview(Long userId, UserReviewRequest request);
+    UserReviewResponse submitReview(Long userId, UserReviewRequest request);
 
 }

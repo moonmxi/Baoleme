@@ -14,8 +14,6 @@ public interface UserMapper extends BaseMapper<User> {
             "FROM user WHERE id = #{id} LIMIT 1")
     User selectById(Long id);
 
-
-
     @Delete("DELETE FROM user WHERE username = #{username}")
     int deleteByUsername(@Param("username") String username);
 
@@ -55,22 +53,11 @@ public interface UserMapper extends BaseMapper<User> {
             "(SELECT COUNT(*) FROM store WHERE name LIKE CONCAT('%', #{keyword}, '%')) as total")
     int countSearchResults(String keyword);
 
-    @Select("SELECT id as store_id, name as store_name, description, rating, image " +
-            "FROM store WHERE description = #{type} OR #{type} IS NULL " +
-            "LIMIT #{size} OFFSET #{offset}")
-    List<UserGetShopResponse.Shop> selectShopsByType(@Param("type") String type,
-                                                     @Param("offset") int offset,
-                                                     @Param("size") int size);
+
 
     @Select("SELECT COUNT(*) FROM store WHERE description = #{description} OR #{description} IS NULL")
     int countShopsByType(String type);
 
-    @Select("SELECT id as product_id, name as product_name, price, stock, image " +
-            "FROM product " +
-            "WHERE (store_id = #{shopId} OR #{shopId} IS NULL) " +
-            "AND (category = #{category} OR #{category} IS NULL)")
-    List<UserGetProductResponse.Product> selectProducts(@Param("storeId") Long storeId,
-                                                        @Param("category") String category);
 
     @Select("SELECT COUNT(*) > 0 FROM store WHERE id = #{storeId}")
     boolean existsShop(Long storeId);

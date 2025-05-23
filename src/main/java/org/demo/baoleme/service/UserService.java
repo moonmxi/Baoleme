@@ -3,7 +3,6 @@ package org.demo.baoleme.service;
 import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.dto.request.user.UserReviewRequest;
-import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -103,12 +102,10 @@ public interface UserService {
 
     /**
      * 获取商家列表
-     * @param type 商家类型(可选)
-     * @param page 页码
-     * @param size 每页大小
+     * @param description 商家类型(可选)
      * @return 商家列表
      */
-    UserGetShopResponse getShops(String type, int page, int size);
+    UserGetShopResponse getStoresByDescription(String description);
 
     /**
      * 获取商品列表
@@ -124,14 +121,6 @@ public interface UserService {
      * @param request 评价请求
      * @return 是否成功
      */
-    boolean submitReview(Long userId, UserReviewRequest request);
-
-    /**
-     * 下单
-     * @param userId 用户ID
-     * @param request 订单请求
-     * @return 订单响应
-     */
-    UserCreateOrderResponse placeOrder(Long userId, UserCreateOrderRequest request);
+    UserReviewResponse submitReview(Long userId, UserReviewRequest request);
 
 }

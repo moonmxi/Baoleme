@@ -1,5 +1,6 @@
 package org.demo.baoleme.service;
 
+import org.demo.baoleme.dto.request.order.OrderCreateRequest;
 import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
 import org.demo.baoleme.dto.response.user.UserCreateOrderResponse;
 import org.demo.baoleme.pojo.Order;
@@ -46,8 +47,7 @@ public interface OrderService {
      */
     Order getOrderById(Long orderId);
 
-    @Transactional
-    UserCreateOrderResponse createOrder(Long userId, UserCreateOrderRequest request);
+    UserCreateOrderResponse createOrder(Long userId, OrderCreateRequest request);
 
     List<Order> getOrderByStoreId(Long storeId);
 

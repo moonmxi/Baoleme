@@ -5,15 +5,17 @@ import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.UserHolder;
+import org.demo.baoleme.dto.request.order.OrderCreateRequest;
 import org.demo.baoleme.dto.request.user.*;
 import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.UserService;
+import org.demo.baoleme.service.OrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.List;
@@ -26,6 +28,8 @@ public class UserController {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private OrderService orderService;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -181,33 +185,26 @@ public class UserController {
         return ResponseBuilder.ok(Map.of("results", responses));
     }
 
-    @GetMapping("/stores")
-    public CommonResponse getShops(@RequestParam(required = false) String type,
-                                   @RequestParam(defaultValue = "1") int page,
-                                   @RequestParam(defaultValue = "10") int size) {
-        UserGetShopResponse response = userService.getShops(type, page, size);
-        return ResponseBuilder.ok(response);
-    }
-
-    @GetMapping("/products")
-    public CommonResponse getProducts(@RequestParam(required = false) Long shopId,
-                                      @RequestParam(required = false) String category) {
-        UserGetProductResponse response = userService.getProducts(shopId, category);
-        return ResponseBuilder.ok(response);
-    }
 
     @PostMapping("/review")
     public CommonResponse submitReview(@Valid @RequestBody UserReviewRequest request) {
         Long userId = UserHolder.getId();
-        boolean success = userService.submitReview(userId, request);
-        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("评价提交失败");
+        UserReviewResponse response = new UserReviewResponse();
+        userService.submitReview(userId, request);
+        return ResponseBuilder.ok(response);
     }
 
     @PostMapping("/order")
-    public CommonResponse placeOrder(@Valid @RequestBody UserCreateOrderRequest request) {
+    public CommonResponse placeOrder(@Valid @RequestBody OrderCreateRequest request) {
         Long userId = UserHolder.getId();
-        UserCreateOrderResponse response = userService.placeOrder(userId, request);
-        return response != null ? ResponseBuilder.ok(response) : ResponseBuilder.fail("下单失败");
+        try {
+            // 假设你有orderService，并且createOrder接口和之前OrderServiceImpl一致
+            UserCreateOrderResponse response = orderService.createOrder(userId, request);
+            return ResponseBuilder.ok(response);
+        } catch (Exception e) {
+            // 可以加日志 e.printStackTrace();
+            return ResponseBuilder.fail("下单失败：" + e.getMessage());
+        }
     }
 
     @DeleteMapping("/cancel")

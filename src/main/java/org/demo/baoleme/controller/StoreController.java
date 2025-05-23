@@ -2,10 +2,15 @@ package org.demo.baoleme.controller;
 
 import org.demo.baoleme.common.*;
 import org.demo.baoleme.dto.request.store.*;
+import org.demo.baoleme.dto.request.user.UserGetProductByConditionRequest;
 import org.demo.baoleme.dto.response.store.*;
+import org.demo.baoleme.dto.response.user.UserGetProductResponse;
+import org.demo.baoleme.dto.response.user.UserGetShopResponse;
 import org.demo.baoleme.pojo.Store;
 import org.demo.baoleme.service.StoreService;
+import org.demo.baoleme.service.UserService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 public class StoreController {
 
     private final StoreService storeService;
+
+    @Autowired
+    private UserService userService;
 
     public StoreController(StoreService storeService) {
         this.storeService = storeService;
@@ -180,5 +188,21 @@ public class StoreController {
 
         // Step2: 验证店铺与商户的归属关系
         return storeService.validateStoreOwnership(storeId, merchantId);
+    }
+
+    // 商家浏览
+    @GetMapping
+    public CommonResponse getShops(@RequestParam(required = false) String description) {
+        UserGetShopResponse response = userService.getStoresByDescription(description);
+        return ResponseBuilder.ok(response);
+    }
+
+    // 商品浏览
+    @GetMapping("/products")
+    public CommonResponse getProductsByStore(@RequestBody UserGetProductByConditionRequest request) {
+        Long storeId = request.getStoreId();
+        String category = request.getCategory();
+        UserGetProductResponse response = userService.getProducts(storeId, category);
+        return ResponseBuilder.ok(response);
     }
 }

@@ -50,6 +50,10 @@ public class Order {
     @TableField("delivery_price")
     private BigDecimal deliveryPrice;
 
+    //备注
+    @TableField("remark")
+    private String remark;
+
     @TableField("created_at")
     private LocalDateTime createdAt;
 

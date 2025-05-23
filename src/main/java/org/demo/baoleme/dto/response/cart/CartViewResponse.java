@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class CartViewResponse {
-    private List<CartItemResponse> items;
+    private List<CartResponse> items;
     private BigDecimal totalPrice;
 }

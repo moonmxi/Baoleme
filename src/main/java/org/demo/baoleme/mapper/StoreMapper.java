@@ -2,6 +2,7 @@ package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
+import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.pojo.Store;
 
 import java.util.List;
@@ -45,12 +46,43 @@ public interface StoreMapper extends BaseMapper<Store> {
         """)
     List<Map<String, Object>> searchProductsByKeyword(@Param("keyword") String keyword);
 
-    /**
-     * 更新店铺信息
-     * @param store 店铺对象
-     * @return 受影响的行数
-     */
-    @Update("UPDATE store SET name=#{name}, `description`=#{description}, location=#{location}, rating=#{rating}, balance=#{balance}, status=#{status}, image=#{image}, merchant_id=#{merchantId} WHERE id = #{id}")
-    int updateStore(Store store);
+    @Select("""
+    SELECT id, name, description, type, location, rating, status, created_at, image
+    FROM store
+    WHERE (#{type} IS NULL OR type = #{type})
+    ORDER BY id DESC
+""")
+    List<Store> selectShopsByType(@Param("type") String type);
 
+    @Select("""
+    SELECT COUNT(*) 
+    FROM store 
+    WHERE (#{type} IS NULL OR type = #{type})
+""")
+    Integer countShopsByType(@Param("type") String type);
+
+    @Select("""
+    SELECT id, store_id, name, category, price, description, image
+    FROM product
+    WHERE store_id = #{storeId}
+      AND (#{category} IS NULL OR category = #{category})
+    ORDER BY id DESC
+""")
+    List<Product> selectProducts(
+            @Param("storeId") Long storeId,
+            @Param("category") String category
+    );
+
+    @Select("SELECT id FROM store WHERE name = #{name}")
+    Long getIdByName(@Param("name") String name);
+
+    @Select("SELECT name FROM store WHERE id = #{id}")
+    String getNameById();
+
+    @Select("""
+    SELECT id, name, description, location, rating, status, created_at, image
+    FROM store
+    WHERE id = #{storeId}
+""")
+    Store selectById(@Param("storeId") Long storeId);
 }

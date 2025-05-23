@@ -16,21 +16,6 @@ public interface ProductMapper extends BaseMapper<Product> {
     int deleteByNameAndStore(@Param("productName") String productName,
                              @Param("storeName") String storeName);
 
-    @Update("UPDATE product SET stock = stock - #{quantity} WHERE id = #{productId} AND stock >= #{quantity}")
-    int decreaseStock(@Param("productId") Long productId, @Param("quantity") Integer quantity);
-
-    List<Product> searchProductsByName(String s, int offset, int size);
-
-    Long countProductsByName(String s);
-
-    /**
-     * 根据店铺ID查询商品列表
-     * @param storeId 店铺ID
-     * @return 商品列表
-     */
-    @Select("SELECT * FROM product WHERE store_id = #{storeId}")
-    List<Product> selectByStoreId(Long storeId);
-
     // 分页查询方法
     @Select("""
         SELECT * FROM product 
@@ -46,5 +31,14 @@ public interface ProductMapper extends BaseMapper<Product> {
     // 总数统计方法
     @Select("SELECT COUNT(*) FROM product WHERE store_id = #{storeId}")
     int countByStore(@Param("storeId") Long storeId);
+
+    @Update("UPDATE product SET stock = stock - #{quantity} WHERE id = #{productId} AND stock >= #{quantity}")
+    int decreaseStock(@Param("productId") Long productId, @Param("quantity") Integer quantity);
+
+    @Select("SELECT id FROM product WHERE name = #{name} AND store_id = #{storeId}")
+    Long getIdByNameAndStoreId(@Param("name") String name, @Param("storeId") Long storeId);
+
+    @Select("SELECT name FROM product WHERE id = #{id}")
+    String getNameById();
 
 }

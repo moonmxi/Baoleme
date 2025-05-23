@@ -8,12 +8,12 @@ import lombok.Data;
 @Data
 @TableName("order_item")
 public class OrderItem {
-    @TableId(type = IdType.AUTO)
-    private Long id;
 
     private Long orderId;
 
     private Long productId;
 
     private Integer quantity;
+
+
 }

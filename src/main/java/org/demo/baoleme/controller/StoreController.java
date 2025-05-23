@@ -191,14 +191,14 @@ public class StoreController {
     }
 
     // 商家浏览
-    @GetMapping
+    @GetMapping("/user-view-stores")
     public CommonResponse getShops(@RequestParam(required = false) String description) {
         UserGetShopResponse response = userService.getStoresByDescription(description);
         return ResponseBuilder.ok(response);
     }
 
     // 商品浏览
-    @GetMapping("/products")
+    @GetMapping("/user-view-products")
     public CommonResponse getProductsByStore(@RequestBody UserGetProductByConditionRequest request) {
         Long storeId = request.getStoreId();
         String category = request.getCategory();

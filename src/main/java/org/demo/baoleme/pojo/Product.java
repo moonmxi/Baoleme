@@ -3,10 +3,16 @@ package org.demo.baoleme.pojo;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * unique: id
+ * not null: id, store_id, name, price, stock
+ */
+@Data
 @TableName("product")
 public class Product {
 
@@ -23,11 +29,11 @@ public class Product {
 
     private String category;
 
-    private int stock;
+    private Integer stock;
 
     private BigDecimal rating;
 
-    private int status;
+    private Integer status;
 
     private LocalDateTime createdAt;
 

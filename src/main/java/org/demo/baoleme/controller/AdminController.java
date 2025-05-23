@@ -183,7 +183,6 @@ public class AdminController {
             resp.setDescription(store.getDescription());
             resp.setLocation(store.getLocation());
             resp.setRating(store.getRating());
-            resp.setBalance(store.getBalance());
             resp.setStatus(store.getStatus());
             resp.setCreateAt(store.getCreatedAt());
             resp.setImage(store.getImage());

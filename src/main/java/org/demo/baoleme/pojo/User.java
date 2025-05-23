@@ -19,9 +19,15 @@ public class User {
 
     private String password;
 
+    private String description;
+
+    private String location;
+
     private String phone;
 
     private String avatar;
+
+    private String gender;
 
     private LocalDateTime createdAt;
 }

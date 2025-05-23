@@ -5,6 +5,10 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * unique: id, name
+ * not null: id, merchant_id, name
+ */
 @Data
 @TableName("store")
 public class Store {
@@ -26,14 +30,9 @@ public class Store {
     private BigDecimal rating = BigDecimal.valueOf(5.0);
 
     /**
-     * 余额（decimal(10,2), 默认0.0）
-     */
-    private BigDecimal balance = BigDecimal.ZERO;
-
-    /**
      * 状态（1-开启，0-关闭）
      */
-    private int status = 0;
+    private Integer status = 0;
 
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

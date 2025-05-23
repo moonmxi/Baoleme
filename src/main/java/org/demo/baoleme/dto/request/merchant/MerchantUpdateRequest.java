@@ -7,4 +7,5 @@ public class MerchantUpdateRequest {
     private String username;
     private String password;
     private String phone;
+    private String avatar;
 }

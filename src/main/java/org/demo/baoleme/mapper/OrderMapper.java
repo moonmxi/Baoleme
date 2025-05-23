@@ -1,11 +1,10 @@
 package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.*;
+import org.demo.baoleme.dto.response.user.UserCurrentOrderResponse;
+import org.demo.baoleme.dto.response.user.UserOrderHistoryResponse;
 import org.demo.baoleme.pojo.Order;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -102,4 +101,71 @@ public interface OrderMapper extends BaseMapper<Order> {
                                   @Param("offset") int offset,
                                   @Param("limit") int limit);
 
+    @Select("""
+    SELECT oi.product_id, p.name AS product_name, o.created_at AS create_time
+    FROM order_item oi
+    JOIN product p ON oi.product_id = p.id
+    JOIN `order` o ON oi.order_id = o.id
+    WHERE o.user_id = #{userId} AND o.status = 3 -- 假设 3 是 completed
+    ORDER BY o.created_at DESC
+""")
+    List<UserOrderHistoryResponse> selectOrderHistoryByUserId(Long userId);
+
+    @Select("""
+    SELECT oi.product_id, p.name AS product_name, o.created_at AS create_time
+    FROM order_item oi
+    JOIN product p ON oi.product_id = p.id
+    JOIN `order` o ON oi.order_id = o.id
+    WHERE o.user_id = #{userId} AND o.status IN (0, 1)
+    ORDER BY o.created_at DESC
+""")
+    List<UserCurrentOrderResponse.OrderItem> selectCurrentOrdersByUserId(Long userId);
+
+    @Select("""
+    SELECT MAX(DATE_ADD(o.created_at, INTERVAL 30 MINUTE)) AS predict_time
+    FROM `order` o
+    WHERE o.user_id = #{userId} AND o.status IN (0, 1)
+""")
+    String selectPredictTimeByUserId(Long userId);
+
+    @Select("SELECT COUNT(*) > 0 FROM `order` WHERE user_id = #{userId} AND id = #{orderId}")
+    boolean existsUserOrder(Long userId, Long orderId);
+    @Select("SELECT COUNT(*) > 0 FROM review WHERE user_id = #{userId} AND store_id = #{storeId}")
+    boolean existsReview(Long userId, Long orderId);
+
+    @Insert("""
+    INSERT INTO review(user_id, store_id, product_id, rating, comment, image)
+    VALUES (#{userId}, #{storeId}, #{productId}, #{rating}, #{comment}, #{image})
+""")
+    int insertReview(@Param("userId") Long userId,
+                     @Param("storeId") Long storeId,
+                     @Param("productId") Long productId,
+                     @Param("rating") Integer rating,
+                     @Param("comment") String comment,
+                     @Param("image") String image);
+
+    @Update("UPDATE `order` SET status = #{newStatus} WHERE id = #{orderId}")
+    int updateByMerchant(
+            @Param("orderId") Long orderId,
+            @Param("newStatus") Integer newStatus
+    );
+
+    @Select("""
+            SELECT * FROM `order`
+            WHERE store_id = #{storeId}
+            """)
+    List<Order> selectByStoreId(@Param("storeId") Long storeId);
+
+    // TODO: 使用OrderMapper.xml，实现可变参数
+    @Select("""
+            SELECT *
+            FROM `order`
+            WHERE store_id = #{storeId}
+            LIMIT #{offset}, #{pageSize}                                
+            """)
+    List<Order> selectByStoreIdUsingPage(
+            @Param("storeId") Long storeId,
+            @Param("offset") int offset,
+            @Param("pageSize") int pageSize
+    );
 }

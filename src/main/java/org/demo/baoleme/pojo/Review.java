@@ -23,5 +23,7 @@ public class Review {
 
     private String comment;
 
+    private String image;
+
     private LocalDateTime createdAt;
 }

@@ -45,4 +45,8 @@ public interface MerchantMapper extends BaseMapper<Merchant> {
     @Delete("DELETE FROM merchant WHERE username = #{username}")
     int deleteByUsername(@Param("username") String username);
 
+    // 根据ID删除商户
+    @Delete("DELETE FROM merchant WHERE id = #{id}")
+    int deleteById(Long id);
+
 }

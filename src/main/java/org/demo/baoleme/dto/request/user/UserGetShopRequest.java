@@ -3,7 +3,13 @@ import lombok.Data;
 
 @Data
 public class UserGetShopRequest {
-    private String type;
-    private int page;
-    private int size;
+    private String description; // 可为空
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

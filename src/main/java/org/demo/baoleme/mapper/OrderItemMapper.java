@@ -6,7 +6,7 @@ import org.demo.baoleme.pojo.Order;
 import org.demo.baoleme.pojo.OrderItem;
 
 public interface OrderItemMapper extends BaseMapper<OrderItem> {
-    @Insert("INSERT INTO order_item (order_id, product_id, quantity, price) " +
-            "VALUES (#{orderId}, #{productId}, #{quantity}, #{price})")
+    @Insert("INSERT INTO order_item (order_id, product_id, quantity) " +
+            "VALUES (#{orderId}, #{productId}, #{quantity})")
     int insert(OrderItem orderItem);
 }

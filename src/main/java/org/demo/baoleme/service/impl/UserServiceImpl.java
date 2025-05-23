@@ -1,7 +1,6 @@
 package org.demo.baoleme.service.impl;
 
 import ch.qos.logback.classic.Logger;
-import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
 import org.demo.baoleme.dto.request.user.UserReviewRequest;
 import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.mapper.*;
@@ -17,7 +16,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -248,71 +246,48 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserGetShopResponse getShops(String type, int page, int size) {
+    public UserGetShopResponse getStoresByDescription(String type) {
         UserGetShopResponse response = new UserGetShopResponse();
-        response.setData(userMapper.selectShopsByType(type, page, size));
-        response.setTotal(userMapper.countShopsByType(type));
+        List<Store> stores = storeMapper.selectShopsByType(type);
+        response.setData(stores);
+
+        Integer total = storeMapper.countShopsByType(type);  // 这里要用 count 方法
+        response.setTotal(total);
         return response;
     }
+
 
     @Override
     public UserGetProductResponse getProducts(Long shopId, String category) {
         UserGetProductResponse response = new UserGetProductResponse();
-        response.setData(userMapper.selectProducts(shopId, category));
+        response.setShopId(shopId);
+        response.setCategory(category);
+        response.setData(storeMapper.selectProducts(shopId, category));
         return response;
     }
 
-    // 评价功能转移到OrderMapper
     @Override
     public boolean submitReview(Long userId, UserReviewRequest request) {
-        return orderMapper.insertReviewByNames(
+        // 根据订单 ID 查询订单
+        Order order = orderMapper.selectById(request.getOrderId());
+        if (order == null) {
+            throw new RuntimeException("订单不存在");
+        }
+
+        // 提取店铺 ID 和商品 ID（如果有）
+        Long storeId = order.getStoreId();
+        String productName = request.getProductName();
+        String storeName = storeMapper.getNameById();
+
+        // 插入评论
+        return orderMapper.insertReview(
                 userId,
-                request.getOrderId(),
-                request.getStoreName(),
-                request.getProductName(),
+                storeName,
+                productName,
                 request.getRating(),
-                request.getComment()
+                request.getComment(),
+                request.getImages() == null ? null : request.getImages().toString()
         ) > 0;
     }
 
-    // 下单功能
-    @Override
-    public UserCreateOrderResponse placeOrder(Long userId, UserCreateOrderRequest request) {
-        if (!userMapper.existsShop(request.getStoreId())) {
-            System.out.println("下单失败：店铺不存在");
-            return null;
-        }
-
-        // 检查商品是否存在
-        if (request.getItems() == null || request.getItems().isEmpty()) {
-            System.out.println("下单失败：订单项不能为空");
-            return null;
-        }
-
-        for (OrderItem item : request.getItems()) {
-            if (item.getProductId() == null || !userMapper.existsProduct(item.getProductId())) {
-                System.out.println("下单失败：商品不存在或未指定");
-                return null;
-            }
-            if (item.getQuantity() == null || item.getQuantity() <= 0) {
-                System.out.println("下单失败：商品数量无效");
-                return null;
-            }
-            if (item.getPrice() == null || item.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-                System.out.println("下单失败：商品价格无效");
-                return null;
-            }
-        }
-
-        if (request.getCouponId() != null &&
-                !couponMapper.isCouponValid(userId, request.getCouponId())) {
-            System.out.println("下单失败：优惠券不可用");
-            return null;
-        }
-
-        // 实际订单创建逻辑应放在OrderService中
-        UserCreateOrderResponse response = new UserCreateOrderResponse();
-        // 订单创建逻辑...
-        return response;
-    }
 }

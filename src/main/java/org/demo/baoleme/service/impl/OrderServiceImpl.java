@@ -1,11 +1,14 @@
 package org.demo.baoleme.service.impl;
 
 import org.demo.baoleme.common.RedisLockUtil;
-import org.demo.baoleme.dto.request.user.UserCreateOrderRequest;
+import org.demo.baoleme.dto.request.order.CartItemDTO;
+import org.demo.baoleme.dto.request.order.OrderCreateRequest;
+import org.demo.baoleme.dto.response.cart.CartResponse;
 import org.demo.baoleme.dto.response.user.UserCreateOrderResponse;
 import org.demo.baoleme.mapper.*;
 import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.OrderService;
+import org.demo.baoleme.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,10 +41,16 @@ public class OrderServiceImpl implements OrderService {
     private UserMapper userMapper;
 
     @Autowired
+    private StoreMapper storeMapper;
+
+    @Autowired
     private ProductMapper productMapper;
 
     @Autowired
     private CouponMapper couponMapper;
+
+    @Autowired
+    private CartService cartService;
 
     @Override
     public List<Order> getAvailableOrders(int page, int pageSize) {
@@ -100,119 +109,101 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public UserCreateOrderResponse createOrder(Long userId, UserCreateOrderRequest request) {
-        UserCreateOrderResponse response = new UserCreateOrderResponse();
-        // 1. 参数校验
-        if (userId == null || request == null) {
-            throw new IllegalArgumentException("参数不能为空");
+    public UserCreateOrderResponse createOrder(Long userId, OrderCreateRequest request) {
+        // 1. 基础参数校验
+        if (userId == null || request == null || request.getItems() == null || request.getItems().isEmpty()) {
+            throw new IllegalArgumentException("参数不能为空或商品列表为空");
         }
 
-        // 2. 验证用户是否存在
+        // 2. 查询用户，获取用户默认地址（示例）
         User user = userMapper.selectById(userId);
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
+        // 这里假设你有方法获取用户地址
+        String userLocation = user.getLocation();
 
-        // 3. 验证店铺是否存在
-        if (!userMapper.existsShop(request.getStoreId())) {
+        // 3. 查询店铺，获取店铺地址
+        Store store = storeMapper.selectById(request.getStoreId());
+        if (store == null) {
             throw new RuntimeException("店铺不存在");
         }
+        String storeLocation = store.getLocation();
 
-        // 4. 验证商品和库存
-        for (OrderItem item : request.getItems()) {
+        // 4. 商品库存和价格验证，并计算商品总价
+        BigDecimal totalProductPrice = BigDecimal.ZERO;
+        for (CartItemDTO item : request.getItems()) {
             Product product = productMapper.selectById(item.getProductId());
             if (product == null) {
-                throw new RuntimeException("商品不存在: " + item.getProductId());
+                throw new RuntimeException("商品不存在，ID: " + item.getProductId());
             }
             if (product.getStock() < item.getQuantity()) {
-                throw new RuntimeException("商品库存不足: " + product.getName());
+                throw new RuntimeException("商品库存不足：" + product.getName());
             }
-            if (item.getPrice().compareTo(product.getPrice()) != 0) {
-                throw new RuntimeException("商品价格已变更: " + product.getName());
-            }
+            totalProductPrice = totalProductPrice.add(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         }
 
-        // 5. 验证优惠券
+        // 5. 优惠券处理，先计算优惠后的商品总价
+        BigDecimal discountedPrice = totalProductPrice;
         Coupon coupon = null;
         if (request.getCouponId() != null) {
             coupon = couponMapper.selectById(request.getCouponId());
-            if (coupon == null || !coupon.getUserId().equals(userId)) {
-                throw new RuntimeException("优惠券不可用");
+            if (coupon == null) {
+                throw new RuntimeException("优惠券不存在");
             }
-            if (coupon.getExpirationDate().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("优惠券已过期");
-            }
-        }
-
-        // 6. 计算总金额
-        BigDecimal totalAmount = calculateTotalAmount(request.getItems());
-        BigDecimal actualAmount = null;
-        //配送费未定
-
-        // 应用优惠券折扣
-        if (coupon != null) {
-            if(coupon.getType()==1){
-                actualAmount = applyCouponDiscount(totalAmount, coupon);
-            }else if (coupon.getType()==2){
-                BigDecimal reduceAmount = coupon.getReduceAmount();
-                actualAmount = totalAmount.subtract(reduceAmount);
+            // TODO: 添加优惠券归属和有效期校验
+            if (coupon.getType() == 1) {
+                discountedPrice = totalProductPrice.multiply(coupon.getDiscount());
+            } else if (coupon.getType() == 2 && totalProductPrice.compareTo(coupon.getFullAmount()) >= 0) {
+                discountedPrice = totalProductPrice.subtract(coupon.getReduceAmount());
             }
         }
 
-        // 7. 创建订单
+        // 6. 加上配送费，计算最终支付金额
+        BigDecimal deliveryFee = request.getDeliveryFee() != null ? request.getDeliveryFee() : BigDecimal.ZERO;
+        BigDecimal actualPrice = discountedPrice.add(deliveryFee);
+
+        // 7. 创建订单实体并插入数据库
         Order order = new Order();
         order.setUserId(userId);
         order.setStoreId(request.getStoreId());
-        order.setTotalPrice(totalAmount);
-        order.setActualPrice(actualAmount);
-        order.setStatus(0); // 0-待支付
-        order.setRemark(request.getRemark());
-        order.setAddress(request.getAddress());
+        order.setUserLocation(userLocation);
+        order.setStoreLocation(storeLocation);
+        order.setStatus(0);  // 待接单状态
+        order.setTotalPrice(totalProductPrice);   // 商品原价总和，不含优惠和配送费
+        order.setActualPrice(actualPrice);         // 实际支付金额（优惠后 + 配送费）
         order.setCreatedAt(LocalDateTime.now());
-
+        order.setDeadline(request.getDeadline()); // 订单截止时间30分钟后
+        order.setRemark(request.getRemark());
         orderMapper.insert(order);
 
-        // 8. 创建订单项并扣减库存
-        for (OrderItem itemRequest : request.getItems()) {
+        // 8. 创建订单项并扣库存
+        for (CartItemDTO item : request.getItems()) {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrderId(order.getId());
-            orderItem.setProductId(itemRequest.getProductId());
-            orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setPrice(itemRequest.getPrice());
+            orderItem.setProductId(item.getProductId());
+            orderItem.setQuantity(item.getQuantity());
             orderItemMapper.insert(orderItem);
 
-            // 扣减库存
-            productMapper.decreaseStock(itemRequest.getProductId(), itemRequest.getQuantity());
+            productMapper.decreaseStock(item.getProductId(), item.getQuantity());
         }
 
-        // 9. 标记优惠券为已使用(如果使用了优惠券)
+        // 9. 处理优惠券状态，标记为已使用
         if (coupon != null) {
             couponMapper.markAsUsed(coupon.getId());
         }
 
+        // 10. 清空购物车
+        cartService.removeCart(userId);
+
+        // 11. 返回订单信息
+        UserCreateOrderResponse response = new UserCreateOrderResponse();
+        response.setOrderId(order.getId());
+        response.setTotalPrice(totalProductPrice);
+        response.setActualPrice(actualPrice);
         return response;
     }
 
 
-    private BigDecimal calculateTotalAmount(List<OrderItem> items) {
-        return items.stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
 
-    private BigDecimal applyCouponDiscount(BigDecimal totalAmount, Coupon coupon) {
-        if (coupon.getType() == 1) { // 折扣券
-            return totalAmount.multiply(coupon.getDiscount());
-        } else if (coupon.getType() == 2) { // 满减券
-            if (totalAmount.compareTo(coupon.getFullAmount()) >= 0) {
-                return totalAmount.subtract(coupon.getReduceAmount());
-            }
-        }
-        return totalAmount;
-    }
-
-//    private String generateOrderNumber() {
-//        return "ORD" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) +
-//                UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-//    }
 }

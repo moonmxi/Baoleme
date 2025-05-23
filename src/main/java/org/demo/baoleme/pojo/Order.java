@@ -8,7 +8,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 订单实体
@@ -26,8 +25,11 @@ public class Order {
     @TableField("store_id")
     private Long storeId;
 
-    @TableField("address")
-    private String address;
+    @TableField("store_location")
+    private String storeLocation;
+
+    @TableField("user_location")
+    private String userLocation;
 
     @TableField("rider_id")
     private Long riderId;
@@ -70,9 +72,6 @@ public class Order {
         this.remark = remark;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     public Long getOrderId() {
         return this.id;

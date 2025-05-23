@@ -4,9 +4,13 @@ import lombok.Data;
 
 @Data
 public class UserGetProductRequest {
-    private Long shopId;
-    private String category;
-    private float minPrice;
-    private float maxPrice;
-    private String sortBy;
+    private String category; // 可为空
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 }

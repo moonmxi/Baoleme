@@ -1,48 +1,53 @@
 package org.demo.baoleme.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.cart.AddToCartRequest;
-import org.demo.baoleme.dto.request.cart.RemoveCartRequest;
+import org.demo.baoleme.dto.request.cart.DeleteCartRequest;
+
 import org.demo.baoleme.dto.request.cart.UpdateCartRequest;
 import org.demo.baoleme.dto.response.cart.CartViewResponse;
 import org.demo.baoleme.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/cart")
+@RequiredArgsConstructor
 public class CartController {
 
-    @Autowired
-    private CartService cartService;
+    private final CartService cartService;
 
     @PostMapping("/add")
-    public CommonResponse addToCart( @RequestBody AddToCartRequest request) {
-        Long userId = UserHolder.getId();
-        boolean success = cartService.addToCart(userId, request);
-        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("添加购物车失败");
+    public CommonResponse addToCart(@RequestBody AddToCartRequest request) {
+        cartService.addToCart(UserHolder.getId(), request);
+        return ResponseBuilder.ok();
     }
 
     @GetMapping("/view")
     public CommonResponse viewCart() {
-        Long userId = UserHolder.getId();
-        CartViewResponse response = cartService.viewCart(userId);
+        CartViewResponse response = cartService.viewCart(UserHolder.getId());
         return ResponseBuilder.ok(response);
     }
 
     @PutMapping("/update")
-    public CommonResponse updateCartItem( @RequestBody UpdateCartRequest request) {
-        Long userId = UserHolder.getId();
-        boolean success = cartService.updateCartItem(userId, request);
-        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("更新购物车失败");
+    public CommonResponse updateCartItem(@RequestBody UpdateCartRequest request) {
+        cartService.updateCart(UserHolder.getId(), request);
+        return ResponseBuilder.ok();
+    }
+
+    @PutMapping("/delete")
+    public CommonResponse deleteCartItem(@RequestBody DeleteCartRequest request) {
+
+        cartService.deleteCartItem(UserHolder.getId(), request);
+        //cartService.deleteCartItem(10000004L, request);
+        return ResponseBuilder.ok();
     }
 
     @DeleteMapping("/remove")
-    public CommonResponse removeCartItems( @RequestBody RemoveCartRequest request) {
-        Long userId = UserHolder.getId();
-        boolean success = cartService.removeCartItems(userId, request);
-        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("删除购物车商品失败");
+    public CommonResponse removeCartItems() {
+        cartService.removeCart(UserHolder.getId());
+        return ResponseBuilder.ok();
     }
 }

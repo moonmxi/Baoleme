@@ -21,6 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/admin/login",
                         "/user/register",
                         "/user/login",
+                        "/stores",
+                        "/stores/{storeId}/products",
                         "/error"
                 );
     }

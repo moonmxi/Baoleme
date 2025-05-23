@@ -5,10 +5,12 @@ import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.UserHolder;
+import org.demo.baoleme.dto.request.order.OrderCreateRequest;
 import org.demo.baoleme.dto.request.user.*;
 import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.UserService;
+import org.demo.baoleme.service.OrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,6 +28,8 @@ public class UserController {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private OrderService orderService;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -181,24 +185,6 @@ public class UserController {
         return ResponseBuilder.ok(Map.of("results", responses));
     }
 
-    @RestController
-    @RequestMapping("/stores")
-    public class StoreController {
-
-        @GetMapping
-        public UserGetShopResponse getShops(UserGetShopRequest request) {
-            //筛选store-type
-            UserGetShopResponse response = userService.getShopsByType(type);
-
-            return ResponseBuilder.ok(response);
-        }
-
-        @GetMapping("/stores/{storeId}/products")
-        public UserGetProductResponse getProductsByStore(Long storeId, UserGetProductRequest request) {
-            UserGetProductResponse response = userService.getProducts(storeId, category);
-            return ResponseBuilder.ok(response);
-        }
-    }
 
     @PostMapping("/review")
     public CommonResponse submitReview(@Valid @RequestBody UserReviewRequest request) {
@@ -208,10 +194,16 @@ public class UserController {
     }
 
     @PostMapping("/order")
-    public CommonResponse placeOrder(@Valid @RequestBody UserCreateOrderRequest request) {
+    public CommonResponse placeOrder(@Valid @RequestBody OrderCreateRequest request) {
         Long userId = UserHolder.getId();
-        UserCreateOrderResponse response = userService.placeOrder(userId, request);
-        return response != null ? ResponseBuilder.ok(response) : ResponseBuilder.fail("下单失败");
+        try {
+            // 假设你有orderService，并且createOrder接口和之前OrderServiceImpl一致
+            UserCreateOrderResponse response = orderService.createOrder(userId, request);
+            return ResponseBuilder.ok(response);
+        } catch (Exception e) {
+            // 可以加日志 e.printStackTrace();
+            return ResponseBuilder.fail("下单失败：" + e.getMessage());
+        }
     }
 
     @DeleteMapping("/cancel")

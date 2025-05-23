@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.pojo.Store;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface StoreMapper {
 
     Long countStoresByName(String s);
     @Select("""
-    SELECT id, name, description, location, rating, balance, status, created_at, image
+    SELECT id, name, description, location, rating, status, created_at, image
     FROM store
     ORDER BY id DESC
     LIMIT #{offset}, #{limit}
@@ -50,4 +51,43 @@ public interface StoreMapper {
         WHERE p.name LIKE CONCAT('%', #{keyword}, '%')
         """)
     List<Map<String, Object>> searchProductsByKeyword(@Param("keyword") String keyword);
+    @Select("""
+    SELECT id, name, description, type, location, rating, status, created_at, image
+    FROM store
+    WHERE (#{type} IS NULL OR type = #{type})
+    ORDER BY id DESC
+""")
+    List<Store> selectShopsByType(@Param("type") String type);
+
+    @Select("""
+    SELECT COUNT(*) 
+    FROM store 
+    WHERE (#{type} IS NULL OR type = #{type})
+""")
+    Integer countShopsByType(@Param("type") String type);
+
+    @Select("""
+    SELECT id, store_id, name, category, price, description, image
+    FROM product
+    WHERE store_id = #{storeId}
+      AND (#{category} IS NULL OR category = #{category})
+    ORDER BY id DESC
+""")
+    List<Product> selectProducts(
+            @Param("storeId") Long storeId,
+            @Param("category") String category
+    );
+
+    @Select("SELECT id FROM store WHERE name = #{name}")
+    Long getIdByName(@Param("name") String name);
+
+    @Select("SELECT name FROM store WHERE id = #{id}")
+    String getNameById();
+
+    @Select("""
+    SELECT id, name, description, location, rating, status, created_at, image
+    FROM store
+    WHERE id = #{storeId}
+""")
+    Store selectById(@Param("storeId") Long storeId);
 }

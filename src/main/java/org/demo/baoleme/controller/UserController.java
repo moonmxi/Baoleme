@@ -7,7 +7,9 @@ import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.order.OrderCreateRequest;
 import org.demo.baoleme.dto.request.user.*;
+import org.demo.baoleme.dto.response.rider.RiderLoginResponse;
 import org.demo.baoleme.dto.response.user.*;
+import org.demo.baoleme.pojo.Rider;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.UserService;
 import org.demo.baoleme.service.OrderService;
@@ -15,6 +17,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -112,26 +117,93 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public CommonResponse update(@Valid @RequestBody UserUpdateRequest request) {
+    public CommonResponse update(@Valid @RequestBody UserUpdateRequest request, @RequestHeader("Authorization") String tokenHeader) {
+        Long id = UserHolder.getId();
+
+        // 查询旧数据，判断是否修改了 username
+        User before = userService.getInfo(id);
+        if (before == null) {
+            return ResponseBuilder.fail("用户不存在");
+        }
+
+        // 组装更新 user
         User user = new User();
-        user.setId(UserHolder.getId());
+        user.setId(id);
         BeanUtils.copyProperties(request, user);
 
         boolean success = userService.updateInfo(user);
-        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("更新失败");
+        if (!success) {
+            return ResponseBuilder.fail("更新失败，请检查字段");
+        }
+
+        System.out.println(before.getUsername());
+        System.out.println(request.getUsername());
+        // 判断是否修改了 username
+        boolean usernameChanged = request.getUsername() != null && !request.getUsername().equals(before.getUsername());
+        if (!usernameChanged) {
+            return ResponseBuilder.ok();  // 没改用户名，直接返回 OK
+        }
+
+        // ✅ 修改了 username，重新签发 token 并刷新 Redis
+        String oldToken = tokenHeader.replace("Bearer ", "");
+        String oldTokenKey = "user:token:" + oldToken;
+        String oldLoginKey = "user:login:" + id;
+
+        redisTemplate.delete(oldTokenKey);
+        redisTemplate.delete(oldLoginKey);
+
+        String newToken = JwtUtils.createToken(id, "user", request.getUsername());
+        redisTemplate.opsForValue().set("user:token:" + newToken, id, 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("user:login:" + id, newToken, 1, TimeUnit.DAYS);
+
+        // 返回新的 token
+        UserLoginResponse response = new UserLoginResponse();
+        response.setToken(newToken);
+        response.setUsername(request.getUsername());
+        response.setUserId(id);
+        return ResponseBuilder.ok(response);
     }
 
     @GetMapping("/history")
-    public CommonResponse getOrderHistory() {
+    public CommonResponse getOrderHistory(@RequestBody UserOrderHistoryRequest request) {
         Long userId = UserHolder.getId();
-        List<UserOrderHistoryResponse> orders = userService.getOrderHistory(userId);
-        return ResponseBuilder.ok(orders);
+        String role = UserHolder.getRole();
+        if (!"user".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅普通用户可操作");
+        }
+
+        List<Map<String, Object>> records = userService.getUserOrdersPaged(
+                userId,
+                request.getStatus(),
+                request.getStart_time(),
+                request.getEnd_time(),
+                request.getPage(),
+                request.getPage_size()
+        );
+
+        List<UserOrderHistoryResponse> responses = records.stream().map(map -> {
+            UserOrderHistoryResponse resp = new UserOrderHistoryResponse();
+            resp.setOrderId((Long) map.get("id"));
+            resp.setCreatedAt(map.get("created_at") != null ?
+                    ((Timestamp) map.get("created_at")).toLocalDateTime() : null);
+            resp.setEndedAt(map.get("ended_at") != null ?
+                    ((Timestamp) map.get("ended_at")).toLocalDateTime() : null);
+            resp.setStatus((Integer) map.get("status"));
+            resp.setStoreName((String) map.get("store_name"));
+            resp.setRemark((String) map.get("remark"));
+            resp.setRiderName((String) map.get("rider_name"));
+            resp.setRiderPhone((String) map.get("rider_phone"));
+            return resp;
+        }).toList();
+
+        return ResponseBuilder.ok(Map.of("orders", responses));
     }
 
     @PostMapping("/favorite")
     public CommonResponse favoriteStore(@Valid @RequestBody UserFavoriteRequest request) {
         Long userId = UserHolder.getId();
         boolean success = userService.favoriteStore(userId, request.getStoreId());
+        System.out.println(userId+"  "+request.getStoreId());
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("收藏失败");
     }
 
@@ -159,10 +231,32 @@ public class UserController {
     }
 
     @GetMapping("/current")
-    public CommonResponse getCurrentOrders() {
+    public CommonResponse getCurrentOrders(@Valid @RequestBody UserCurrentOrderRequest request) {
         Long userId = UserHolder.getId();
-        UserCurrentOrderResponse response = userService.getCurrentOrders(userId);
-        return ResponseBuilder.ok(response);
+        List<Map<String, Object>> result = userService.getCurrentOrders(userId, request.getPage(), request.getPage_size());
+
+        List<UserCurrentOrderResponse> response = result.stream().map(map -> {
+            UserCurrentOrderResponse r = new UserCurrentOrderResponse();
+            r.setOrderId(((Number) map.get("order_id")).longValue());
+
+            Object ts = map.get("created_at");
+            if (ts instanceof Timestamp) {
+                r.setCreatedAt(((Timestamp) ts).toLocalDateTime());
+            } else if (ts instanceof LocalDateTime) {
+                r.setCreatedAt((LocalDateTime) ts);
+            } else {
+                r.setCreatedAt(null); // 或者抛异常
+            }
+
+            r.setStatus((Integer) map.get("status"));
+            r.setStoreName((String) map.get("store_name"));
+            r.setRiderName((String) map.get("rider_name"));
+            r.setRiderPhone((String) map.get("rider_phone"));
+            r.setRemark((String) map.get("remark"));
+            return r;
+        }).toList();
+
+        return ResponseBuilder.ok(Map.of("orders", response));
     }
 
     @PostMapping("/search")

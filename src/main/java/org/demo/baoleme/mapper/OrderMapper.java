@@ -102,24 +102,15 @@ public interface OrderMapper extends BaseMapper<Order> {
                                   @Param("limit") int limit);
 
     @Select("""
-    SELECT oi.product_id, p.name AS product_name, o.created_at AS create_time
-    FROM order_item oi
-    JOIN product p ON oi.product_id = p.id
-    JOIN `order` o ON oi.order_id = o.id
-    WHERE o.user_id = #{userId} AND o.status = 3 -- 假设 3 是 completed
+    SELECT order_item.product_id, p.name AS product_name, o.created_at
+    FROM order_item
+    JOIN product p ON order_item.product_id = p.id
+    JOIN `order` o ON order_item.order_id = o.id
+    WHERE o.user_id = #{userId}
     ORDER BY o.created_at DESC
 """)
     List<UserOrderHistoryResponse> selectOrderHistoryByUserId(Long userId);
 
-    @Select("""
-    SELECT oi.product_id, p.name AS product_name, o.created_at AS create_time
-    FROM order_item oi
-    JOIN product p ON oi.product_id = p.id
-    JOIN `order` o ON oi.order_id = o.id
-    WHERE o.user_id = #{userId} AND o.status IN (0, 1)
-    ORDER BY o.created_at DESC
-""")
-    List<UserCurrentOrderResponse.OrderItem> selectCurrentOrdersByUserId(Long userId);
 
     @Select("""
     SELECT MAX(DATE_ADD(o.created_at, INTERVAL 30 MINUTE)) AS predict_time
@@ -168,4 +159,42 @@ public interface OrderMapper extends BaseMapper<Order> {
             @Param("offset") int offset,
             @Param("pageSize") int pageSize
     );
+
+    @Select("""
+    SELECT o.id, o.created_at, o.ended_at, o.status,
+           s.name AS store_name, o.remark,
+           r.username AS rider_name, r.phone AS rider_phone
+    FROM `order` o
+    LEFT JOIN store s ON o.store_id = s.id
+    LEFT JOIN rider r ON o.rider_id = r.id
+    WHERE o.user_id = #{userId}
+      AND (#{status} IS NULL OR o.status = #{status})
+      AND (#{startTime} IS NULL OR o.created_at >= #{startTime})
+      AND (#{endTime} IS NULL OR o.created_at <= #{endTime})
+    ORDER BY o.created_at DESC
+    LIMIT #{offset}, #{limit}
+""")
+    List<Map<String, Object>> selectUserOrders(
+            @Param("userId") Long userId,
+            @Param("status") Integer status,
+            @Param("startTime") String startTime,
+            @Param("endTime") String endTime,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    @Select("""
+    SELECT o.id AS order_id, o.created_at, o.status,
+           s.name AS store_name,o.remark, r.username AS rider_name,r.phone AS rider_phone
+    FROM `order` o
+    JOIN store s ON o.store_id = s.id
+    LEFT JOIN rider r ON o.rider_id = r.id
+    WHERE o.user_id = #{userId} AND o.status IN (0, 1, 2)
+    ORDER BY o.created_at DESC
+    LIMIT #{offset}, #{limit}
+""")
+    List<Map<String, Object>> selectCurrentOrdersByUser(@Param("userId") Long userId,
+                                                        @Param("offset") int offset,
+                                                        @Param("limit") int limit);
+
 }

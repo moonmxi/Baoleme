@@ -10,9 +10,11 @@ import java.util.List;
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 
-    @Select("SELECT id, username, password, phone, avatar, created_at " +
+    /*
+    @Select("SELECT id, username, password, phone, avatar, created_at, location, description, gender " +
             "FROM user WHERE id = #{id} LIMIT 1")
     User selectById(Long id);
+    */
 
     @Delete("DELETE FROM user WHERE username = #{username}")
     int deleteByUsername(@Param("username") String username);
@@ -31,7 +33,7 @@ public interface UserMapper extends BaseMapper<User> {
             "FROM user WHERE username = #{username} LIMIT 1")
     User selectByUsername(String username);
 
-    @Select("SELECT id, username, password, phone, gender, avatar " +
+    @Select("SELECT id, username, password, gender, avatar, description, location, created_at " +
             "FROM user WHERE phone = #{phone} LIMIT 1")
     User selectByPhone(String phone);
 

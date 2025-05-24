@@ -95,6 +95,7 @@ public class UserServiceImpl implements UserService {
         if (user == null || user.getId() == null) return false;
 
         User existing = userMapper.selectById(user.getId());
+        existing.setId(user.getId());
         if (existing == null) return false;
 
         if (StringUtils.hasText(user.getUsername())) {
@@ -109,12 +110,14 @@ public class UserServiceImpl implements UserService {
             existing.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         if (StringUtils.hasText(user.getPhone())) {
+            //System.out.println("111");
             User byPhone = userMapper.selectByPhone(user.getPhone());
             if (byPhone != null && !byPhone.getId().equals(user.getId())) {
                 System.out.println("更新失败：手机号已被其他用户使用");
                 return false;
             }
             existing.setPhone(user.getPhone());
+            //System.out.println(existing.getPhone());
         }
         if (StringUtils.hasText(user.getGender())) {
             existing.setGender(user.getGender());
@@ -167,12 +170,6 @@ public class UserServiceImpl implements UserService {
             return false;
         }
 
-        // 检查用户是否已经领取过这张优惠券(如果需要)
-        if (couponMapper.existsUserCoupon(userId, availableCoupon.getId())) {
-            System.out.println("领取失败：用户已领取过该优惠券");
-            return false;
-        }
-
         // 更新优惠券的用户ID
         Coupon updateCoupon = new Coupon();
         updateCoupon.setId(availableCoupon.getId());
@@ -195,11 +192,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserCurrentOrderResponse getCurrentOrders(Long userId) {
-        UserCurrentOrderResponse response = new UserCurrentOrderResponse();
-        response.setData(orderMapper.selectCurrentOrdersByUserId(userId));
-        response.setPredictTime(orderMapper.selectPredictTimeByUserId(userId));
-        return response;
+    public List<Map<String, Object>> getCurrentOrders(Long userId, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return orderMapper.selectCurrentOrdersByUser(userId, offset, pageSize);
     }
 
     @Override
@@ -294,6 +289,12 @@ public class UserServiceImpl implements UserService {
         );
 
         return response;
+    }
+
+    @Override
+    public List<Map<String, Object>> getUserOrdersPaged(Long userId, Integer status, String startTime, String endTime, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return orderMapper.selectUserOrders(userId, status, startTime, endTime, offset, pageSize);
     }
 
 }

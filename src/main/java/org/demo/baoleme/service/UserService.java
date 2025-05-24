@@ -87,11 +87,13 @@ public interface UserService {
     boolean claimCoupon(Long userId, Integer type);
 
     /**
-     * 获取当前订单
+     * 获取用户当前订单
      * @param userId 用户ID
-     * @return 当前订单信息
+     * @param page 页码
+     * @param pageSize 每页数量
+     * @return 当前订单列表
      */
-    UserCurrentOrderResponse getCurrentOrders(Long userId);
+    List<Map<String, Object>> getCurrentOrders(Long userId, int page, int pageSize);
 
     /**
      * 全局搜索
@@ -122,5 +124,10 @@ public interface UserService {
      * @return 是否成功
      */
     UserReviewResponse submitReview(Long userId, UserReviewRequest request);
+
+    List<Map<String, Object>> getUserOrdersPaged(
+            Long userId, Integer status, String startTime, String endTime,
+            int page, int pageSize
+    );
 
 }

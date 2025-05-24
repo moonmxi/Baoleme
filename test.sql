@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `order` (
                                        store_location VARCHAR(100),
                                        total_price DECIMAL(10,2),
                                        actual_price DECIMAL(10,2),
-                                    remark VARCHAR(255),
+                                       remark VARCHAR(255),
                                        delivery_price  DECIMAL(10,2),
                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                        deadline TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -38,12 +38,12 @@ public interface StoreMapper extends BaseMapper<Store> {
      * 返回字段：store_id（Long）, store_name（String）, product_id（Long）, product_name（String）
      */
     @Select("""
-        SELECT s.id AS store_id, s.name AS store_name,
-               p.id AS product_id, p.name AS product_name
-        FROM product p
-        JOIN store s ON p.store_id = s.id
-        WHERE p.name LIKE CONCAT('%', #{keyword}, '%')
-        """)
+    SELECT s.id AS store_id, s.name AS store_name,
+           p.id AS product_id, p.name AS product_name
+    FROM product p
+    JOIN store s ON p.store_id = s.id
+    WHERE p.name LIKE '%${keyword}%'
+""")
     List<Map<String, Object>> searchProductsByKeyword(@Param("keyword") String keyword);
 
     @Select("""

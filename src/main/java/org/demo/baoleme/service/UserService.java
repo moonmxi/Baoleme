@@ -130,4 +130,5 @@ public interface UserService {
             int page, int pageSize
     );
 
+    List<Map<String,Object>> getOrderItemHistory(Long orderId);
 }

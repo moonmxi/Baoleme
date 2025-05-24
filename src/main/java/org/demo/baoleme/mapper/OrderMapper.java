@@ -6,6 +6,7 @@ import org.demo.baoleme.dto.response.user.UserCurrentOrderResponse;
 import org.demo.baoleme.dto.response.user.UserOrderHistoryResponse;
 import org.demo.baoleme.pojo.Order;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -197,4 +198,12 @@ public interface OrderMapper extends BaseMapper<Order> {
                                                         @Param("offset") int offset,
                                                         @Param("limit") int limit);
 
+    @Select("SELECT oi.quantity, p.name, p.description, p.price, p.image " +
+            "FROM order_item oi " +
+            "JOIN product p ON oi.product_id = p.id " +
+            "WHERE oi.order_id = #{orderId}")
+    List<Map<String, Object>> selectOrderItemsWithProductInfo(@Param("orderId") Long orderId);
+
+    @Select("SELECT total_price, actual_price, delivery_price FROM `order` WHERE id = #{orderId}")
+    Map<String, BigDecimal> getPriceInfoById(Long orderId);
 }

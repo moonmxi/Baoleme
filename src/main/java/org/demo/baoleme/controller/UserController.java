@@ -6,10 +6,11 @@ import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.order.OrderCreateRequest;
+import org.demo.baoleme.dto.request.order.UserOrderItemHistoryRequest;
 import org.demo.baoleme.dto.request.user.*;
-import org.demo.baoleme.dto.response.rider.RiderLoginResponse;
+import org.demo.baoleme.dto.response.order.UserOrderItemHistoryResponse;
 import org.demo.baoleme.dto.response.user.*;
-import org.demo.baoleme.pojo.Rider;
+import org.demo.baoleme.mapper.OrderMapper;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.UserService;
 import org.demo.baoleme.service.OrderService;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.List;
@@ -35,6 +35,9 @@ public class UserController {
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private OrderMapper orderMapper;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -283,13 +286,12 @@ public class UserController {
     @PostMapping("/review")
     public CommonResponse submitReview(@Valid @RequestBody UserReviewRequest request) {
         Long userId = UserHolder.getId();
-        UserReviewResponse response = new UserReviewResponse();
-        userService.submitReview(userId, request);
+        UserReviewResponse response = userService.submitReview(userId, request);
         return ResponseBuilder.ok(response);
     }
 
     @PostMapping("/order")
-    public CommonResponse placeOrder(@Valid @RequestBody OrderCreateRequest request) {
+    public CommonResponse UserCreateOrder(@Valid @RequestBody OrderCreateRequest request) {
         Long userId = UserHolder.getId();
         try {
             // 假设你有orderService，并且createOrder接口和之前OrderServiceImpl一致
@@ -299,6 +301,18 @@ public class UserController {
             // 可以加日志 e.printStackTrace();
             return ResponseBuilder.fail("下单失败：" + e.getMessage());
         }
+    }
+
+    @PostMapping("/history/item")
+    public CommonResponse getOrderItemHistory(@Valid @RequestBody UserOrderItemHistoryRequest request){
+        Long orderId = request.getOrderId();
+
+        UserOrderItemHistoryResponse response = new UserOrderItemHistoryResponse();
+        //得到orderItem的查询值
+        response.setOrderItemList(userService.getOrderItemHistory(orderId));
+        //得到product的查询值
+        response.setPriceInfo(orderMapper.getPriceInfoById(orderId));
+        return ResponseBuilder.ok(response);
     }
 
     @DeleteMapping("/cancel")

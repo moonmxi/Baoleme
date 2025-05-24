@@ -134,8 +134,16 @@ public class AdminServiceImpl implements AdminService {
 
         // 先填入店铺
         for (Map<String, Object> store : stores) {
-            Long storeId = ((Number) store.get("id")).longValue();
-            String storeName = (String) store.get("name");
+            Object idObj = store.get("id");
+            Object nameObj = store.get("name");
+
+            Long storeId = (idObj instanceof Number) ? ((Number) idObj).longValue() : null;
+            String storeName = (nameObj instanceof String) ? (String) nameObj : "";
+
+            if (storeId == null) {
+                // 可选：跳过无效数据
+                continue;
+            }
 
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("store_id", storeId);

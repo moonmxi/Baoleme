@@ -37,6 +37,7 @@ public interface CouponMapper extends BaseMapper<Coupon> {
             "AND expiration_date > NOW() ")
     boolean isCouponValid(@Param("userId") Long userId,
                           @Param("couponId") Long couponId);
+
     @Update("UPDATE coupon SET is_used = 1 WHERE id = #{couponId}")
     int markAsUsed(Long couponId);
 

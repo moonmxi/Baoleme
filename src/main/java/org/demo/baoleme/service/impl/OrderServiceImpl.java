@@ -176,7 +176,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("用户不存在");
         }
         // 这里假设你有方法获取用户地址
-        String userLocation = user.getLocation();
+        String userLocation = request.getUserLocation();
 
         // 3. 查询店铺，获取店铺地址
         Store store = storeMapper.selectById(request.getStoreId());
@@ -215,8 +215,8 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 6. 加上配送费，计算最终支付金额
-        BigDecimal deliveryFee = request.getDeliveryFee() != null ? request.getDeliveryFee() : BigDecimal.ZERO;
-        BigDecimal actualPrice = discountedPrice.add(deliveryFee);
+        BigDecimal deliveryPrice = request.getDeliveryPrice() != null ? request.getDeliveryPrice() : BigDecimal.ZERO;
+        BigDecimal actualPrice = discountedPrice.add(deliveryPrice);
 
         // 7. 创建订单实体并插入数据库
         Order order = new Order();
@@ -230,6 +230,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCreatedAt(LocalDateTime.now());
         order.setDeadline(request.getDeadline()); // 订单截止时间30分钟后
         order.setRemark(request.getRemark());
+        order.setDeliveryPrice(deliveryPrice);
         orderMapper.insert(order);
 
         // 8. 创建订单项并扣库存
@@ -256,6 +257,12 @@ public class OrderServiceImpl implements OrderService {
         response.setOrderId(order.getId());
         response.setTotalPrice(totalProductPrice);
         response.setActualPrice(actualPrice);
+        response.setStatus(order.getStatus());
+        response.setStoreId(order.getStoreId());
+        response.setStoreName(store.getName());
+        response.setRemark(order.getRemark());
+        response.setCreatedAt(order.getCreatedAt());
+        response.setItems(orderMapper.selectOrderItemsWithProductInfo(order.getId()));
         return response;
     }
 }

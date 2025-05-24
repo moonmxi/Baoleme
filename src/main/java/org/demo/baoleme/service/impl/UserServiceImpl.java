@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -204,15 +203,22 @@ public class UserServiceImpl implements UserService {
 
         Map<Long, Map<String, Object>> resultMap = new LinkedHashMap<>();
 
-        // 添加店铺
         for (Map<String, Object> store : stores) {
-            Long storeId = ((Number) store.get("id")).longValue();
-            String storeName = (String) store.get("name");
+            Object idObj = store.get("id");
+            Object nameObj = store.get("name");
+
+            Long storeId = (idObj instanceof Number) ? ((Number) idObj).longValue() : null;
+            String storeName = (nameObj instanceof String) ? (String) nameObj : "";
+
+            if (storeId == null) {
+                // 可选：跳过无效数据
+                continue;
+            }
 
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("store_id", storeId);
             entry.put("store_name", storeName);
-            entry.put("products", new LinkedHashMap<String, Long>());
+            entry.put("products", new LinkedHashMap<String, Long>());  // 初始化空的产品 map
 
             resultMap.put(storeId, entry);
         }
@@ -265,27 +271,43 @@ public class UserServiceImpl implements UserService {
     public UserReviewResponse submitReview(Long userId, UserReviewRequest request) {
         UserReviewResponse response = new UserReviewResponse();
 
-        // 根据订单 ID 查询订单
         Long storeId = request.getStoreId();
         Long productId = request.getProductId();
 
-        String storeName = storeMapper.getNameById();
-        String productName = productMapper.getNameById();
+        // 校验店铺是否存在
+        String storeName = storeMapper.getNameById(storeId);
+        if (storeName == null) {
+            throw new IllegalArgumentException("无效的店铺ID");
+        }
+        response.setStoreName(storeName);
+
+        // 如果 productId 不为 null，则查询商品名称
+        String productName = null;
+        if (productId != null) {
+            productName = productMapper.getNameById(productId);
+            if (productName == null) {
+                throw new IllegalArgumentException("无效的商品ID");
+            }
+            response.setProductName(productName);
+        }
 
         response.setComment(request.getComment());
         response.setRating(request.getRating());
-        response.setImages(request.getImages() == null ? null : request.getImages());
-        response.setProductName(productName);
-        response.setStoreName(storeName);
 
-        // 插入评论
+        // 图片处理，建议 JSON 字符串存储
+        String imagesStr = (request.getImages() == null || request.getImages().isEmpty())
+                ? null
+                : String.join(",", request.getImages());
+        response.setImages(request.getImages());
+
+        // 插入评论（可能为空的字段统一处理）
         orderMapper.insertReview(
                 userId,
                 storeId,
                 productId,
                 request.getRating(),
                 request.getComment(),
-                request.getImages() == null ? null : request.getImages().toString()
+                imagesStr
         );
 
         return response;
@@ -295,6 +317,13 @@ public class UserServiceImpl implements UserService {
     public List<Map<String, Object>> getUserOrdersPaged(Long userId, Integer status, String startTime, String endTime, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
         return orderMapper.selectUserOrders(userId, status, startTime, endTime, offset, pageSize);
+    }
+
+    @Override
+    public List<Map<String,Object>> getOrderItemHistory(Long orderId) {
+        List<Map<String,Object>> items = orderMapper.selectOrderItemsWithProductInfo(orderId);
+
+        return items;
     }
 
 }

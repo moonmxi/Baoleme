@@ -42,7 +42,7 @@ public interface StoreMapper extends BaseMapper<Store> {
            p.id AS product_id, p.name AS product_name
     FROM product p
     JOIN store s ON p.store_id = s.id
-    WHERE p.name LIKE '%${keyword}%'
+    WHERE p.name LIKE CONCAT('%', #{keyword}, '%')
 """)
     List<Map<String, Object>> searchProductsByKeyword(@Param("keyword") String keyword);
 
@@ -76,8 +76,8 @@ public interface StoreMapper extends BaseMapper<Store> {
     @Select("SELECT id FROM store WHERE name = #{name}")
     Long getIdByName(@Param("name") String name);
 
-    @Select("SELECT name FROM store WHERE id = #{id}")
-    String getNameById();
+    @Select("SELECT name FROM store WHERE id = #{storeId}")
+    String getNameById(@Param("storeId") Long storeId);
 
     @Select("""
     SELECT id, name, description, location, rating, status, created_at, image

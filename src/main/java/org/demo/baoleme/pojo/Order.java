@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
  * 订单实体
  */
 @Data
-@TableName("order")
+@TableName("`order`")
 public class Order {
 
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     @TableField("user_id")

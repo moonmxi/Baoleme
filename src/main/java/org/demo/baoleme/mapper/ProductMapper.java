@@ -38,7 +38,7 @@ public interface ProductMapper extends BaseMapper<Product> {
     @Select("SELECT id FROM product WHERE name = #{name} AND store_id = #{storeId}")
     Long getIdByNameAndStoreId(@Param("name") String name, @Param("storeId") Long storeId);
 
-    @Select("SELECT name FROM product WHERE id = #{id}")
-    String getNameById();
+    @Select("SELECT name FROM product WHERE id = #{productId}")
+    String getNameById(@Param("productId") Long productId);
 
 }

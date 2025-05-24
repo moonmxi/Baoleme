@@ -1,6 +1,8 @@
 package org.demo.baoleme.service.impl;
 
+import org.demo.baoleme.mapper.OrderMapper;
 import org.demo.baoleme.mapper.RiderMapper;
+import org.demo.baoleme.pojo.Order;
 import org.demo.baoleme.pojo.Rider;
 import org.demo.baoleme.service.RiderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,9 @@ public class RiderServiceImpl implements RiderService {
 
     @Autowired
     private RiderMapper riderMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -101,7 +106,34 @@ public class RiderServiceImpl implements RiderService {
     }
 
     @Override
+    public boolean randomSendOrder(Long riderId) {
+        //获取当前骑手
+        Rider rider = riderMapper.selectById(riderId);
+        if(rider == null){
+            return false;
+        }
+        Order orderToSend = orderMapper.selectRandomOrderToSend();
+        rider.setOrderStatus(1);
+        //找到并更新该订单状态
+        Order order = orderMapper.selectById(orderToSend.getId());
+        order.setRiderId(riderId);
+        order.setStatus(1);
+        //将更新写入数据库
+        return orderMapper.updateById(order) > 0 && riderMapper.updateById(rider) > 0;
+    }
+
+    @Override
     public boolean delete(Long riderId) {
         return riderMapper.deleteById(riderId) > 0;
+    }
+
+    @Override
+    public boolean updateRiderOrderStatusAfterOrderGrab(Long riderId) {
+        Rider rider = riderMapper.selectById(riderId);
+        if (rider == null) {
+            return false;
+        }
+        rider.setOrderStatus(1);
+        return riderMapper.updateById(rider) > 0;
     }
 }

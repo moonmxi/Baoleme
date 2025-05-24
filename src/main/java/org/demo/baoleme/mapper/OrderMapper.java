@@ -20,6 +20,9 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Select("SELECT * FROM `order` WHERE status = 0 AND rider_id IS NULL ORDER BY created_at DESC LIMIT #{offset}, #{limit}")
     List<Order> selectAvailableOrders(@Param("offset") int offset, @Param("limit") int limit);
 
+    @Select("SELECT * FROM `order` WHERE status = 0 AND rider_id IS NULL ORDER BY RAND() LIMIT 1")
+    Order selectRandomOrderToSend();
+
     /**
      * 尝试抢单（加乐观锁，确保 rider_id 为空时才能更新）
      */
@@ -148,17 +151,18 @@ public interface OrderMapper extends BaseMapper<Order> {
             """)
     List<Order> selectByStoreId(@Param("storeId") Long storeId);
 
-    // TODO: 使用OrderMapper.xml，实现可变参数
     @Select("""
             SELECT *
             FROM `order`
             WHERE store_id = #{storeId}
+            AND status IS NULL OR status = #{status}
             LIMIT #{offset}, #{pageSize}                                
             """)
     List<Order> selectByStoreIdUsingPage(
             @Param("storeId") Long storeId,
             @Param("offset") int offset,
-            @Param("pageSize") int pageSize
+            @Param("pageSize") int pageSize,
+            @Param("status") Integer status
     );
 
     @Select("""

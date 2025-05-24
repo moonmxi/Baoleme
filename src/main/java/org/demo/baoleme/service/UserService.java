@@ -1,6 +1,7 @@
 package org.demo.baoleme.service;
 
 import org.demo.baoleme.dto.response.user.*;
+import org.demo.baoleme.pojo.Rider;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.dto.request.user.UserReviewRequest;
 
@@ -131,4 +132,5 @@ public interface UserService {
     );
 
     List<Map<String,Object>> getOrderItemHistory(Long orderId);
+
 }

@@ -11,10 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -33,6 +30,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private RiderMapper riderMapper;
 
     private Logger log;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -325,5 +325,6 @@ public class UserServiceImpl implements UserService {
 
         return items;
     }
+
 
 }

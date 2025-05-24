@@ -9,6 +9,7 @@ import org.demo.baoleme.dto.response.review.ReviewReadResponse;
 import org.demo.baoleme.mapper.UserMapper;
 import org.demo.baoleme.pojo.Page;
 import org.demo.baoleme.pojo.Review;
+import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.ReviewService;
 import org.demo.baoleme.service.StoreService;
 import org.demo.baoleme.service.UserService;
@@ -133,13 +134,12 @@ public class ReviewController {
         // 转换评论列表
         List<ReviewReadResponse> reviews = reviewPage.getList().stream().map(review -> {
             ReviewReadResponse item = new ReviewReadResponse();
-            // TODO: 目前使用占位符
-            // TODO: userService.getUserById()
-            item.setUsername("用户" + review.getUserId());  // 用户占位逻辑
+            User user = userMapper.selectById(review.getUserId());
+            item.setUsername("用户" + user.getUsername());  // 用户占位逻辑
             item.setRating(review.getRating());
             item.setComment(review.getComment());
             item.setCreatedAt(review.getCreatedAt());
-            item.setUserAvatar("");  // 空头像
+            item.setUserAvatar(user.getAvatar());  // 空头像
             item.setImage(review.getImage());
             return item;
         }).collect(Collectors.toList());

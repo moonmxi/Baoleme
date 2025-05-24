@@ -180,4 +180,10 @@ public class RiderController {
         boolean ok = riderService.delete(UserHolder.getId());
         return ok ? ResponseBuilder.ok() : ResponseBuilder.fail("注销失败");
     }
+
+    @PostMapping("/auto-order-taking")
+    public CommonResponse autoOrderTaking() {
+        Long id = UserHolder.getId();
+        return riderService.randomSendOrder(id)?  ResponseBuilder.ok() : ResponseBuilder.fail("目前无空闲订单");
+    }
 }

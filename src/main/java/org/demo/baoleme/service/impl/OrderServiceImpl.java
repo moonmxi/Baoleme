@@ -9,6 +9,7 @@ import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.CartService;
 import org.demo.baoleme.service.OrderService;
 import org.demo.baoleme.service.StoreService;
+import org.demo.baoleme.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +52,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RiderMapper riderMapper;
+
     @Override
     public List<Order> getAvailableOrders(int page, int pageSize) {
         int offset = (page - 1) * pageSize;
@@ -81,11 +88,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public boolean riderUpdateOrderStatus(Long orderId, Long riderId, Integer targetStatus) {
         if (targetStatus != null && targetStatus == 3) {
+
             // 特判：完成订单，调用专门 SQL
-            return orderMapper.completeOrder(orderId, riderId) > 0;
+            return (orderMapper.completeOrder(orderId, riderId) > 0 && riderMapper.updateRiderOrderStatusAfterOrderCompletion(riderId) > 0);
         } else {
             // 其他普通状态
-            System.out.println("1");
+            //System.out.println("1");
             return orderMapper.riderUpdateOrderStatus(orderId, riderId, targetStatus) > 0;
         }
     }
@@ -131,13 +139,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getOrdersByMerchant(Long storeId, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
-        return orderMapper.selectByStoreIdUsingPage(storeId, offset, pageSize);
+        return orderMapper.selectByStoreIdUsingPage(storeId, offset, pageSize, null);
     }
 
     @Override
     public List<Order> getOrdersByMerchantAndStatus(Long storeId, Integer status, int page, int pageSize){
-        // TODO: status未实现
-        return List.of();
+        int offset = (page - 1) * pageSize;
+        return orderMapper.selectByStoreIdUsingPage(storeId, offset, pageSize, status);
     }
 
     @Override
@@ -217,6 +225,7 @@ public class OrderServiceImpl implements OrderService {
         // 6. 加上配送费，计算最终支付金额
         BigDecimal deliveryPrice = request.getDeliveryPrice() != null ? request.getDeliveryPrice() : BigDecimal.ZERO;
         BigDecimal actualPrice = discountedPrice.add(deliveryPrice);
+
 
         // 7. 创建订单实体并插入数据库
         Order order = new Order();

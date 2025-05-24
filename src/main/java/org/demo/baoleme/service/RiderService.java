@@ -43,4 +43,8 @@ public interface RiderService {
      * @return true 表示成功，false 表示失败
      */
     boolean delete(Long riderId);
+
+    boolean randomSendOrder(Long riderId);
+
+    boolean updateRiderOrderStatusAfterOrderGrab(Long riderId);
 }

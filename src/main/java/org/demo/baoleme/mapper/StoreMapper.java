@@ -79,10 +79,4 @@ public interface StoreMapper extends BaseMapper<Store> {
     @Select("SELECT name FROM store WHERE id = #{storeId}")
     String getNameById(@Param("storeId") Long storeId);
 
-    @Select("""
-    SELECT id, name, description, location, rating, status, created_at, image
-    FROM store
-    WHERE id = #{storeId}
-""")
-    Store selectById(@Param("storeId") Long storeId);
 }

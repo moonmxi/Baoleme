@@ -246,6 +246,11 @@ public class StoreServiceImpl implements StoreService {
         if (StringUtils.hasText(source.getImage())) {
             target.setImage(source.getImage());
         }
+
+        // Step7:
+        if (StringUtils.hasText(source.getType())) {
+            target.setType(source.getType());
+        }
     }
 
     /**

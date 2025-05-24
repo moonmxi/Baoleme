@@ -157,8 +157,25 @@ public class ProductServiceImpl implements ProductService {
             target.setPrice(source.getPrice());
         }
 
-        // 状态更新（需通过专用方法）
-        // 状态更新应使用updateProductStatus方法
+        if(source.getCategory() != null) {
+            target.setCategory(source.getCategory());
+        }
+
+        if(source.getDescription() != null) {
+            target.setDescription(source.getDescription());
+        }
+
+        if(source.getImage() != null) {
+            target.setImage(source.getImage());
+        }
+
+        if(source.getStock() != null){
+            target.setStock(source.getStock());
+        }
+
+        if(source.getStatus() != null) {
+            target.setStatus(source.getStatus());
+        }
     }
 
     /**

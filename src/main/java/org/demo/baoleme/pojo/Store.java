@@ -24,6 +24,8 @@ public class Store {
 
     private String location;
 
+    private String type;
+
     /**
      * 评分（decimal(2,1), 默认5.0）
      */

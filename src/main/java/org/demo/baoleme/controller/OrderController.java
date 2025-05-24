@@ -174,7 +174,7 @@ public class OrderController {
         // Step 4: 构造响应
         OrderUpdateByMerchantResponse response = new OrderUpdateByMerchantResponse();
         response.setId(newOrder.getId());
-        response.setOldStatus(newOrder.getStatus()); // 假设Service已处理旧状态
+        response.setOldStatus(1); // 假设Service已处理旧状态
         response.setNewStatus(request.getNewStatus());
         response.setUpdateAt(LocalDateTime.now());
         response.setCancelReason(request.getCancelReason());

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class StoreUpdateResponse {
     private String name;
-    private String desc;
+    private String description;
     private String location;
     private BigDecimal rating;
     private Integer status;

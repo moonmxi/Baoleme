@@ -36,7 +36,6 @@ public class Store {
      */
     private Integer status = 0;
 
-    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
     private String image;

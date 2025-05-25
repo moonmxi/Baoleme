@@ -45,6 +45,7 @@ public class StoreServiceImpl implements StoreService {
         }
 
         // Step3: 执行持久化
+        // TODO: desc和createAt没有插入
         return storeMapper.insert(store) > 0 ? store : null;
     }
 

@@ -11,7 +11,7 @@ public class StoreCreateRequest {
     @NotBlank(message = "店铺名不能为空")
     private String name;
 
-    private String desc;
+    private String description;
     private String location;
     private String image;
     private String type;

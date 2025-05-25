@@ -14,4 +14,5 @@ public class StoreCreateRequest {
     private String desc;
     private String location;
     private String image;
+    private String type;
 }

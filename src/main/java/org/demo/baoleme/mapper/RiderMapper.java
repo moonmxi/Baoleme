@@ -14,7 +14,7 @@ public interface RiderMapper extends BaseMapper<Rider> {
      * @param username 用户名
      * @return Rider 对象或 null
      */
-    @Select("SELECT id, username, password, phone, order_status, dispatch_mode, balance, created_at " +
+    @Select("SELECT id, username, password, phone, order_status, dispatch_mode, balance, created_at, avatar " +
             "FROM rider WHERE username = #{username} LIMIT 1")
     Rider selectByUsername(String username);
 
@@ -24,7 +24,7 @@ public interface RiderMapper extends BaseMapper<Rider> {
      * @param phone 手机号
      * @return Rider 对象或 null
      */
-    @Select("SELECT id, username, password, phone,order_status, dispatch_mode, balance, created_at " +
+    @Select("SELECT id, username, password, phone,order_status, dispatch_mode, balance, created_at, avatar " +
             "FROM rider WHERE phone = #{phone} LIMIT 1")
     Rider selectByPhone(String phone);
 

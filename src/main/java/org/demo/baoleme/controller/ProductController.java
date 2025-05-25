@@ -77,14 +77,14 @@ public class ProductController {
         // Step1: 查询商品详情
         Product product = productService.getProductById(productId);
 
-        if (!validateStoreOwnerShip(product)) return ResponseBuilder.fail("商品创建失败，商家没有权限");
-
         // Step2: 验证查询结果
         if (product == null) {
             CommonResponse errorResponse = ResponseBuilder.fail("商品不存在");
             System.out.println("Response Body: " + errorResponse);
             return errorResponse;
         }
+
+        if (!validateStoreOwnerShip(product)) return ResponseBuilder.fail("商品创建失败，商家没有权限");
 
         // Step3: 构建响应体
         ProductViewResponse response = new ProductViewResponse();

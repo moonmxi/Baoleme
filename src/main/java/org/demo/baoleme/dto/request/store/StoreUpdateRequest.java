@@ -18,7 +18,6 @@ public class StoreUpdateRequest {
     private String name;
     private String description;
     private String location;
-    private BigDecimal rating;
     private Integer status;
     private String image;
 }

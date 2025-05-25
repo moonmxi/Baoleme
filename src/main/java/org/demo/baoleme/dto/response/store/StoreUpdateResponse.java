@@ -14,7 +14,6 @@ public class StoreUpdateResponse {
     private String name;
     private String description;
     private String location;
-    private BigDecimal rating;
     private Integer status;
     private LocalDateTime createdAt;
     private String image;

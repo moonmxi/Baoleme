@@ -13,7 +13,7 @@ public class ReviewReadRequest {
 
     private int page = 1;
     private int pageSize = 10;
-    private Boolean hasImage = true; // 是否带图（true/false）
+    private Boolean hasImage; // 是否带图（true/false）
 
     public enum ReviewFilterType {
         POSITIVE(1, "好评（4-5星）"),

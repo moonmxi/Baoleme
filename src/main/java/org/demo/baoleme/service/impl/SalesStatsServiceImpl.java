@@ -81,7 +81,13 @@ public class SalesStatsServiceImpl implements SalesStatsService {
     public List<Product> getPopularProducts(Long storeId, LocalDate startDate, LocalDate endDate) {
         // Step2: 获取销量数据
         List<ProductSalesDTO> salesData = saleMapper.selectTop3ProductsByStore(storeId);
-        if (salesData.isEmpty()) return List.of();
+        if (salesData.isEmpty()) {
+            System.out.println("店铺: " + storeId + "  没找到销售数据");
+            return List.of();
+        }
+        else {
+            System.out.println("销售数据" + salesData);
+        }
 
         // Step3: 提取商品ID集合
         List<Long> productIds = salesData.stream()

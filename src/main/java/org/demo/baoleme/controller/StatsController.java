@@ -32,6 +32,8 @@ public class StatsController {
             @RequestHeader("Authorization") String tokenHeader,
             @Valid @RequestBody SaleOverviewStatsRequest request
     ) {
+        System.out.println("收到请求：" + request);
+
         if(!storeService.validateStoreOwnership(request.getStoreId(), UserHolder.getId())){
             return ResponseBuilder.fail("商家无权查看");
         }
@@ -52,6 +54,9 @@ public class StatsController {
         response.setOrderCount(orderCount);
         response.setPopularProducts(popularProducts);
 
+        System.out.println("响应参数: \n"
+                + "总销量: " + totalSales + "\n"
+                + "总订单数: " + orderCount + "\n");
         return ResponseBuilder.ok(response);
     }
 
@@ -60,6 +65,7 @@ public class StatsController {
             @RequestHeader("Authorization") String tokenHeader,
             @Valid @RequestBody SaleTrendStatsRequest request
     ) {
+
         if(!storeService.validateStoreOwnership(request.getStoreId(), UserHolder.getId())){
             return ResponseBuilder.fail("商家无权查看");
         }

@@ -99,12 +99,18 @@ public class UserController {
         Long id = UserHolder.getId();
         User user = new User();
         user.setId(id);
-        // 可以设置用户状态为离线或其他状态
-        // user.setStatus(0);
+
 
         boolean success = userService.updateInfo(user);
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("登出失败");
     }
+
+    @DeleteMapping("/delete")
+    public CommonResponse delete() {
+        boolean ok = userService.delete(UserHolder.getId());
+        return ok ? ResponseBuilder.ok() : ResponseBuilder.fail("注销失败");
+    }
+
     @GetMapping("/info")
     public CommonResponse getInfo() {
         Long id = UserHolder.getId();

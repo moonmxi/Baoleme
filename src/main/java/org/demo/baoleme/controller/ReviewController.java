@@ -6,8 +6,10 @@ import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.review.ReviewReadRequest;
 import org.demo.baoleme.dto.response.review.ReviewPageResponse;
 import org.demo.baoleme.dto.response.review.ReviewReadResponse;
+import org.demo.baoleme.mapper.ProductMapper;
 import org.demo.baoleme.mapper.UserMapper;
 import org.demo.baoleme.pojo.Page;
+import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.pojo.Review;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.ReviewService;
@@ -26,12 +28,14 @@ public class ReviewController {
     private final StoreService storeService;
     private final UserMapper userMapper;
     private final UserService userService;
+    private final ProductMapper productMapper;
 
-    public ReviewController(ReviewService reviewService, StoreService storeService, UserMapper userMapper, UserService userService) {
+    public ReviewController(ReviewService reviewService, StoreService storeService, UserMapper userMapper, UserService userService, ProductMapper productMapper) {
         this.reviewService = reviewService;
         this.storeService = storeService;
         this.userMapper = userMapper;
         this.userService = userService;
+        this.productMapper = productMapper;
     }
 
     @PostMapping("/list")
@@ -135,12 +139,16 @@ public class ReviewController {
         List<ReviewReadResponse> reviews = reviewPage.getList().stream().map(review -> {
             ReviewReadResponse item = new ReviewReadResponse();
             User user = userMapper.selectById(review.getUserId());
+            Product product = productMapper.selectById(review.getProductId());
+            item.setUserId(user.getId());
             item.setUsername("用户" + user.getUsername());  // 用户占位逻辑
             item.setRating(review.getRating());
             item.setComment(review.getComment());
             item.setCreatedAt(review.getCreatedAt());
             item.setUserAvatar(user.getAvatar());  // 空头像
             item.setImage(review.getImage());
+            item.setProductId(product.getId());
+            item.setProductName(product.getName());
             return item;
         }).collect(Collectors.toList());
 

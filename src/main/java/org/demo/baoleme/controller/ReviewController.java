@@ -138,17 +138,27 @@ public class ReviewController {
         // 转换评论列表
         List<ReviewReadResponse> reviews = reviewPage.getList().stream().map(review -> {
             ReviewReadResponse item = new ReviewReadResponse();
+
+            // Step1
             User user = userMapper.selectById(review.getUserId());
+            if(user != null){
+                item.setUserId(user.getId());
+                item.setUsername("用户" + user.getUsername());
+                item.setUserAvatar(user.getAvatar());
+            }
+
+            // Step2
             Product product = productMapper.selectById(review.getProductId());
-            item.setUserId(user.getId());
-            item.setUsername("用户" + user.getUsername());  // 用户占位逻辑
+            if(product != null){
+                item.setProductId(product.getId());
+                item.setProductName(product.getName());
+            }
+
+            // Step3
             item.setRating(review.getRating());
             item.setComment(review.getComment());
             item.setCreatedAt(review.getCreatedAt());
-            item.setUserAvatar(user.getAvatar());  // 空头像
             item.setImage(review.getImage());
-            item.setProductId(product.getId());
-            item.setProductName(product.getName());
             return item;
         }).collect(Collectors.toList());
 

@@ -128,18 +128,20 @@ public class MerchantController {
         System.out.println("收到更新请求: " + request);
 
         // Step1: 创建Merchant对象并设置用户ID
-        Merchant oldMerchant = new Merchant();
+        Merchant newMerchant = new Merchant();
         Long id = UserHolder.getId();
-        oldMerchant.setId(id);
+        newMerchant.setId(id);
+
+        String oldMerchantName = merchantService.getMerchantById(id).getUsername();
 
         // Step2: 拷贝请求参数到实体对象
-        BeanUtils.copyProperties(request, oldMerchant);
+        BeanUtils.copyProperties(request, newMerchant);
 
         // Step3: 调用Service执行更新操作
-        Merchant newMerchant = merchantService.updateInfo(oldMerchant);
+        Merchant afterUpdate = merchantService.updateInfo(newMerchant);
 
         // Step4: 处理更新失败情况
-        if (newMerchant == null) {
+        if (afterUpdate == null) {
             return ResponseBuilder.fail("更新失败，请检查字段");
         }
 
@@ -147,12 +149,12 @@ public class MerchantController {
         MerchantUpdateResponse response = new MerchantUpdateResponse();
         response.setUsername(request.getUsername());
         response.setUserId(id);
-        response.setPhone(newMerchant.getPhone());
-        response.setAvatar(newMerchant.getAvatar());
+        response.setPhone(afterUpdate.getPhone());
+        response.setAvatar(afterUpdate.getAvatar());
 
         // Step6: 检查用户名是否发生变更
         boolean usernameChanged = request.getUsername() != null
-                && !request.getUsername().equals(newMerchant.getUsername());
+                && !oldMerchantName.equals(afterUpdate.getUsername());
         if (!usernameChanged) {
             return ResponseBuilder.ok(response);  // 用户名未修改直接返回
         }

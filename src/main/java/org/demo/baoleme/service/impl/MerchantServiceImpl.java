@@ -145,6 +145,11 @@ public class MerchantServiceImpl implements MerchantService {
         if (StringUtils.hasText(source.getPhone())) {
             target.setPhone(source.getPhone());
         }
+
+        // Step4:
+        if (StringUtils.hasText(source.getAvatar())) {
+            target.setAvatar(source.getAvatar());
+        }
     }
 
     /**

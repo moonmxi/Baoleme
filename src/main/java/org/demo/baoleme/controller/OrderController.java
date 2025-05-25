@@ -119,8 +119,11 @@ public class OrderController {
             RiderOrderHistoryResponse resp = new RiderOrderHistoryResponse();
             resp.setOrderId(order.getId());
             resp.setStatus(order.getStatus());
-            resp.setTotalAmount(order.getTotalPrice());
-            resp.setCompletedAt(order.getEndedAt());
+            resp.setTotalPrice(order.getTotalPrice());
+            resp.setDeliveryPrice(order.getDeliveryPrice());
+            resp.setCreatedAt(order.getCreatedAt());
+            resp.setStoreLocation(order.getStoreLocation());
+            resp.setUserLocation(order.getUserLocation());
             return resp;
         }).toList();
 

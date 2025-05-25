@@ -29,6 +29,7 @@ public interface UserService {
      */
     User login(String phone, String password);
 
+    boolean delete(Long riderId);
     /**
      * 获取用户信息
      * @param userId 用户主键 ID

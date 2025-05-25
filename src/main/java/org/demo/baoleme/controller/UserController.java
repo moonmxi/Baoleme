@@ -213,8 +213,8 @@ public class UserController {
     @GetMapping("/favorite/watch")
     public CommonResponse getFavoriteStores() {
         Long userId = UserHolder.getId();
-
         List<UserFavoriteResponse> stores = userService.getFavoriteStores(userId);
+
         return ResponseBuilder.ok(stores);
     }
 

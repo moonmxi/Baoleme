@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS rider (
                                      phone VARCHAR(20),
                                      balance BIGINT,
                                      avatar VARCHAR(50),
+                                     INDEX (order_status),
+                                     INDEX (dispatch_mode),
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=30000001;
 

@@ -44,12 +44,21 @@ public interface UserMapper extends BaseMapper<User> {
     int insertFavorite(Long userId, Long storeId);
 
     @Select("""
-    SELECT store_id
+    SELECT 
+        s.id, 
+        s.name, 
+        s.description, 
+        s.location, 
+        s.type, 
+        s.rating, 
+        s.status, 
+        s.created_at AS createdAt,
+        s.image
     FROM favorite f 
+    INNER JOIN store s ON f.store_id = s.id
     WHERE f.user_id = #{userId}
 """)
-    List<UserFavoriteResponse> selectFavoriteStoresByUserId(Long userId);
-
+    List<UserFavoriteResponse> selectFavoriteStoresWithDetails(Long userId);
 
     @Select("SELECT (SELECT COUNT(*) FROM product WHERE name LIKE CONCAT('%', #{keyword}, '%')) + " +
             "(SELECT COUNT(*) FROM store WHERE name LIKE CONCAT('%', #{keyword}, '%')) as total")

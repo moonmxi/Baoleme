@@ -11,7 +11,9 @@ import org.demo.baoleme.dto.response.rider.RiderOrderHistoryResponse;
 import org.demo.baoleme.pojo.Order;
 import org.demo.baoleme.service.OrderService;
 import org.demo.baoleme.common.UserHolder;
+import org.demo.baoleme.service.RiderService;
 import org.demo.baoleme.service.StoreService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -26,6 +28,9 @@ public class OrderController {
 
     private final OrderService orderService;
     private final StoreService storeService;
+
+    @Autowired
+    private RiderService riderService;
 
     public OrderController(OrderService orderService, StoreService storeService) {
         this.storeService = storeService;
@@ -52,7 +57,7 @@ public class OrderController {
         if (!ok) {
             return ResponseBuilder.fail("订单已被抢或不存在");
         }
-
+        riderService.updateRiderOrderStatusAfterOrderGrab(riderId);
         OrderGrabResponse response = new OrderGrabResponse();
         response.setOrderId(request.getOrderId());
         response.setPickupDeadline(LocalDateTime.now().plusMinutes(30)); // 假设30分钟取货

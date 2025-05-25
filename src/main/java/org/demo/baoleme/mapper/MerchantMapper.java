@@ -12,10 +12,6 @@ public interface MerchantMapper extends BaseMapper<Merchant> {
     @Select("SELECT * FROM merchant WHERE username = #{username}")
     Merchant selectByUsername(String username);
 
-    // 根据ID查询商户
-    @Select("SELECT * FROM merchant WHERE id = #{id}")
-    Merchant selectById(Long id);
-
     /**
      * 根据手机号查找商家
      * @param phone 手机号

@@ -145,7 +145,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserFavoriteResponse> getFavoriteStores(Long userId) {
-        return userMapper.selectFavoriteStoresByUserId(userId);
+        return userMapper.selectFavoriteStoresWithDetails(userId);
     }
 
     // 优惠券功能转移到CouponMapper

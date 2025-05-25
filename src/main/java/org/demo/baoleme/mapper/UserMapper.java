@@ -45,7 +45,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Select("""
     SELECT 
-        s.id, 
+        f.store_id, 
         s.name, 
         s.description, 
         s.location, 

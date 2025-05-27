@@ -138,7 +138,13 @@ public class UserController {
         // 组装更新 user
         User user = new User();
         user.setId(id);
-        BeanUtils.copyProperties(request, user);
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
+        user.setPhone(request.getPhone());
+        user.setAvatar(request.getAvatar());
+        user.setDescription(request.getDescription());
+        user.setLocation(request.getLocation());
+        user.setGender(request.getGender());
 
         boolean success = userService.updateInfo(user);
         if (!success) {
@@ -173,8 +179,6 @@ public class UserController {
         String location = request.getLocation();
         String gender = request.getGender();
 
-        userMapper.updateUser(id,username, password, phone, avatar, description, location, gender);
-        
         // 返回新的 token
         UserLoginResponse response = new UserLoginResponse();
         response.setToken(newToken);

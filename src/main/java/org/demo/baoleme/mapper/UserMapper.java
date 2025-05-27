@@ -44,7 +44,7 @@ public interface UserMapper extends BaseMapper<User> {
     int insertFavorite(Long userId, Long storeId);
 
      @Update("UPDATE user SET username = #{username},password = #{password},phone = #{phone} ,avatar = #{avatar} " +
-            ", description = #{description} , location = #{location} , gender = #{gender} WHERE user_id = #{userId}")
+            ", description = #{description} , location = #{location} , gender = #{gender} WHERE id = #{userId}")
     int updateUser(Long userId, String username, String password, String phone, String avatar, String description, String location, String gender);
     
     @Select("""

@@ -95,40 +95,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean updateInfo(User user) {
         if (user == null || user.getId() == null) return false;
+        Long id = user.getId();
+        String username = user.getUsername();
+        String password = user.getPassword();
+        String phone = user.getPhone();
+        String avatar = user.getAvatar();
+        String description = user.getDescription();
+        String location = user.getLocation();
+        String gender = user.getGender();
 
-        User existing = userMapper.selectById(user.getId());
-        existing.setId(user.getId());
-        if (existing == null) return false;
-
-        if (StringUtils.hasText(user.getUsername())) {
-            User byUsername = userMapper.selectByUsername(user.getUsername());
-            if (byUsername != null && !byUsername.getId().equals(user.getId())) {
-                System.out.println("更新失败：用户名已被其他用户使用");
-                return false;
-            }
-            existing.setUsername(user.getUsername());
-        }
-        if (StringUtils.hasText(user.getPassword())) {
-            existing.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-        if (StringUtils.hasText(user.getPhone())) {
-            //System.out.println("111");
-            User byPhone = userMapper.selectByPhone(user.getPhone());
-            if (byPhone != null && !byPhone.getId().equals(user.getId())) {
-                System.out.println("更新失败：手机号已被其他用户使用");
-                return false;
-            }
-            existing.setPhone(user.getPhone());
-            //System.out.println(existing.getPhone());
-        }
-        if (StringUtils.hasText(user.getGender())) {
-            existing.setGender(user.getGender());
-        }
-        if (StringUtils.hasText(user.getAvatar())) {
-            existing.setAvatar(user.getAvatar());
-        }
-
-        return userMapper.updateById(existing) > 0;
+        return userMapper.updateUser(id, username, password, phone, avatar, description, location, gender) > 0;
     }
 
     @Override

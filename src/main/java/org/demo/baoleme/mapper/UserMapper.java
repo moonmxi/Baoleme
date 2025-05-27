@@ -41,6 +41,10 @@ public interface UserMapper extends BaseMapper<User> {
     @Insert("INSERT INTO favorite(user_id, store_id) VALUES(#{userId}, #{storeId})")
     int insertFavorite(Long userId, Long storeId);
 
+    @Update("UPDATE user SET username = #{username},password = #{password},phone = #{phone} ,avatar = #{avatar} " +
+            ", description = #{description} , location = #{location} , gender = #{gender} WHERE user_id = #{userId}")
+    int updateUser(Long userId, String username, String password, String phone, String avatar, String description, String location, String gender);
+    
     @Select("""
     SELECT store_id
     FROM favorite f 

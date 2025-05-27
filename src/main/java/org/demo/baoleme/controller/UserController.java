@@ -165,6 +165,16 @@ public class UserController {
         redisTemplate.opsForValue().set("user:token:" + newToken, id, 1, TimeUnit.DAYS);
         redisTemplate.opsForValue().set("user:login:" + id, newToken, 1, TimeUnit.DAYS);
 
+        String username = request.getUsername();
+        String password = request.getPassword();
+        String phone = request.getPhone();
+        String avatar= request.getAvatar();
+        String description = request.getDescription();
+        String location = request.getLocation();
+        String gender = request.getGender();
+
+        userMapper.updateUser(id,username, password, phone, avatar, description, location, gender);
+        
         // 返回新的 token
         UserLoginResponse response = new UserLoginResponse();
         response.setToken(newToken);

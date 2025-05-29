@@ -10,30 +10,32 @@ import java.util.List;
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 
-    /*
-    @Select("SELECT id, username, password, phone, avatar, created_at, location, description, gender " +
-            "FROM user WHERE id = #{id} LIMIT 1")
-    User selectById(Long id);
-    */
-
     @Delete("DELETE FROM user WHERE username = #{username}")
     int deleteByUsername(@Param("username") String username);
 
 
     @Select("""
-    SELECT id, username, phone, avatar, created_at
+    SELECT *
     FROM user
+    WHERE (#{keyword} IS NULL OR username LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%'))
+      AND (#{gender} IS NULL OR gender = #{gender})
+      AND (#{startId} IS NULL OR id >= #{startId})
+      AND (#{endId} IS NULL OR id <= #{endId})
     ORDER BY created_at DESC
     LIMIT #{offset}, #{limit}
 """)
-    List<User> selectUsersPaged(@Param("offset") int offset,
+    List<User> selectUsersPaged(@Param("keyword") String keyword,
+                                @Param("gender") String gender,
+                                @Param("startId") Long startId,
+                                @Param("endId") Long endId,
+                                @Param("offset") int offset,
                                 @Param("limit") int limit);
 
-    @Select("SELECT id, username, password, phone, gender, avatar " +
+    @Select("SELECT * " +
             "FROM user WHERE username = #{username} LIMIT 1")
     User selectByUsername(String username);
 
-    @Select("SELECT id, username, password, gender, avatar, description, location, created_at " +
+    @Select("SELECT * " +
             "FROM user WHERE phone = #{phone} LIMIT 1")
     User selectByPhone(String phone);
 

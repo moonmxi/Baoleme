@@ -19,16 +19,16 @@ public interface AdminService {
      */
     Admin getInfo(Long id);
 
-    List<User> getAllUsersPaged(int page, int pageSize);
+    List<User> getAllUsersPaged(int page, int pageSize, String keyword, String gender, Long startId, Long endId);
 
     /**
      * 分页查询所有骑手
      */
-    List<Rider> getAllRidersPaged(int page, int pageSize);
+    List<Rider> getAllRidersPaged(int page, int pageSize, String keyword, Long  startId, Long endId, Integer status, Integer  dispatchMode, Long startBalance, Long endBalance);
 
-    List<Merchant> getAllMerchantsPaged(int page, int pageSize);
+    List<Merchant> getAllMerchantsPaged(int page, int pageSize, String keyword, Long startId, Long endId);
 
-    List<Store> getAllStoresPaged(int page, int pageSize);
+    List<Store> getAllStoresPaged(int page, int pageSize, String keyword, String type, Integer status, BigDecimal startRating, BigDecimal endRating);
 
     boolean deleteUserByUsername(String username);
 

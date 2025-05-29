@@ -55,27 +55,27 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<User> getAllUsersPaged(int page, int pageSize) {
+    public List<User> getAllUsersPaged(int page, int pageSize,String keyword ,String gender, Long startId, Long endId) {
         int offset = (page - 1) * pageSize;
-        return userMapper.selectUsersPaged(offset, pageSize);
+        return userMapper.selectUsersPaged(keyword, gender, startId, endId, offset, pageSize);
     }
 
     @Override
-    public List<Rider> getAllRidersPaged(int page, int pageSize) {
+    public List<Rider> getAllRidersPaged(int page, int pageSize,String keyword, Long startId, Long endId, Integer status, Integer dispatchMode, Long startBalance, Long endBalance) {
         int offset = (page - 1) * pageSize;
-        return riderMapper.selectRidersPaged(offset, pageSize);
+        return riderMapper.selectRidersPaged(offset, pageSize, keyword, startId, endId, status, dispatchMode, startBalance, endBalance);
     }
 
     @Override
-    public List<Merchant> getAllMerchantsPaged(int page, int pageSize) {
+    public List<Merchant> getAllMerchantsPaged(int page, int pageSize, String keyword, Long startId, Long endId) {
         int offset = (page - 1) * pageSize;
-        return merchantMapper.selectMerchantsPaged(offset, pageSize);
+        return merchantMapper.selectMerchantsPaged(offset, pageSize, keyword, startId, endId);
     }
 
     @Override
-    public List<Store> getAllStoresPaged(int page, int pageSize) {
+    public List<Store> getAllStoresPaged(int page, int pageSize, String keyword, String type, Integer status, BigDecimal startRating, BigDecimal endRating) {
         int offset = (page - 1) * pageSize;
-        return storeMapper.selectStoresPaged(offset, pageSize);
+        return storeMapper.selectStoresPaged(offset, pageSize, keyword, type, status, startRating, endRating);
     }
 
     @Override

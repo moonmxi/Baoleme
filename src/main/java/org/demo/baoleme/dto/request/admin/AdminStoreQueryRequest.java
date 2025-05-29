@@ -4,13 +4,15 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class AdminStoreQueryRequest {
-    @NotNull
-    @Min(1)
+    private String keyword;
+    private String type;
+    private BigDecimal  startRating;
+    private BigDecimal  endRating;
+    private Integer status;
     private Integer page;
-
-    @NotNull
-    @Min(1)
     private Integer pageSize;
 }

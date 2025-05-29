@@ -29,12 +29,27 @@ public interface RiderMapper extends BaseMapper<Rider> {
     Rider selectByPhone(String phone);
 
     @Select("""
-        SELECT id, username, phone, order_status, dispatch_mode, balance,  avatar, created_at
-        FROM rider
-        ORDER BY id DESC
-        LIMIT #{offset}, #{limit}
-    """)
-    List<Rider> selectRidersPaged(@Param("offset") int offset, @Param("limit") int limit);
+    SELECT id, username, phone, order_status, dispatch_mode, balance, avatar, created_at
+    FROM rider
+    WHERE (#{keyword} IS NULL OR username LIKE CONCAT('%', #{keyword}, '%'))
+      AND (#{startId} IS NULL OR id >= #{startId})
+      AND (#{endId} IS NULL OR id <= #{endId})
+      AND (#{status} IS NULL OR order_status = #{status})
+      AND (#{dispatchMode} IS NULL OR dispatch_mode = #{dispatchMode})
+      AND (#{startBalance} IS NULL OR balance >= #{startBalance})
+      AND (#{endBalance} IS NULL OR balance <= #{endBalance})
+    ORDER BY id DESC
+    LIMIT #{offset}, #{limit}
+""")
+    List<Rider> selectRidersPaged(@Param("offset") int offset,
+                                  @Param("limit") int limit,
+                                  @Param("keyword") String keyword,
+                                  @Param("startId") Long startId,
+                                  @Param("endId") Long endId,
+                                  @Param("status") Integer status,
+                                  @Param("dispatchMode") Integer dispatchMode,
+                                  @Param("startBalance") Long startBalance,
+                                  @Param("endBalance") Long endBalance);
 
     @Update("UPDATE rider SET order_status = 0 WHERE id = #{riderId}")
     int updateRiderOrderStatusAfterOrderCompletion(@Param("riderId") Long riderId);

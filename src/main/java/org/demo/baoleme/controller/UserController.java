@@ -187,7 +187,7 @@ public class UserController {
         return ResponseBuilder.ok(response);
     }
 
-    @GetMapping("/history")
+    @PostMapping("/history")
     public CommonResponse getOrderHistory(@RequestBody UserOrderHistoryRequest request) {
         Long userId = UserHolder.getId();
         String role = UserHolder.getRole();
@@ -198,10 +198,10 @@ public class UserController {
         List<Map<String, Object>> records = userService.getUserOrdersPaged(
                 userId,
                 request.getStatus(),
-                request.getStart_time(),
-                request.getEnd_time(),
+                request.getStartTime(),
+                request.getEndTime(),
                 request.getPage(),
-                request.getPage_size()
+                request.getPageSize()
         );
 
         List<UserOrderHistoryResponse> responses = records.stream().map(map -> {

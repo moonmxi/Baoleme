@@ -30,13 +30,19 @@ public interface MerchantMapper extends BaseMapper<Merchant> {
     int updateMerchant(Merchant merchant);
 
     @Select("""
-        SELECT id, username, phone, avatar, created_at
-                FROM merchant
-                ORDER BY id DESC
-                LIMIT #{offset}, #{limit};
-    """)
+    SELECT *
+    FROM merchant
+    WHERE (#{keyword} IS NULL OR username LIKE CONCAT('%', #{keyword}, '%'))
+      AND (#{startId} IS NULL OR id >= #{startId})
+      AND (#{endId} IS NULL OR id <= #{endId})
+    ORDER BY id DESC
+    LIMIT #{offset}, #{limit}
+""")
     List<Merchant> selectMerchantsPaged(@Param("offset") int offset,
-                                        @Param("limit") int limit);
+                                        @Param("limit") int limit,
+                                        @Param("keyword") String keyword,
+                                        @Param("startId") Long startId,
+                                        @Param("endId") Long endId);
 
     @Delete("DELETE FROM merchant WHERE username = #{username}")
     int deleteByUsername(@Param("username") String username);

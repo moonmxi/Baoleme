@@ -8,8 +8,8 @@ import lombok.Data;
 @Data
 public class UserOrderHistoryRequest {
     private Integer status;
-    private String start_time;
-    private String end_time;
+    private String startTime;
+    private String endTime;
     private Integer page;
-    private Integer page_size;
+    private Integer pageSize;
 }

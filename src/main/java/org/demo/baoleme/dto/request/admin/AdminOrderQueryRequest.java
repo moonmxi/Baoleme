@@ -18,7 +18,7 @@ public class AdminOrderQueryRequest {
 
     @NotNull
     @Min(1)
-    private Integer page_size;
+    private Integer pageSize;
 
     private Long userId;
     private Long storeId;

@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.*;
 import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.pojo.Store;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -12,12 +13,23 @@ import java.util.Map;
 public interface StoreMapper extends BaseMapper<Store> {
 
     @Select("""
-    SELECT id, name, description, location, rating, status, created_at, image
+    SELECT *
     FROM store
+    WHERE (#{keyword} IS NULL OR name LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%'))
+      AND (#{type} IS NULL OR type = #{type})
+      AND (#{status} IS NULL OR status = #{status})
+      AND (#{startRating} IS NULL OR rating >= #{startRating})
+      AND (#{endRating} IS NULL OR rating <= #{endRating})
     ORDER BY id DESC
     LIMIT #{offset}, #{limit}
 """)
-    List<Store> selectStoresPaged(@Param("offset") int offset, @Param("limit") int limit);
+    List<Store> selectStoresPaged(@Param("offset") int offset,
+                                  @Param("limit") int limit,
+                                  @Param("keyword") String keyword,
+                                  @Param("type") String type,
+                                  @Param("status") Integer status,
+                                  @Param("startRating") BigDecimal startRating,
+                                  @Param("endRating") BigDecimal endRating);
 
     @Delete("DELETE FROM store WHERE name = #{storeName}")
     int deleteByName(@Param("storeName") String storeName);

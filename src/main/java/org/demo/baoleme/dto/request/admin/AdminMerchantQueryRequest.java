@@ -6,12 +6,9 @@ import lombok.Data;
 
 @Data
 public class AdminMerchantQueryRequest {
-
-    @NotNull
-    @Min(1)
+    private String keyword;
+    private Long  startId;
+    private Long endId;
     private Integer page;
-
-    @NotNull
-    @Min(1)
     private Integer pageSize;
 }

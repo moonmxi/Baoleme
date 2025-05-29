@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -96,12 +97,17 @@ public class AdminController {
 
         int page = request.getPage();
         int pageSize = request.getPageSize();
-        List<User> userList = adminService.getAllUsersPaged(page, pageSize);
+        String keyword = request.getKeyword();
+        String gender = request.getGender();
+        Long startId = request.getStartId();
+        Long endId = request.getEndId();
+        List<User> userList = adminService.getAllUsersPaged(page, pageSize, keyword, gender, startId, endId);
 
         List<AdminUserQueryResponse> responses = userList.stream().map(user -> {
             AdminUserQueryResponse resp = new AdminUserQueryResponse();
             resp.setId(user.getId());
             resp.setUsername(user.getUsername());
+            resp.setDescription(user.getDescription());
             resp.setPhone(user.getPhone());
             resp.setAvatar(user.getAvatar());
             resp.setCreatedAt(user.getCreatedAt());
@@ -123,7 +129,14 @@ public class AdminController {
 
         int page = request.getPage();
         int pageSize = request.getPageSize();
-        List<Rider> riderList = adminService.getAllRidersPaged(page, pageSize);
+        String keyword = request.getKeyword();
+        Long startId = request.getStartId();
+        Long endId = request.getEndId();
+        Integer status = request.getStatus();
+        Integer dispatchMode = request.getDispatchMode();
+        Long startBalance = request.getStartBalance();
+        Long endBalance = request.getEndBalance();
+        List<Rider> riderList = adminService.getAllRidersPaged(page, pageSize, keyword, startId, endId, status, dispatchMode, startBalance, endBalance);
 
         List<AdminRiderQueryResponse> responses = riderList.stream().map(rider -> {
             AdminRiderQueryResponse resp = new AdminRiderQueryResponse();
@@ -150,7 +163,10 @@ public class AdminController {
 
         int page = request.getPage();
         int pageSize = request.getPageSize();
-        List<Merchant> merchantList = adminService.getAllMerchantsPaged(page, pageSize);
+        String keyword = request.getKeyword();
+        Long startId = request.getStartId();
+        Long endId = request.getEndId();
+        List<Merchant> merchantList = adminService.getAllMerchantsPaged(page, pageSize, keyword, startId, endId);
 
         List<AdminMerchantQueryResponse> responses = merchantList.stream().map(merchant -> {
             AdminMerchantQueryResponse resp = new AdminMerchantQueryResponse();
@@ -174,7 +190,12 @@ public class AdminController {
 
         int page = request.getPage();
         int pageSize = request.getPageSize();
-        List<Store> storeList = adminService.getAllStoresPaged(page, pageSize);
+        String type = request.getType();
+        BigDecimal startRating = request.getStartRating();
+        BigDecimal endRating = request.getEndRating();
+        Integer status = request.getStatus();
+        String keyword = request.getKeyword();
+        List<Store> storeList = adminService.getAllStoresPaged(page, pageSize, keyword, type, status, startRating, endRating);
 
         List<AdminStoreQueryResponse> responses = storeList.stream().map(store -> {
             AdminStoreQueryResponse resp = new AdminStoreQueryResponse();
@@ -269,7 +290,7 @@ public class AdminController {
                 request.getCreatedAt(),
                 request.getEndedAt(),
                 request.getPage(),
-                request.getPage_size()
+                request.getPageSize()
         );
 
         List<AdminOrderQueryResponse> responses = orders.stream().map(order -> {

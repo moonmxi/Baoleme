@@ -3,7 +3,6 @@ package org.demo.baoleme.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.demo.baoleme.mapper.StoreMapper;
-import org.demo.baoleme.pojo.Merchant;
 import org.demo.baoleme.pojo.Store;
 import org.demo.baoleme.service.StoreService;
 import org.springframework.stereotype.Service;
@@ -89,6 +88,13 @@ public class StoreServiceImpl implements StoreService {
             System.out.println("[WARN] 分页参数错误：currentPage=" + currentPage + ", pageSize=" + pageSize);
             return Collections.emptyList();
         }
+
+        // TODO: 也许以后可以同一查询的实现
+        // 使用 BeanUtils.copyProperties() 复制字段
+        // 使用 LambdaQueryWrapper 构建sql语句
+        // 使用 com.baomidou.mybatisplus.extension.plugins.pagination.Page 构建分页结构
+        // maybe more
+        // can hardly remember
 
         // Step2: 创建分页对象并设置参数
         Page<Store> page = new Page<>(currentPage, pageSize);

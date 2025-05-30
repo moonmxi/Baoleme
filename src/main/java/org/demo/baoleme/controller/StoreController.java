@@ -69,7 +69,11 @@ public class StoreController {
                 + "查询者" + UserHolder.getId()
         );
 
-        List<Store> stores = storeService.getStoresByMerchant(UserHolder.getId());
+        List<Store> stores = storeService.getStoresByMerchant(
+                UserHolder.getId(),
+                request.getPage(),
+                request.getPageSize()
+        );
 
         StorePageResponse response = new StorePageResponse();
         response.setStores(stores);

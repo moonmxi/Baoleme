@@ -1,6 +1,7 @@
 package org.demo.baoleme.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.demo.baoleme.mapper.StoreMapper;
 import org.demo.baoleme.pojo.Merchant;
 import org.demo.baoleme.pojo.Store;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,25 +71,37 @@ public class StoreServiceImpl implements StoreService {
     }
 
     /**
-     * 获取指定商户下的所有店铺列表
+     * 获取指定商户下的所有店铺列表（分页）
      * @param merchantId 商户唯一标识
-     * @return 商户店铺列表，无数据返回空集合
+     * @param currentPage 当前页码（从1开始）
+     * @param pageSize 每页记录数
+     * @return 商户店铺分页列表，无数据返回空集合
      */
     @Override
     @Transactional(readOnly = true)
-    public List<Store> getStoresByMerchant(Long merchantId) {
+    public List<Store> getStoresByMerchant(Long merchantId, int currentPage, int pageSize) {
         // Step1: 参数有效性检查
         if (merchantId == null) {
             System.out.println("[WARN] 查询失败：商家ID为空");
-            return List.of();
+            return Collections.emptyList();
+        }
+        if (currentPage < 1 || pageSize < 1) {
+            System.out.println("[WARN] 分页参数错误：currentPage=" + currentPage + ", pageSize=" + pageSize);
+            return Collections.emptyList();
         }
 
-        // Step2: 构建查询条件
+        // Step2: 创建分页对象并设置参数
+        Page<Store> page = new Page<>(currentPage, pageSize);
+
+        // Step3: 构建查询条件
         LambdaQueryWrapper<Store> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Store::getMerchantId, merchantId);
 
-        // Step3: 执行查询
-        return storeMapper.selectList(queryWrapper);
+        // Step4: 执行分页查询
+        storeMapper.selectPage(page, queryWrapper);
+
+        // Step5: 返回当前页数据
+        return page.getRecords();
     }
 
     /* ========================= 店铺更新 ========================= */

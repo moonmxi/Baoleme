@@ -13,6 +13,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/store")
 public class StoreController {
@@ -57,6 +59,23 @@ public class StoreController {
         response.setId(createdStore.getId());
 
         System.out.println("创建成功，响应: " + response);
+        return ResponseBuilder.ok(response);
+    }
+
+    @PostMapping("/list")
+    public CommonResponse listStore(@RequestBody StoreListRequest request){
+        System.out.println(
+                "收到查询请求: " + request
+                + "查询者" + UserHolder.getId()
+        );
+
+        List<Store> stores = storeService.getStoresByMerchant(UserHolder.getId());
+
+        StorePageResponse response = new StorePageResponse();
+        response.setStores(stores);
+        response.setCurrentPage(request.getPage());
+
+        System.out.println("<UNK>: " + response);
         return ResponseBuilder.ok(response);
     }
 

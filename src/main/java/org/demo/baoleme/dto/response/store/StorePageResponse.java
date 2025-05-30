@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class StorePageResponse {
-    private List<Store> stores;
+    private List<StoreViewInfoResponse> stores;
     private Integer currentPage;
     private Integer totalPages;
     private Integer totalItems;

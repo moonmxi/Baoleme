@@ -3,6 +3,7 @@ package org.demo.baoleme.controller;
 import org.demo.baoleme.common.*;
 import org.demo.baoleme.dto.request.store.*;
 import org.demo.baoleme.dto.request.user.UserGetProductByConditionRequest;
+import org.demo.baoleme.dto.response.product.ProductViewResponse;
 import org.demo.baoleme.dto.response.store.*;
 import org.demo.baoleme.dto.response.user.UserGetProductResponse;
 import org.demo.baoleme.dto.response.user.UserGetShopResponse;
@@ -13,7 +14,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/store")
@@ -75,11 +78,19 @@ public class StoreController {
                 request.getPageSize()
         );
 
+        List<StoreViewInfoResponse> storeViewInfoResponses = stores.stream()
+                .map(store -> {
+                    StoreViewInfoResponse resp = new StoreViewInfoResponse();
+                    BeanUtils.copyProperties(store, resp);
+                    return resp;
+                })
+                .collect(Collectors.toList());
+
         StorePageResponse response = new StorePageResponse();
-        response.setStores(stores);
+        response.setStores(storeViewInfoResponses);
         response.setCurrentPage(request.getPage());
 
-        System.out.println("<UNK>: " + response);
+        System.out.println("[INFO] 已应答");
         return ResponseBuilder.ok(response);
     }
 

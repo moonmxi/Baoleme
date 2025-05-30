@@ -2,7 +2,6 @@ package org.demo.baoleme.dto.request.product;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.demo.baoleme.pojo.Product;
 
 @Data
 public class ProductViewRequest {

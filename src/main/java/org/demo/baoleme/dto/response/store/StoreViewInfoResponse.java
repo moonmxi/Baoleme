@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class StoreViewInfoResponse {
+    private Long storeId;
     private String name;
     private String description;
     private String type;

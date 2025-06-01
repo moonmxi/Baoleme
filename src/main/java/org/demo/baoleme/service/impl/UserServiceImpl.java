@@ -84,8 +84,8 @@ public class UserServiceImpl implements UserService {
         return user;
     }
     @Override
-    public boolean delete(Long riderId) {
-        return riderMapper.deleteById(riderId) > 0;
+    public boolean delete(Long userId) {
+        return userMapper.deleteById(userId) > 0;
     }
     @Override
     public User getInfo(Long userId) {

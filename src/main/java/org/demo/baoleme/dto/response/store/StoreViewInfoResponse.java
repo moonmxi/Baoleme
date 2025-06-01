@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class StoreViewInfoResponse {
     private String name;
     private String description;
+    private String type;
     private String location;
     private BigDecimal rating;
     private Integer status;

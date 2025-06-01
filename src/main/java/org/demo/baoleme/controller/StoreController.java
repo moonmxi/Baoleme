@@ -66,10 +66,13 @@ public class StoreController {
     }
 
     @PostMapping("/list")
-    public CommonResponse listStore(@RequestBody StoreListRequest request){
+    public CommonResponse listStore(
+            @RequestHeader("Authorization") String tokenHeader,
+            @RequestBody StoreListRequest request
+    ){
         System.out.println(
                 "收到查询请求: " + request
-                + "查询者" + UserHolder.getId()
+//                + "查询者: " + UserHolder.getId()
         );
 
         List<Store> stores = storeService.getStoresByMerchant(

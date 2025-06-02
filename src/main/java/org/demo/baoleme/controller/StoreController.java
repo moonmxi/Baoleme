@@ -85,6 +85,7 @@ public class StoreController {
                 .map(store -> {
                     StoreViewInfoResponse resp = new StoreViewInfoResponse();
                     BeanUtils.copyProperties(store, resp);
+                    resp.setStoreId(store.getId());
                     return resp;
                 })
                 .collect(Collectors.toList());

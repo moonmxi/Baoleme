@@ -5,6 +5,7 @@ import org.demo.baoleme.pojo.Rider;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.dto.request.user.UserReviewRequest;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -71,8 +72,9 @@ public interface UserService {
      * @param userId 用户ID
      * @return 收藏店铺列表
      */
-    List<UserFavoriteResponse> getFavoriteStores(Long userId);
+    List<UserFavoriteResponse> getFavoriteStores(Long userId, String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
 
+    List<UserFavoriteResponse> getStores(Long userId, String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
     /**
      * 获取用户优惠券
      * @param userId 用户ID
@@ -134,4 +136,5 @@ public interface UserService {
 
     List<Map<String,Object>> getOrderItemHistory(Long orderId);
 
+    String getMerchantPhoneByStoreId(Long storeId);
 }

@@ -5,12 +5,14 @@ import org.demo.baoleme.dto.request.user.UserReviewRequest;
 import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.mapper.*;
 import org.demo.baoleme.pojo.*;
+import org.demo.baoleme.service.SalesStatsService;
 import org.demo.baoleme.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -23,6 +25,9 @@ public class UserServiceImpl implements UserService {
     private StoreMapper storeMapper;
 
     @Autowired
+    private MerchantMapper merchantMapper;
+
+    @Autowired
     private ProductMapper productMapper;
 
     @Autowired
@@ -32,10 +37,15 @@ public class UserServiceImpl implements UserService {
     private OrderMapper orderMapper;
 
     @Autowired
+    private SalesStatsService salesStatsService;
+
+    @Autowired
     private RiderMapper riderMapper;
 
     private Logger log;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private SalesStatsServiceImpl salesStatsServiceImpl;
 
     // 用户核心功能保持不变
     @Override
@@ -152,10 +162,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserFavoriteResponse> getFavoriteStores(Long userId) {
-        return userMapper.selectFavoriteStoresWithDetails(userId);
+    public List<UserFavoriteResponse> getFavoriteStores(Long userId,String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating, BigDecimal endRating, Integer page, Integer pageSize) {
+        int offset = (page - 1) * pageSize;
+        return userMapper.selectFavoriteStoresWithDetails(userId,type, distance,wishPrice,startRating,endRating,offset,pageSize);
     }
-
+    @Override
+    public List<UserFavoriteResponse> getStores(Long userId,String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating, BigDecimal endRating, Integer page, Integer pageSize) {
+        int offset = (page - 1) * pageSize;
+        return userMapper.getStores(userId,type, distance,wishPrice,startRating,endRating,offset,pageSize);
+    }
     // 优惠券功能转移到CouponMapper
     @Override
     public List<UserCouponResponse> getUserCoupons(Long userId) {
@@ -334,5 +349,8 @@ public class UserServiceImpl implements UserService {
         return items;
     }
 
-
+    @Override
+    public String getMerchantPhoneByStoreId(Long storeId){
+        return merchantMapper.selectPhoneByStoreId(storeId);
+    }
 }

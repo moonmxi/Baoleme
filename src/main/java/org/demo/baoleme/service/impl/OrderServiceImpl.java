@@ -274,4 +274,11 @@ public class OrderServiceImpl implements OrderService {
         response.setItems(orderMapper.selectOrderItemsWithProductInfo(order.getId()));
         return response;
     }
+    @Override
+    @Transactional
+    public List<OrderItem> getOrderItemById(Long orderId){
+        List<OrderItem> orderItems = orderItemMapper.selectByOrderId(orderId);
+
+        return orderItems;
+    }
 }

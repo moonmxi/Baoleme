@@ -10,4 +10,6 @@ public class UserGetProductRequest {
     private String category;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
+    private Integer page;
+    private Integer pageSize;
 }

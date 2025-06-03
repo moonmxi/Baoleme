@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.*;
 import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.pojo.User;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Mapper
@@ -48,7 +49,7 @@ public interface UserMapper extends BaseMapper<User> {
      @Update("UPDATE user SET username = #{username},password = #{password},phone = #{phone} ,avatar = #{avatar} " +
             ", description = #{description} , location = #{location} , gender = #{gender} WHERE id = #{userId}")
     int updateUser(Long userId, String username, String password, String phone, String avatar, String description, String location, String gender);
-    
+
     @Select("""
     SELECT 
         f.store_id, 
@@ -59,12 +60,85 @@ public interface UserMapper extends BaseMapper<User> {
         s.rating, 
         s.status, 
         s.created_at AS createdAt,
-        s.image
+        s.image,
+        COALESCE((
+            SELECT SUM(p.price * sale.total_quantity) / SUM(sale.total_quantity)
+            FROM (
+                SELECT s2.product_id, SUM(s2.quantity) AS total_quantity
+                FROM sales s2
+                WHERE s2.store_id = s.id
+                    AND s2.sale_date >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)
+                GROUP BY s2.product_id
+                ORDER BY total_quantity DESC
+                LIMIT 3
+            ) sale
+            JOIN product p ON p.id = sale.product_id
+        ), 0) AS weightedAvgPrice
     FROM favorite f 
     INNER JOIN store s ON f.store_id = s.id
     WHERE f.user_id = #{userId}
+        AND (#{type} IS NULL OR s.type = #{type})
+        AND (#{distance} IS NULL OR s.distance <= #{distance})
+        AND (#{startRating} IS NULL OR s.rating >= #{startRating})
+        AND (#{endRating} IS NULL OR s.rating <= #{endRating})
+    HAVING (#{averagePrice} IS NULL OR weightedAvgPrice <= #{averagePrice})
+    ORDER BY s.id DESC
+    LIMIT #{offset}, #{limit}
 """)
-    List<UserFavoriteResponse> selectFavoriteStoresWithDetails(Long userId);
+    List<UserFavoriteResponse> selectFavoriteStoresWithDetails(
+            @Param("userId") Long userId,
+            @Param("type") String type,
+            @Param("distance") BigDecimal distance,
+            @Param("averagePrice") BigDecimal averagePrice,
+            @Param("startRating") BigDecimal startRating,
+            @Param("endRating") BigDecimal endRating,
+            @Param("offset") int offset,
+            @Param("limit") int limit);
+
+    @Select("""
+    SELECT 
+        s.id AS store_id, 
+        s.name, 
+        s.description, 
+        s.location, 
+        s.type, 
+        s.rating, 
+        s.status, 
+        s.created_at AS createdAt,
+        s.image,
+        COALESCE((
+            SELECT SUM(p.price * sale.total_quantity) / SUM(sale.total_quantity)
+            FROM (
+                SELECT s2.product_id, SUM(s2.quantity) AS total_quantity
+                FROM sales s2
+                WHERE s2.store_id = s.id
+                    AND s2.sale_date >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)
+                GROUP BY s2.product_id
+                ORDER BY total_quantity DESC
+                LIMIT 3
+            ) sale
+            JOIN product p ON p.id = sale.product_id
+        ), 0) AS weightedAvgPrice
+    FROM store s
+    WHERE 1=1
+        AND (#{type} IS NULL OR s.type = #{type})
+        AND (#{distance} IS NULL OR s.distance <= #{distance})
+        AND (#{minRating} IS NULL OR s.rating >= #{minRating})
+        AND (#{maxRating} IS NULL OR s.rating <= #{maxRating})
+        AND (#{status} IS NULL OR s.status = #{status})
+    HAVING (#{averagePrice} IS NULL OR weightedAvgPrice <= #{averagePrice})
+    ORDER BY ${orderBy}
+    LIMIT #{offset}, #{limit}
+""")
+    List<UserFavoriteResponse> getStores(
+            @Param("userId") Long userId,
+            @Param("type") String type,
+            @Param("distance") BigDecimal distance,
+            @Param("averagePrice") BigDecimal averagePrice,
+            @Param("startRating") BigDecimal startRating,
+            @Param("endRating") BigDecimal endRating,
+            @Param("offset") int offset,
+            @Param("limit") int limit);
 
     @Select("SELECT (SELECT COUNT(*) FROM product WHERE name LIKE CONCAT('%', #{keyword}, '%')) + " +
             "(SELECT COUNT(*) FROM store WHERE name LIKE CONCAT('%', #{keyword}, '%')) as total")

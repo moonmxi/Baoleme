@@ -6,4 +6,6 @@ import lombok.Data;
 public class UserGetProductByConditionRequest {
     private Long storeId;
     private String category;
+    private Integer page;
+    private Integer pageSize;
 }

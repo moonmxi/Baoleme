@@ -11,14 +11,17 @@ import org.demo.baoleme.dto.request.user.*;
 import org.demo.baoleme.dto.response.order.UserOrderItemHistoryResponse;
 import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.mapper.OrderMapper;
+import org.demo.baoleme.pojo.Order;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.UserService;
 import org.demo.baoleme.service.OrderService;
+import org.demo.baoleme.service.SalesStatsService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -35,7 +38,8 @@ public class UserController {
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
     private OrderService orderService;
-
+    @Autowired
+    private SalesStatsService saleStatsService;
     @Autowired
     private OrderMapper orderMapper;
 
@@ -221,7 +225,17 @@ public class UserController {
 
         return ResponseBuilder.ok(Map.of("orders", responses));
     }
+    @PostMapping("/history/item")
+    public CommonResponse getOrderItemHistory(@Valid @RequestBody UserOrderItemHistoryRequest request){
+        Long orderId = request.getOrderId();
 
+        UserOrderItemHistoryResponse response = new UserOrderItemHistoryResponse();
+        //得到orderItem的查询值
+        response.setOrderItemList(userService.getOrderItemHistory(orderId));
+        //得到product的查询值
+        response.setPriceInfo(orderMapper.getPriceInfoById(orderId));
+        return ResponseBuilder.ok(response);
+    }
     @PostMapping("/favorite")
     public CommonResponse favoriteStore(@Valid @RequestBody UserFavoriteRequest request) {
         Long userId = UserHolder.getId();
@@ -231,9 +245,16 @@ public class UserController {
     }
 
     @GetMapping("/favorite/watch")
-    public CommonResponse getFavoriteStores() {
+    public CommonResponse getFavoriteStores(@Valid@RequestBody UserGetFavoriteStoresRequest request) {
         Long userId = UserHolder.getId();
-        List<UserFavoriteResponse> stores = userService.getFavoriteStores(userId);
+        String type = request.getType();
+        BigDecimal distance = request.getDistance();
+        BigDecimal wishPrice = request.getWishPrice();
+        BigDecimal startRating = request.getStartRating();
+        BigDecimal endRating = request.getEndRating();
+        Integer page = request.getPage();
+        Integer pageSize = request.getPageSize();
+        List<UserFavoriteResponse> stores = userService.getFavoriteStores(userId,type, distance,wishPrice,startRating,endRating,page,pageSize);
 
         return ResponseBuilder.ok(stores);
     }
@@ -323,22 +344,55 @@ public class UserController {
         }
     }
 
-    @PostMapping("/history/item")
-    public CommonResponse getOrderItemHistory(@Valid @RequestBody UserOrderItemHistoryRequest request){
-        Long orderId = request.getOrderId();
 
-        UserOrderItemHistoryResponse response = new UserOrderItemHistoryResponse();
-        //得到orderItem的查询值
-        response.setOrderItemList(userService.getOrderItemHistory(orderId));
-        //得到product的查询值
-        response.setPriceInfo(orderMapper.getPriceInfoById(orderId));
-        return ResponseBuilder.ok(response);
-    }
 
     @DeleteMapping("/cancel")
     public CommonResponse cancelAccount() {
         Long userId = UserHolder.getId();
         boolean success = userService.cancelAccount(userId);
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("注销失败");
+    }
+
+    @PostMapping("/searchOrder")
+     public CommonResponse searchOrder(@Valid @RequestBody UserSearchOrderRequest request) {
+        try {
+            Order order = orderService.getOrderById(request.getOrderId());
+            UserSearchOrderResponse response = new UserSearchOrderResponse();
+            response.setId(order.getId());
+            response.setUserId(order.getUserId());
+            response.setStoreId(order.getStoreId());
+            response.setRiderId(order.getRiderId());
+            response.setStatus(order.getStatus());
+            response.setUserLocation(order.getUserLocation());
+            response.setStoreLocation(order.getStoreLocation());
+            response.setTotalPrice(order.getTotalPrice());
+            response.setActualPrice(order.getActualPrice());
+            response.setDeliveryPrice(order.getDeliveryPrice());
+            response.setRemark(order.getRemark());
+            response.setCreatedAt(order.getCreatedAt());
+            response.setDeadline(order.getDeadline());
+            response.setEndedAt(order.getEndedAt());
+            response.setStorePhone(userService.getMerchantPhoneByStoreId(order.getStoreId()));
+
+            return ResponseBuilder.ok(response);
+        } catch (Exception e){
+            return ResponseBuilder.fail("订单不存在");
+        }
+
+
+    }
+    @PostMapping("/searchOrderItem")
+    public CommonResponse searchOrderItem(@Valid @RequestBody UserSearchOrderRequest request) {
+        try {
+            Order order = orderService.getOrderById(request.getOrderId());
+            UserSearchOrderItemResponse response = new UserSearchOrderItemResponse();
+            response.setOrderId(order.getId());
+            response.setItems(orderService.getOrderItemById(order.getId()));
+            return ResponseBuilder.ok(response);
+        } catch (Exception e){
+            return ResponseBuilder.fail("订单明细不存在");
+        }
+
+
     }
 }

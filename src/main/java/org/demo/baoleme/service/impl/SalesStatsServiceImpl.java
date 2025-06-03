@@ -11,9 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -104,5 +107,37 @@ public class SalesStatsServiceImpl implements SalesStatsService {
                                 .orElse(0)
                 )) // 按销量降序排序
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public BigDecimal getWeightedAveragePriceOfPopularProducts(Long storeId) {
+        List<ProductSalesDTO> salesData = saleMapper.selectTop3ProductsByStore(storeId);
+
+        if (salesData.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        List<Long> productIds = salesData.stream()
+                .map(ProductSalesDTO::getProductId)
+                .collect(Collectors.toList());
+
+        Map<Long, Product> productMap = productMapper.selectBatchIds(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        BigDecimal totalValue = BigDecimal.ZERO;
+        int totalQuantity = 0;
+
+        for (ProductSalesDTO sale : salesData) {
+            Product product = productMap.get(sale.getProductId());
+            if (product != null && product.getPrice() != null) {
+                totalValue = totalValue.add(product.getPrice().multiply(new BigDecimal(sale.getTotalQuantity())));
+                totalQuantity += sale.getTotalQuantity();
+            }
+        }
+
+        return totalQuantity > 0
+                ? totalValue.divide(new BigDecimal(totalQuantity), 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
     }
 }

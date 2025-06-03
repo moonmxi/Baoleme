@@ -2,9 +2,11 @@ package org.demo.baoleme.controller;
 
 import org.demo.baoleme.common.*;
 import org.demo.baoleme.dto.request.store.*;
+import org.demo.baoleme.dto.request.user.UserGetFavoriteStoresRequest;
 import org.demo.baoleme.dto.request.user.UserGetProductByConditionRequest;
 import org.demo.baoleme.dto.response.product.ProductViewResponse;
 import org.demo.baoleme.dto.response.store.*;
+import org.demo.baoleme.dto.response.user.UserFavoriteResponse;
 import org.demo.baoleme.dto.response.user.UserGetProductResponse;
 import org.demo.baoleme.dto.response.user.UserGetShopResponse;
 import org.demo.baoleme.pojo.Store;
@@ -14,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -233,9 +236,19 @@ public class StoreController {
 
     // 商家浏览
     @GetMapping("/user-view-stores")
-    public CommonResponse getShops(@RequestParam(required = false) String description) {
-        UserGetShopResponse response = userService.getStoresByDescription(description);
-        return ResponseBuilder.ok(response);
+    public CommonResponse getShops(@RequestBody UserGetFavoriteStoresRequest request) {
+        Long userId = UserHolder.getId();
+        String type = request.getType();
+        BigDecimal distance = request.getDistance();
+        BigDecimal wishPrice = request.getWishPrice();
+        BigDecimal startRating = request.getStartRating();
+        BigDecimal endRating = request.getEndRating();
+        Integer page = request.getPage();
+        Integer pageSize = request.getPageSize();
+        //favourite 请求与返回的代码复用
+        List<UserFavoriteResponse> stores = userService.getFavoriteStores(userId,type, distance,wishPrice,startRating,endRating,page,pageSize);
+
+        return ResponseBuilder.ok(stores);
     }
 
     // 商品浏览

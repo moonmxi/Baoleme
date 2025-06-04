@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS user (
                                     location VARCHAR(100),
                                     gender varchar(2),
                                     phone VARCHAR(20),
-                                    avatar VARCHAR(50),
-                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                    avatar VARCHAR(511),
+                                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=10000001;
 
 -- 二、商家表 merchant
@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS merchant (
                                         username VARCHAR(50) NOT NULL UNIQUE,
                                         password VARCHAR(100) NOT NULL,
                                         phone VARCHAR(20) UNIQUE,
-                                        avatar VARCHAR(50),
-                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                        avatar VARCHAR(511),
+                                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=20000001;
 
 -- 三、骑手表 rider
@@ -32,10 +32,10 @@ CREATE TABLE IF NOT EXISTS rider (
                                      dispatch_mode INT DEFAULT 1,
                                      phone VARCHAR(20),
                                      balance BIGINT,
-                                     avatar VARCHAR(50),
+                                     avatar VARCHAR(511),
                                      INDEX (order_status),
                                      INDEX (dispatch_mode),
-                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=30000001;
 
 -- 四、管理员表 administrator
@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS store (
                                      distance  DECIMAL(5,2),
                                      rating DECIMAL(2,1) DEFAULT 0,
                                      status TINYINT DEFAULT 0,
-                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                     image VARCHAR(50)
+                                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                     image VARCHAR(511)
 ) AUTO_INCREMENT=50000001;
 
 -- 六、商品表 product
@@ -70,8 +70,8 @@ CREATE TABLE IF NOT EXISTS product (
                                        stock int not null,
                                        rating DECIMAL(2,1),
                                        status TINYINT DEFAULT 0,
-                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                       image VARCHAR(50)
+                                       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                       image VARCHAR(511)
 ) AUTO_INCREMENT=60000001;
 
 -- 七、销量表 sales
@@ -103,9 +103,9 @@ CREATE TABLE IF NOT EXISTS `order` (
                                        actual_price DECIMAL(10,2),
                                        remark VARCHAR(255),
                                        delivery_price  DECIMAL(10,2),
-                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                       deadline TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                       ended_at TIMESTAMP NULL,
+                                       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                       deadline DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                       ended_at DATETIME NULL,
                                        INDEX (status),
                                        INDEX (rider_id),
                                        INDEX (store_id)
@@ -140,8 +140,8 @@ CREATE TABLE IF NOT EXISTS review (
                                       product_id BIGINT,
                                       rating INT NOT NULL,
                                       comment varchar(300),
-                                      image  VARCHAR(50),
-                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                      image  VARCHAR(511),
+                                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=100000001;
 
 -- 十一、购物车表 cart
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS cart (
                                     user_id BIGINT NOT NULL,
                                     product_id BIGINT NOT NULL,
                                     quantity INT NOT NULL DEFAULT 1,
-                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                     PRIMARY KEY (user_id, product_id)
 );
 
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS coupon (
                                       type int NOT NULL,
                                       discount DECIMAL(5,2) NOT NULL,
                                       expiration_date DATETIME,
-                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                       is_used BOOLEAN DEFAULT FALSE,
                                       full_amount DECIMAL(10, 2),
                                       reduce_amount DECIMAL(10, 2)
@@ -175,7 +175,7 @@ CREATE TABLE IF NOT EXISTS message(
                                       receiver_id BIGINT NOT NULL,
                                       sender_role VARCHAR(10) NOT NULL,
                                       receiver_role VARCHAR(10) NOT NULL,
-                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) AUTO_INCREMENT=120000001;
 
 -- 十四、收藏夹表 favorite
@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS favorite (
                                         user_id BIGINT NOT NULL,
                                         product_id BIGINT,
                                         store_id BIGINT,
-                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 插入语句

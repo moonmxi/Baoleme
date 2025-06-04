@@ -27,7 +27,8 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/rider")
 public class RiderController {
 
-    private final RiderService riderService;
+    @Autowired
+    private RiderService riderService;
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;

@@ -57,13 +57,12 @@ public interface RiderMapper extends BaseMapper<Rider> {
     @Delete("DELETE FROM rider WHERE username = #{username}")
     int deleteByUsername(@Param("username") String username);
 
-    @Select("""
-        SELECT id, username, phone, order_status, dispatch_mode, balance, avatar, created_at
-        FROM rider
-        WHERE order_status = 1
-        AND dispatch_mode = 1
-        ORDER BY RAND()
-        LIMIT 1
-    """)
-    Rider selectRandomRiderToSendOrder();
+    /**
+     * 专门只更新 rider 表中的 avatar 字段
+     * @param id     Rider 主键
+     * @param avatar 相对路径字符串，例如 "rider/avatar/2025-06-04/abcdef.jpg"
+     * @return 影响行数（>0 则成功）
+     */
+    @Update("UPDATE rider SET avatar = #{avatar} WHERE id = #{id}")
+    int updateAvatar(@Param("id") Long id, @Param("avatar") String avatar);
 }

@@ -136,4 +136,13 @@ public class RiderServiceImpl implements RiderService {
         rider.setOrderStatus(1);
         return riderMapper.updateById(rider) > 0;
     }
+
+    @Override
+    public boolean updateAvatar(Long riderId, String avatarPath) {
+        if (riderId == null || !StringUtils.hasText(avatarPath)) {
+            return false;
+        }
+        int rows = riderMapper.updateAvatar(riderId, avatarPath);
+        return rows > 0;
+    }
 }

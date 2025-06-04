@@ -47,4 +47,12 @@ public interface RiderService {
     boolean randomSendOrder(Long riderId);
 
     boolean updateRiderOrderStatusAfterOrderGrab(Long riderId);
+
+    /**
+     * 专门把某个骑手的 avatar 字段更新成新的相对路径
+     * @param riderId    要更新的Rider主键
+     * @param avatarPath 形如 "rider/avatar/2025-06-04/abcdef.jpg" 的相对路径
+     * @return true 表示更新成功，false 表示失败
+     */
+    boolean updateAvatar(Long riderId, String avatarPath);
 }

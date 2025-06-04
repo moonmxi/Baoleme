@@ -1,4 +1,4 @@
-package org.demo.baoleme.websocket;
+package org.demo.baoleme.chat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

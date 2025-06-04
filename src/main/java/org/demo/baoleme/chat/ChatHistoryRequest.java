@@ -1,4 +1,4 @@
-package org.demo.baoleme.dto.request.message;
+package org.demo.baoleme.chat;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

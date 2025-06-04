@@ -1,4 +1,4 @@
-package org.demo.baoleme.dto.response.message;
+package org.demo.baoleme.chat;
 
 import lombok.Data;
 

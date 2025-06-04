@@ -1,6 +1,5 @@
-package org.demo.baoleme.config;
+package org.demo.baoleme.chat;
 
-import org.demo.baoleme.websocket.ChatWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;

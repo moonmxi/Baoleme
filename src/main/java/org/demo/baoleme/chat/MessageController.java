@@ -1,11 +1,9 @@
-package org.demo.baoleme.controller;
+package org.demo.baoleme.chat;
 
 import jakarta.validation.Valid;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.common.UserHolder;
-import org.demo.baoleme.chat.ChatHistoryRequest;
-import org.demo.baoleme.chat.ChatMessageResponse;
 import org.demo.baoleme.pojo.Message;
 import org.demo.baoleme.service.MessageService;
 import org.springframework.beans.BeanUtils;

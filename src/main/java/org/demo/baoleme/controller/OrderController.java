@@ -154,9 +154,7 @@ public class OrderController {
             @Valid @RequestBody OrderUpdateByMerchantRequest request
     ) {
         Order order = orderService.getOrderById(request.getId());
-        if (order.getStatus() != 1) {
-            return ResponseBuilder.fail("订单更新失败：当前状态商家无权更新");
-        }
+
         if (request.getNewStatus() == null){
             return ResponseBuilder.fail("订单更新失败：商家未设置新状态");
         }
@@ -182,7 +180,7 @@ public class OrderController {
         // Step 4: 构造响应
         OrderUpdateByMerchantResponse response = new OrderUpdateByMerchantResponse();
         response.setId(newOrder.getId());
-        response.setOldStatus(1); // 假设Service已处理旧状态
+        // response.setOldStatus(1); // 假设Service已处理旧状态
         response.setNewStatus(request.getNewStatus());
         response.setUpdateAt(LocalDateTime.now());
         response.setCancelReason(request.getCancelReason());

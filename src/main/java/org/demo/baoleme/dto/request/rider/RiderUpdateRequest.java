@@ -25,4 +25,6 @@ public class RiderUpdateRequest {
      * 0=手动接单, 1=自动接单
      */
     private Integer dispatchMode;
+
+    private String avatar;
 }

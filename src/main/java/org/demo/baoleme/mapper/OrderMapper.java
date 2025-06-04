@@ -79,11 +79,6 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Update("UPDATE `order` SET status = 3, ended_at = NOW() WHERE id = #{orderId} AND rider_id = #{riderId}")
     int completeOrder(@Param("orderId") Long orderId, @Param("riderId") Long riderId);
 
-    /**
-     * 查询单个订单（用于验证 rider 是否拥有该订单等）
-     */
-    @Select("SELECT * FROM `order` WHERE id = #{orderId}")
-    Order selectById(@Param("orderId") Long orderId);
 
     @Select("""
     SELECT * FROM `order`

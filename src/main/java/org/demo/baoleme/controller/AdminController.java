@@ -1,7 +1,6 @@
 package org.demo.baoleme.controller;
 
 import jakarta.validation.Valid;
-import org.apache.ibatis.annotations.Delete;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.ResponseBuilder;
@@ -370,6 +369,26 @@ public class AdminController {
         }).toList();
 
         return ResponseBuilder.ok(Map.of("results", responses));
+    }
+
+    @PostMapping("/search-order-by-id")
+    public CommonResponse searchOrderById(@Valid @RequestBody AdminSearchOrderByIdRequest request) {
+        String role = UserHolder.getRole();
+        if (!"admin".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+        Order order = adminService.getOrderById(request.getOrderId());
+        return ResponseBuilder.ok(Map.of("order", order));
+    }
+
+    @PostMapping("/search-review-by-id")
+    public CommonResponse searchReviewById(@Valid @RequestBody AdminSearchReviewByIdRequest request) {
+        String role = UserHolder.getRole();
+        if (!"admin".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+        Review review = adminService.getReviewById(request.getReviewId());
+        return ResponseBuilder.ok(Map.of("review", review));
     }
 
 }

@@ -14,11 +14,6 @@ public interface AdminService {
      */
     Admin login(Long id, String password);
 
-    /**
-     * 查询管理员信息（可用于 /info 接口）
-     */
-    Admin getInfo(Long id);
-
     List<User> getAllUsersPaged(int page, int pageSize, String keyword, String gender, Long startId, Long endId);
 
     /**
@@ -61,5 +56,8 @@ public interface AdminService {
      */
     List<Map<String, Object>> searchStoreAndProductByKeyword(String keyword);
 
+    Order getOrderById(Long orderId);
+
+    Review getReviewById(Long reviewId);
 
 }

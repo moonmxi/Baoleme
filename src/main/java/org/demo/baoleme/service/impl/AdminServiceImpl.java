@@ -50,11 +50,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Admin getInfo(Long id) {
-        return adminMapper.selectById(id);
-    }
-
-    @Override
     public List<User> getAllUsersPaged(int page, int pageSize,String keyword ,String gender, Long startId, Long endId) {
         int offset = (page - 1) * pageSize;
         return userMapper.selectUsersPaged(keyword, gender, startId, endId, offset, pageSize);
@@ -175,5 +170,15 @@ public class AdminServiceImpl implements AdminService {
         }
 
         return new ArrayList<>(resultMap.values());
+    }
+
+    @Override
+    public Order getOrderById(Long orderId) {
+        return orderMapper.selectById(orderId);
+    }
+
+    @Override
+    public Review getReviewById(Long reviewId) {
+        return reviewMapper.selectById(reviewId);
     }
 }

@@ -56,4 +56,6 @@ public interface StoreService {
      * @return true if the store belongs to the merchant
      */
     boolean validateStoreOwnership(Long storeId, Long merchantId);
+
+    boolean updateImage(Long storeId, String imagePath);
 }

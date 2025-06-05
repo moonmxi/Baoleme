@@ -25,12 +25,17 @@ public class MessageController {
 
     /**
      * 获取聊天记录
+     *
+     * @param request 包含接收方信息和分页参数的请求体
+     * @return 包含历史消息列表的响应
      */
     @PostMapping("/history")
     public CommonResponse getChatHistory(@Valid @RequestBody ChatHistoryRequest request) {
+        // Step 1: 获取当前用户身份信息
         Long senderId = UserHolder.getId();
         String senderRole = UserHolder.getRole();
 
+        // Step 2: 调用服务层获取历史消息
         List<Message> history = messageService.getChatHistory(
                 senderId,
                 senderRole,
@@ -40,12 +45,17 @@ public class MessageController {
                 request.getPage_size()
         );
 
+        // Step 3: 转换实体对象为响应DTO
         List<ChatMessageResponse> responses = history.stream().map(msg -> {
             ChatMessageResponse resp = new ChatMessageResponse();
-            BeanUtils.copyProperties(msg, resp);
-            return resp;
-        }).collect(Collectors.toList());
 
+            // Step 3.1: 复制属性到响应对象
+            BeanUtils.copyProperties(msg, resp);
+
+            return resp;
+        }).toList();
+
+        // Step 4: 构建成功响应
         return ResponseBuilder.ok(Map.of("messages", responses));
     }
 }

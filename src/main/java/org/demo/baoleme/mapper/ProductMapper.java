@@ -41,4 +41,7 @@ public interface ProductMapper extends BaseMapper<Product> {
     @Select("SELECT name FROM product WHERE id = #{productId}")
     String getNameById(@Param("productId") Long productId);
 
+    @Update("UPDATE product SET image = #{imagePath} WHERE id = #{productId}")
+    int updateImageById(@Param("productId") Long productId, @Param("imagePath") String imagePath);
+
 }

@@ -92,4 +92,7 @@ public interface StoreMapper extends BaseMapper<Store> {
 
 
 
+    @Update("UPDATE store SET image = #{imagePath} WHERE id = #{storeId}")
+    int updateImageById(@Param("storeId") Long storeId, @Param("imagePath") String imagePath);
+
 }

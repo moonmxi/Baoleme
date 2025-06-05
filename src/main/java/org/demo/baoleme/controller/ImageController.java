@@ -1,11 +1,10 @@
 package org.demo.baoleme.controller;
 
-import org.demo.baoleme.service.MerchantService;
-import org.demo.baoleme.service.RiderService;
-import org.demo.baoleme.service.UserService;
+import org.demo.baoleme.service.*;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.common.UserHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,9 +29,20 @@ public class ImageController {
     @Value("${file.storage.base-url}")
     private String baseUrl;
 
-    private final RiderService riderService;
-    private final MerchantService merchantService;
-    private final UserService userService;
+    @Autowired
+    private RiderService riderService;
+
+    @Autowired
+    private MerchantService merchantService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private StoreService storeService;
+
+    @Autowired
+    private ProductService productService;
 
     public ImageController(RiderService riderService, MerchantService merchantService, UserService userService) {
         this.riderService = riderService;
@@ -252,4 +262,104 @@ public class ImageController {
             return ResponseBuilder.fail("用户头像上传失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 店铺主图上传接口
+     * 传入 storeId 来指定要更新的店铺
+     */
+    @PostMapping("/upload-store-image")
+    public CommonResponse uploadStoreImage(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("storeId") Long storeId) {
+        if (file.isEmpty()) {
+            return ResponseBuilder.fail("上传文件不能为空");
+        }
+        if (storeId == null) {
+            return ResponseBuilder.fail("缺少店铺 ID");
+        }
+        try {
+            String dateFolder = LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String subFolder = "store/images/" + dateFolder;
+            Path folderPath = Paths.get(uploadDir, subFolder);
+
+            if (!Files.exists(folderPath)) {
+                Files.createDirectories(folderPath);
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String ext = "";
+            int dotIndex = originalFilename.lastIndexOf('.');
+            if (dotIndex >= 0) {
+                ext = originalFilename.substring(dotIndex);
+            }
+
+            String fileName = UUID.randomUUID().toString() + ext;
+            Path destination = folderPath.resolve(fileName);
+
+            file.transferTo(destination.toFile());
+
+            String relativePath = subFolder + "/" + fileName;
+            String fileUrl = baseUrl + relativePath;
+
+            boolean success = storeService.updateImage(storeId, relativePath);
+            if (!success) {
+                return ResponseBuilder.fail("店铺图片更新失败");
+            }
+
+            return ResponseBuilder.ok(fileUrl);
+        } catch (IOException e) {
+            return ResponseBuilder.fail("店铺图片上传失败：" + e.getMessage());
+        }
+    }
+
+
+    /**
+     * 产品图片上传接口
+     */
+    @PostMapping("/upload-product-image")
+    public CommonResponse uploadProductImage(@RequestParam("file") MultipartFile file,
+                                             @RequestParam("productId") Long productId) {
+        if (file.isEmpty()) {
+            return ResponseBuilder.fail("上传文件不能为空");
+        }
+        if (productId == null) {
+            return ResponseBuilder.fail("缺少产品 ID");
+        }
+        try {
+            String dateFolder = LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String subFolder = "product/images/" + dateFolder;
+            Path folderPath = Paths.get(uploadDir, subFolder);
+
+            if (!Files.exists(folderPath)) {
+                Files.createDirectories(folderPath);
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String ext = "";
+            int dotIndex = originalFilename.lastIndexOf('.');
+            if (dotIndex >= 0) {
+                ext = originalFilename.substring(dotIndex);
+            }
+
+            String fileName = UUID.randomUUID().toString() + ext;
+            Path destination = folderPath.resolve(fileName);
+
+            file.transferTo(destination.toFile());
+
+            String relativePath = subFolder + "/" + fileName;
+            String fileUrl = baseUrl + relativePath;
+
+            boolean success = productService.updateImage(productId, relativePath);
+            if (!success) {
+                return ResponseBuilder.fail("产品图片更新失败");
+            }
+
+            return ResponseBuilder.ok(fileUrl);
+        } catch (IOException e) {
+            return ResponseBuilder.fail("产品图片上传失败：" + e.getMessage());
+        }
+    }
+
 }

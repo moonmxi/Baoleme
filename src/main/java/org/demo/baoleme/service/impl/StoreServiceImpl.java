@@ -330,4 +330,13 @@ public class StoreServiceImpl implements StoreService {
     private boolean needCheckNameUpdate(Store newData, Store existing) {
         return !newData.getName().equals(existing.getName());
     }
+
+    @Override
+    public boolean updateImage(Long storeId, String imagePath) {
+        if (storeId == null || !StringUtils.hasText(imagePath)) {
+            return false;
+        }
+        int rows = storeMapper.updateImageById(storeId, imagePath);
+        return rows > 0;
+    }
 }

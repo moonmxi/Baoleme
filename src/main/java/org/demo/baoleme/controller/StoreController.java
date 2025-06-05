@@ -257,6 +257,18 @@ public class StoreController {
         Long storeId = request.getStoreId();
         String category = request.getCategory();
         List<UserGetProductResponse> response = userService.getProducts(storeId, category);
+        System.out.println(
+                "查询成功，店铺信息: " + response
+        );
+        return ResponseBuilder.ok(response);
+    }
+
+    @PostMapping("/storeInfo")
+    public CommonResponse getStoreInfo(@RequestBody StoreInfoRequest request) {
+        Long id = request.getId();
+        Store store = storeService.getStoreById(id);
+        StoreInfoResponse response = new StoreInfoResponse();
+        BeanUtils.copyProperties(store, response);
         return ResponseBuilder.ok(response);
     }
 }

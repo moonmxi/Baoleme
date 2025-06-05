@@ -150,7 +150,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             SELECT *
             FROM `order`
             WHERE store_id = #{storeId}
-            AND status IS NULL OR status = #{status}
+            AND (status IS NULL OR status = #{status})
             LIMIT #{offset}, #{pageSize}                                
             """)
     List<Order> selectByStoreIdUsingPage(

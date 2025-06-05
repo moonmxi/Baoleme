@@ -138,7 +138,7 @@ BEGIN
 
     -- 更新store表的avgPrice字段
     UPDATE store
-    SET avgPrice = avg_price
+    SET avg_price = avg_price
     WHERE id = store_id;
 END$$
 DELIMITER ;
@@ -559,3 +559,18 @@ INSERT INTO favorite (user_id, product_id, store_id) VALUES
                                                          (10000013, 60000013, NULL),
                                                          (10000014, NULL,       50000014),
                                                          (10000015, 60000015, NULL);
+
+SELECT
+    id,
+    store_id,
+    name,
+    category,
+    price,
+    description,
+    image,
+    stock,          -- 新增库存字段
+    rating,         -- 新增评分字段
+    status,         -- 新增状态字段
+    created_at      -- 新增创建时间字段
+FROM product
+WHERE store_id = 50000007 ORDER BY id DESC;

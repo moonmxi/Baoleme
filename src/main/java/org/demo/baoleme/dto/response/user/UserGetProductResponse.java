@@ -6,13 +6,21 @@ import lombok.Data;
 import org.demo.baoleme.pojo.Product;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserGetProductResponse {
-    private List<Product> data;
-    private Long shopId;
+    private Long productId;
+    private Long storeId;
+    private String name;
     private String category;
-
+    private BigDecimal price;
+    private String description;
+    private String image;
+    private Integer stock;
+    private BigDecimal rating;
+    private Integer status;
+    private LocalDateTime createdAt;
 }

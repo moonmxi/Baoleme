@@ -256,7 +256,7 @@ public class StoreController {
     public CommonResponse getProductsByStore(@RequestBody UserGetProductByConditionRequest request) {
         Long storeId = request.getStoreId();
         String category = request.getCategory();
-        UserGetProductResponse response = userService.getProducts(storeId, category);
+        List<UserGetProductResponse> response = userService.getProducts(storeId, category);
         return ResponseBuilder.ok(response);
     }
 }

@@ -114,7 +114,7 @@ public interface UserService {
      * @param category 商品分类(可选)
      * @return 商品列表
      */
-    UserGetProductResponse getProducts(Long shopId, String category);
+    List<UserGetProductResponse> getProducts(Long shopId, String category);
 
     /**
      * 提交评价

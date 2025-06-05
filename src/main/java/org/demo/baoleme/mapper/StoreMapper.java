@@ -2,6 +2,7 @@ package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
+import org.demo.baoleme.dto.response.user.UserGetProductResponse;
 import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.pojo.Store;
 
@@ -90,7 +91,7 @@ public interface StoreMapper extends BaseMapper<Store> {
       AND (#{category} IS NULL OR category = #{category})
     ORDER BY id DESC
 """)
-    List<Product> selectProducts(
+    List<UserGetProductResponse> selectProducts(
             @Param("storeId") Long storeId,
             @Param("category") String category
     );

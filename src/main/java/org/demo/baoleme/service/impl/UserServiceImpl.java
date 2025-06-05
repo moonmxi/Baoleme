@@ -230,12 +230,9 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserGetProductResponse getProducts(Long shopId, String category) {
-        UserGetProductResponse response = new UserGetProductResponse();
-        response.setShopId(shopId);
-        response.setCategory(category);
-        response.setData(storeMapper.selectProducts(shopId, category));
-        return response;
+    public List<UserGetProductResponse> getProducts(Long shopId, String category) {
+
+        return storeMapper.selectProducts(shopId, category);
     }
 
     @Override

@@ -198,7 +198,7 @@ public class StoreController {
     }
 
     // 商品浏览
-    @GetMapping("/user-view-products")
+    @PostMapping("/user-view-products")
     public CommonResponse getProductsByStore(@RequestBody UserGetProductByConditionRequest request) {
         Long storeId = request.getStoreId();
         String category = request.getCategory();

@@ -328,7 +328,7 @@ public class UserController {
         List<UserSearchResponse> stores = userService.searchStores(keyword.trim(),distance,wishPrice,startRating,endRating,page,pageSize);
 
 
-        return ResponseBuilder.ok(Map.of("results", stores));
+        return ResponseBuilder.ok(Map.of("reults", stores));
     }
 
 

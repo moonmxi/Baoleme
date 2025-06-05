@@ -73,7 +73,18 @@ public interface StoreMapper extends BaseMapper<Store> {
     Integer countShopsByType(@Param("type") String type);
 
     @Select("""
-    SELECT id, store_id, name, category, price, description, image
+    SELECT 
+        id, 
+        store_id, 
+        name, 
+        category, 
+        price, 
+        description, 
+        image,
+        stock,          -- 新增库存字段
+        rating,         -- 新增评分字段
+        status,         -- 新增状态字段
+        created_at      -- 新增创建时间字段
     FROM product
     WHERE store_id = #{storeId}
       AND (#{category} IS NULL OR category = #{category})

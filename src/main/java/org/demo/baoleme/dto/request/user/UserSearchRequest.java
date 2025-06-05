@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 @Data
 public class UserSearchRequest {
     private String keyword;
-    private BigDecimal Distance;
+    private BigDecimal distance;
     private BigDecimal wishPrice;
     private BigDecimal startRating;
     private BigDecimal endRating;

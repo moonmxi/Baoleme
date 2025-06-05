@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -220,65 +221,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Map<String, Object>> searchStoreAndProductByKeyword(String keyword) {
-        List<Map<String, Object>> stores = storeMapper.searchStoresByKeyword(keyword);
-        List<Map<String, Object>> products = storeMapper.searchProductsByKeyword(keyword);
+    public List<UserSearchResponse> searchStores(String keyword, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize) {
+        int offset = (page - 1) * pageSize;
+        return userMapper.searchStores(keyword,distance,wishPrice,startRating,endRating,offset,pageSize);
 
-        Map<Long, Map<String, Object>> resultMap = new LinkedHashMap<>();
-
-        for (Map<String, Object> store : stores) {
-            Object idObj = store.get("id");
-            Object nameObj = store.get("name");
-
-            Long storeId = (idObj instanceof Number) ? ((Number) idObj).longValue() : null;
-            String storeName = (nameObj instanceof String) ? (String) nameObj : "";
-
-            if (storeId == null) {
-                // 可选：跳过无效数据
-                continue;
-            }
-
-            Map<String, Object> entry = new LinkedHashMap<>();
-            entry.put("store_id", storeId);
-            entry.put("store_name", storeName);
-            entry.put("products", new LinkedHashMap<String, Long>());  // 初始化空的产品 map
-
-            resultMap.put(storeId, entry);
-        }
-
-        // 添加商品
-        for (Map<String, Object> product : products) {
-            Long storeId = ((Number) product.get("store_id")).longValue();
-            String storeName = (String) product.get("store_name");
-            String productName = (String) product.get("product_name");
-            Long productId = ((Number) product.get("product_id")).longValue();
-
-            if (!resultMap.containsKey(storeId)) {
-                Map<String, Object> entry = new LinkedHashMap<>();
-                entry.put("store_id", storeId);
-                entry.put("store_name", storeName);
-                entry.put("products", new LinkedHashMap<String, Long>());
-                resultMap.put(storeId, entry);
-            }
-
-            Map<String, Long> productMap = (Map<String, Long>) resultMap.get(storeId).get("products");
-            productMap.put(productName, productId);
-        }
-
-        return new ArrayList<>(resultMap.values());
     }
 
-
-    @Override
-    public UserGetShopResponse getStoresByDescription(String type) {
-        UserGetShopResponse response = new UserGetShopResponse();
-        List<Store> stores = storeMapper.selectShopsByType(type);
-        response.setData(stores);
-
-        Integer total = storeMapper.countShopsByType(type);  // 这里要用 count 方法
-        response.setTotal(total);
-        return response;
-    }
 
 
     @Override
@@ -337,8 +285,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Map<String, Object>> getUserOrdersPaged(Long userId, Integer status, String startTime, String endTime, int page, int pageSize) {
+    public List<Map<String, Object>> getUserOrdersPaged(Long userId, Integer status, LocalDateTime startTime, LocalDateTime endTime, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
+        System.out.println(" "+ startTime + " " + endTime + " " );
         return orderMapper.selectUserOrders(userId, status, startTime, endTime, offset, pageSize);
     }
 

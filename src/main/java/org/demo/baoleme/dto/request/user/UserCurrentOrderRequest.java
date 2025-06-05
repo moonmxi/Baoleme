@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class UserCurrentOrderRequest {
     private Integer page;
-    private Integer page_size;
+    private Integer pageSize;
 }

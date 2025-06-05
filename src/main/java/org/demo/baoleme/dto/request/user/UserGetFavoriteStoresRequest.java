@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 @Data
 public class UserGetFavoriteStoresRequest {
     private String type;
-    private BigDecimal Distance;
+    private BigDecimal distance;
     private BigDecimal wishPrice;
     private BigDecimal startRating;
     private BigDecimal endRating;

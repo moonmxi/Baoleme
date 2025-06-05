@@ -235,7 +235,7 @@ public class StoreController {
     }
 
     // 商家浏览
-    @GetMapping("/user-view-stores")
+    @PostMapping("/user-view-stores")
     public CommonResponse getShops(@RequestBody UserGetFavoriteStoresRequest request) {
         Long userId = UserHolder.getId();
         String type = request.getType();
@@ -246,7 +246,7 @@ public class StoreController {
         Integer page = request.getPage();
         Integer pageSize = request.getPageSize();
         //favourite 请求与返回的代码复用
-        List<UserFavoriteResponse> stores = userService.getFavoriteStores(userId,type, distance,wishPrice,startRating,endRating,page,pageSize);
+        List<UserFavoriteResponse> stores = userService.getStores(userId,type, distance,wishPrice,startRating,endRating,page,pageSize);
 
         return ResponseBuilder.ok(stores);
     }

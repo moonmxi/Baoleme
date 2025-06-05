@@ -6,6 +6,7 @@ import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.dto.request.user.UserReviewRequest;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -104,14 +105,8 @@ public interface UserService {
      * @param keyword 关键词
      * @return 搜索结果
      */
-    List<Map<String, Object>> searchStoreAndProductByKeyword(String keyword);
+    List<UserSearchResponse> searchStores(String keyword, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
 
-    /**
-     * 获取商家列表
-     * @param description 商家类型(可选)
-     * @return 商家列表
-     */
-    UserGetShopResponse getStoresByDescription(String description);
 
     /**
      * 获取商品列表
@@ -130,7 +125,7 @@ public interface UserService {
     UserReviewResponse submitReview(Long userId, UserReviewRequest request);
 
     List<Map<String, Object>> getUserOrdersPaged(
-            Long userId, Integer status, String startTime, String endTime,
+            Long userId, Integer status, LocalDateTime startTime, LocalDateTime endTime,
             int page, int pageSize
     );
 

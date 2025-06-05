@@ -20,9 +20,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -199,6 +199,7 @@ public class UserController {
             return ResponseBuilder.fail("无权限访问，仅普通用户可操作");
         }
 
+
         List<Map<String, Object>> records = userService.getUserOrdersPaged(
                 userId,
                 request.getStatus(),
@@ -244,7 +245,7 @@ public class UserController {
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("收藏失败");
     }
 
-    @GetMapping("/favorite/watch")
+    @PostMapping("/favorite/watch")
     public CommonResponse getFavoriteStores(@Valid@RequestBody UserGetFavoriteStoresRequest request) {
         Long userId = UserHolder.getId();
         String type = request.getType();
@@ -274,10 +275,10 @@ public class UserController {
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("领取失败");
     }
 
-    @GetMapping("/current")
+    @PostMapping("/current")
     public CommonResponse getCurrentOrders(@Valid @RequestBody UserCurrentOrderRequest request) {
         Long userId = UserHolder.getId();
-        List<Map<String, Object>> result = userService.getCurrentOrders(userId, request.getPage(), request.getPage_size());
+        List<Map<String, Object>> result = userService.getCurrentOrders(userId, request.getPage(), request.getPageSize());
 
         List<UserCurrentOrderResponse> response = result.stream().map(map -> {
             UserCurrentOrderResponse r = new UserCurrentOrderResponse();
@@ -294,9 +295,17 @@ public class UserController {
 
             r.setStatus((Integer) map.get("status"));
             r.setStoreName((String) map.get("store_name"));
+            r.setStorePhone((String) map.get("store_phone"));
             r.setRiderName((String) map.get("rider_name"));
             r.setRiderPhone((String) map.get("rider_phone"));
             r.setRemark((String) map.get("remark"));
+            r.setStoreLocation((String) map.get("store_location"));
+            r.setUserLocation((String) map.get("user_location"));
+
+            r.setTotalPrice((BigDecimal) map.get("total_price"));
+            r.setActualPrice((BigDecimal) map.get("actual_price"));
+            r.setDeliveryPrice((BigDecimal) map.get("delivery_price"));
+
             return r;
         }).toList();
 
@@ -305,22 +314,21 @@ public class UserController {
 
     @PostMapping("/search")
     public CommonResponse searchStoreAndProduct(@Valid @RequestBody UserSearchRequest request) {
-        String keyword = request.getKeyWord();
+        String keyword = request.getKeyword();
         if (keyword == null || keyword.trim().isEmpty()) {
             return ResponseBuilder.fail("关键词不能为空");
         }
+        BigDecimal  distance = request.getDistance();
+        BigDecimal wishPrice = request.getWishPrice();
+        BigDecimal startRating = request.getStartRating();
+        BigDecimal endRating = request.getEndRating();
+        Integer page = request.getPage();
+        Integer pageSize = request.getPageSize();
 
-        List<Map<String, Object>> raw = userService.searchStoreAndProductByKeyword(keyword.trim());
+        List<UserSearchResponse> stores = userService.searchStores(keyword.trim(),distance,wishPrice,startRating,endRating,page,pageSize);
 
-        List<UserSearchResponse> responses = raw.stream().map(item -> {
-            UserSearchResponse resp = new UserSearchResponse();
-            resp.setStoreId((Long) item.get("store_id"));
-            resp.setStoreName((String) item.get("store_name"));
-            resp.setProducts((Map<String, Long>) item.get("products"));
-            return resp;
-        }).toList();
 
-        return ResponseBuilder.ok(Map.of("results", responses));
+        return ResponseBuilder.ok(Map.of("results", stores));
     }
 
 

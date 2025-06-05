@@ -44,7 +44,6 @@ public interface StoreMapper extends BaseMapper<Store> {
         WHERE name LIKE CONCAT('%', #{keyword}, '%')
         """)
     List<Map<String, Object>> searchStoresByKeyword(@Param("keyword") String keyword);
-
     /**
      * 搜索匹配商品名的商品及其店铺信息
      * 返回字段：store_id（Long）, store_name（String）, product_id（Long）, product_name（String）
@@ -90,5 +89,7 @@ public interface StoreMapper extends BaseMapper<Store> {
 
     @Select("SELECT name FROM store WHERE id = #{storeId}")
     String getNameById(@Param("storeId") Long storeId);
+
+
 
 }

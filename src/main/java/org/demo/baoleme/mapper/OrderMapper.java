@@ -67,7 +67,7 @@ public interface OrderMapper extends BaseMapper<Order> {
         SELECT
             COUNT(*) AS completed_orders,
             IFNULL(SUM(delivery_price), 0) AS total_earnings,
-            IFNULL(SUM(CASE WHEN DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN total_price ELSE 0 END), 0) AS current_month
+            IFNULL(SUM(CASE WHEN DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN delivery_price ELSE 0 END), 0) AS current_month
         FROM `order`
         WHERE rider_id = #{riderId} AND status = 3
         """)

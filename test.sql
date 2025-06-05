@@ -90,97 +90,7 @@ CREATE TABLE IF NOT EXISTS sales (
                                      INDEX (store_id),
                                      INDEX (sale_date)
 ) AUTO_INCREMENT=70000001;
--- 1. 创建第一个触发器：当order状态更新为3时，将order_item插入sales表
-DELIMITER $$
-DROP TRIGGER IF EXISTS order_status_to_sales;
-CREATE TRIGGER order_status_to_sales
-    AFTER UPDATE ON `order`
-    FOR EACH ROW
-BEGIN
-    -- 检查状态是否更新为3（已完成）且之前不是3
-    IF NEW.status = 3 AND OLD.status <> 3 THEN
-        -- 插入销售记录
-        INSERT INTO sales (product_id, store_id, sale_date, quantity, unit_price)
-        SELECT
-            oi.product_id,
-            NEW.store_id,
-            COALESCE(NEW.ended_at, CURDATE()),  -- 使用订单结束时间或当前日期
-            oi.quantity,
-            p.price
-        FROM order_item oi
-                 JOIN product p ON oi.product_id = p.id
-        WHERE oi.order_id = NEW.id;
-    END IF;
-END$$
-DELIMITER ;
 
--- 2. 创建存储过程：计算并更新商店的加权均价
-DELIMITER $$
-DROP PROCEDURE IF EXISTS UpdateStoreWeightedPrice;
-CREATE PROCEDURE UpdateStoreWeightedPrice(IN store_id BIGINT)
-BEGIN
-    DECLARE avg_price DECIMAL(10,2);
-
-    -- 计算前3名热销商品的加权均价
-    SET avg_price = COALESCE((
-                                 SELECT SUM(p.price * sale.total_quantity) / SUM(sale.total_quantity)
-                                 FROM (
-                                          SELECT s2.product_id, SUM(s2.quantity) AS total_quantity
-                                          FROM sales s2
-                                          WHERE s2.store_id = store_id
-                                            AND s2.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-                                          GROUP BY s2.product_id
-                                          ORDER BY total_quantity DESC
-                                          LIMIT 3
-                                      ) sale
-                                          JOIN product p ON p.id = sale.product_id
-                             ), 0);
-
-    -- 更新store表的avgPrice字段
-    UPDATE store
-    SET avgPrice = avg_price
-    WHERE id = store_id;
-END$$
-DELIMITER ;
-
--- 3. 创建第二个触发器：当sales表更新后更新store表
-DELIMITER $$
-DROP TRIGGER IF EXISTS sales_update_store_price;
-CREATE TRIGGER sales_update_store_price
-    AFTER INSERT ON sales
-    FOR EACH ROW
-BEGIN
-    -- 调用存储过程更新对应商店的均价
-    CALL UpdateStoreWeightedPrice(NEW.store_id);
-END$$
-DELIMITER ;
-
--- 4. 为UPDATE和DELETE操作创建额外触发器
-DELIMITER $$
-DROP TRIGGER IF EXISTS sales_update_store_price_update;
-CREATE TRIGGER sales_update_store_price_update
-    AFTER UPDATE ON sales
-    FOR EACH ROW
-BEGIN
-    -- 处理store_id变更的情况
-    IF OLD.store_id <> NEW.store_id THEN
-        CALL UpdateStoreWeightedPrice(OLD.store_id);
-        CALL UpdateStoreWeightedPrice(NEW.store_id);
-    ELSE
-        CALL UpdateStoreWeightedPrice(NEW.store_id);
-    END IF;
-END$$
-DELIMITER ;
-
-DELIMITER $$
-DROP TRIGGER IF EXISTS sales_update_store_price_delete;
-CREATE TRIGGER sales_update_store_price_delete
-    AFTER DELETE ON sales
-    FOR EACH ROW
-BEGIN
-    CALL UpdateStoreWeightedPrice(OLD.store_id);
-END$$
-DELIMITER ;
 -- 八、订单表 order
 CREATE TABLE IF NOT EXISTS `order` (
                                        id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -276,7 +186,97 @@ CREATE TABLE IF NOT EXISTS favorite (
                                         store_id BIGINT,
                                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+-- 1. 创建第一个触发器：当order状态更新为3时，将order_item插入sales表
+DELIMITER $$
+DROP TRIGGER IF EXISTS order_status_to_sales;
+CREATE TRIGGER order_status_to_sales
+    AFTER UPDATE ON `order`
+    FOR EACH ROW
+BEGIN
+    -- 检查状态是否更新为3（已完成）且之前不是3
+    IF NEW.status = 3 AND OLD.status <> 3 THEN
+        -- 插入销售记录
+        INSERT INTO sales (product_id, store_id, sale_date, quantity, unit_price)
+        SELECT
+            oi.product_id,
+            NEW.store_id,
+            COALESCE(NEW.ended_at, CURDATE()),  -- 使用订单结束时间或当前日期
+            oi.quantity,
+            p.price
+        FROM order_item oi
+                 JOIN product p ON oi.product_id = p.id
+        WHERE oi.order_id = NEW.id;
+    END IF;
+END$$
+DELIMITER ;
 
+-- 2. 创建存储过程：计算并更新商店的加权均价
+DELIMITER $$
+DROP PROCEDURE IF EXISTS UpdateStoreWeightedPrice;
+CREATE PROCEDURE UpdateStoreWeightedPrice(IN store_id BIGINT)
+BEGIN
+    DECLARE avg_price DECIMAL(10,2);
+
+    -- 计算前3名热销商品的加权均价
+    SET avg_price = COALESCE((
+                                 SELECT SUM(p.price * sale.total_quantity) / SUM(sale.total_quantity)
+                                 FROM (
+                                          SELECT s2.product_id, SUM(s2.quantity) AS total_quantity
+                                          FROM sales s2
+                                          WHERE s2.store_id = store_id
+                                            AND s2.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                                          GROUP BY s2.product_id
+                                          ORDER BY total_quantity DESC
+                                          LIMIT 3
+                                      ) sale
+                                          JOIN product p ON p.id = sale.product_id
+                             ), 0);
+
+    -- 更新store表的avgPrice字段
+    UPDATE store
+    SET avg_price = avg_price
+    WHERE id = store_id;
+END$$
+DELIMITER ;
+
+-- 3. 创建第二个触发器：当sales表更新后更新store表
+DELIMITER $$
+DROP TRIGGER IF EXISTS sales_update_store_price;
+CREATE TRIGGER sales_update_store_price
+    AFTER INSERT ON sales
+    FOR EACH ROW
+BEGIN
+    -- 调用存储过程更新对应商店的均价
+    CALL UpdateStoreWeightedPrice(NEW.store_id);
+END$$
+DELIMITER ;
+
+-- 4. 为UPDATE和DELETE操作创建额外触发器
+DELIMITER $$
+DROP TRIGGER IF EXISTS sales_update_store_price_update;
+CREATE TRIGGER sales_update_store_price_update
+    AFTER UPDATE ON sales
+    FOR EACH ROW
+BEGIN
+    -- 处理store_id变更的情况
+    IF OLD.store_id <> NEW.store_id THEN
+        CALL UpdateStoreWeightedPrice(OLD.store_id);
+        CALL UpdateStoreWeightedPrice(NEW.store_id);
+    ELSE
+        CALL UpdateStoreWeightedPrice(NEW.store_id);
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+DROP TRIGGER IF EXISTS sales_update_store_price_delete;
+CREATE TRIGGER sales_update_store_price_delete
+    AFTER DELETE ON sales
+    FOR EACH ROW
+BEGIN
+    CALL UpdateStoreWeightedPrice(OLD.store_id);
+END$$
+DELIMITER ;
 -- 插入语句
 -- 一、用户表 user 15 条插入语句
 INSERT INTO user (username, password, description, location, gender, phone, avatar) VALUES

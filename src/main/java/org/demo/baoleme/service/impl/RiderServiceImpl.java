@@ -142,6 +142,8 @@ public class RiderServiceImpl implements RiderService {
         if (riderId == null || !StringUtils.hasText(avatarPath)) {
             return false;
         }
+
+        // 更新骑手的 avatar 字段
         int rows = riderMapper.updateAvatar(riderId, avatarPath);
         return rows > 0;
     }

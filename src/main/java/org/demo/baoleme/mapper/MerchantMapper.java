@@ -51,6 +51,9 @@ public interface MerchantMapper extends BaseMapper<Merchant> {
     @Delete("DELETE FROM merchant WHERE id = #{id}")
     int deleteById(Long id);
 
-    @Select("SELECT m.phone FROM merchant m JOIN store s ON m.id = s.merchantId WHERE s.id = #{storeId}")
+    @Select("SELECT m.phone FROM merchant m JOIN store s ON m.id = s.merchant_id WHERE s.id = #{storeId}")
     String selectPhoneByStoreId(Long storeId);
+
+    @Update("UPDATE merchant SET avatar = #{avatarPath} WHERE id = #{merchantId}")
+    int updateAvatarById(@Param("merchantId") Long merchantId, @Param("avatarPath") String avatarPath);
 }

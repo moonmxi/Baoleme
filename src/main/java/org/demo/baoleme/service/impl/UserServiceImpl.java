@@ -353,4 +353,13 @@ public class UserServiceImpl implements UserService {
     public String getMerchantPhoneByStoreId(Long storeId){
         return merchantMapper.selectPhoneByStoreId(storeId);
     }
+
+    @Override
+    public boolean updateAvatar(Long userId, String avatarPath) {
+        if (userId == null || !StringUtils.hasText(avatarPath)) {
+            return false;
+        }
+        int rows = userMapper.updateAvatarById(userId, avatarPath);
+        return rows > 0;
+    }
 }

@@ -137,4 +137,6 @@ public interface UserService {
     List<Map<String,Object>> getOrderItemHistory(Long orderId);
 
     String getMerchantPhoneByStoreId(Long storeId);
+
+    boolean updateAvatar(Long userId, String avatarPath);
 }

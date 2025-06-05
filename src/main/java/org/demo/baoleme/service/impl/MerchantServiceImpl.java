@@ -167,4 +167,13 @@ public class MerchantServiceImpl implements MerchantService {
         return StringUtils.hasText(phone) &&
                 merchantMapper.selectByPhone(phone) != null;
     }
+
+    @Override
+    public boolean updateAvatar(Long merchantId, String avatarPath) {
+        if (merchantId == null || !StringUtils.hasText(avatarPath)) {
+            return false;
+        }
+        int rows = merchantMapper.updateAvatarById(merchantId, avatarPath);
+        return rows > 0;
+    }
 }

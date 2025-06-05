@@ -156,4 +156,7 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("SELECT COUNT(*) > 0 FROM product WHERE id = #{productId}")
     boolean existsProduct(Long productId);
 
+    @Update("UPDATE user SET avatar = #{avatarPath} WHERE id = #{userId}")
+    int updateAvatarById(@Param("userId") Long userId, @Param("avatarPath") String avatarPath);
+
 }

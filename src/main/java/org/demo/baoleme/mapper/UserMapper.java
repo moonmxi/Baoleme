@@ -7,7 +7,6 @@ import org.demo.baoleme.pojo.User;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
@@ -65,7 +64,7 @@ public interface UserMapper extends BaseMapper<User> {
         AND (#{distance} IS NULL OR s.distance <= #{distance})
         AND (#{startRating} IS NULL OR s.rating >= #{startRating})
         AND (#{endRating} IS NULL OR s.rating <= #{endRating})
-    HAVING (#{averagePrice} IS NULL OR s.avg_price <= #{averagePrice})
+        AND (#{avg_price} IS NULL OR s.avg_price <= #{avg_price})
     ORDER BY s.id DESC
     LIMIT #{offset}, #{limit}
 """)
@@ -73,7 +72,7 @@ public interface UserMapper extends BaseMapper<User> {
             @Param("userId") Long userId,
             @Param("type") String type,
             @Param("distance") BigDecimal distance,
-            @Param("averagePrice") BigDecimal averagePrice,
+            @Param("avg_price") BigDecimal avgPrice,
             @Param("startRating") BigDecimal startRating,
             @Param("endRating") BigDecimal endRating,
             @Param("offset") int offset,
@@ -96,14 +95,14 @@ public interface UserMapper extends BaseMapper<User> {
         AND (#{distance} IS NULL OR s.distance <= #{distance})
         AND (#{startRating} IS NULL OR s.rating >= #{startRating})
         AND (#{endRating} IS NULL OR s.rating <= #{endRating})
-    HAVING (#{averagePrice} IS NULL OR s.avg_price <= #{averagePrice})
+        AND (#{avg_price} IS NULL OR s.avg_price <= #{avg_price})
     LIMIT #{offset}, #{limit}
 """)
     List<UserFavoriteResponse> getStores(
             @Param("userId") Long userId,
             @Param("type") String type,
             @Param("distance") BigDecimal distance,
-            @Param("averagePrice") BigDecimal averagePrice,
+            @Param("avg_price") BigDecimal avgPrice,
             @Param("startRating") BigDecimal startRating,
             @Param("endRating") BigDecimal endRating,
             @Param("offset") int offset,
@@ -126,16 +125,16 @@ public interface UserMapper extends BaseMapper<User> {
         s.image
     FROM store s
     WHERE 1=1
-        AND (#{keyword} IS NULL OR s.name LIKE CONCAT('%', #{keyword}, '%') OR s.description LIKE CONCAT('%', #{keyword}, '%'))
+        AND (#{keyword} IS NULL OR s.name LIKE CONCAT('%', #{keyword}, '%') OR s.description LIKE CONCAT('%', #{keyword}, '%') OR s.type LIKE CONCAT('%', #{keyword}, '%'))
         AND (#{distance} IS NULL OR s.distance <= #{distance})
         AND (#{startRating} IS NULL OR s.rating >= #{startRating})
         AND (#{endRating} IS NULL OR s.rating <= #{endRating})
-    HAVING (#{averagePrice} IS NULL OR s.avg_price <= #{averagePrice})
+        AND (#{avg_price} IS NULL OR s.avg_price <= #{avg_price})
     LIMIT #{offset}, #{limit}
 """)
     List<UserSearchResponse> searchStores(@Param("keyword") String keyword,
                                            @Param("distance") BigDecimal distance,
-                                           @Param("averagePrice") BigDecimal averagePrice,
+                                           @Param("avg_price") BigDecimal averagePrice,
                                            @Param("startRating") BigDecimal startRating,
                                            @Param("endRating") BigDecimal endRating,
                                            @Param("offset") int offset,

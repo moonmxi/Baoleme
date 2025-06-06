@@ -14,6 +14,7 @@ import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.pojo.Review;
 import org.demo.baoleme.service.ProductService;
 import org.demo.baoleme.service.ReviewService;
+import org.demo.baoleme.service.SalesStatsService;
 import org.demo.baoleme.service.StoreService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class ProductController {
 
     @Autowired
     private ReviewService  reviewService;
+    @Autowired
+    private SalesStatsService salesStatsService;
 
     @Autowired
     public ProductController(
@@ -124,6 +127,9 @@ public class ProductController {
                 .map(product -> {
                     ProductViewResponse resp = new ProductViewResponse();
                     BeanUtils.copyProperties(product, resp);
+
+                    // Step: 获取销量
+                    resp.setVolume(salesStatsService.getProductVolume(product.getId()));
                     return resp;
                 })
                 .collect(Collectors.toList());

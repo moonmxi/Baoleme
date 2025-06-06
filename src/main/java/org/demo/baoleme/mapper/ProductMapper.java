@@ -44,4 +44,17 @@ public interface ProductMapper extends BaseMapper<Product> {
     @Update("UPDATE product SET image = #{imagePath} WHERE id = #{productId}")
     int updateImageById(@Param("productId") Long productId, @Param("imagePath") String imagePath);
 
+    /**
+     * 每个商品的总量
+     * @param productId
+     * @return
+     */
+    @Select(
+            """
+            SELECT SUM(quantity)
+            from sales
+            WHERE product_id = #{productId}
+            """
+    )
+    int getProductVolume(@Param("productId") Long productId);
 }

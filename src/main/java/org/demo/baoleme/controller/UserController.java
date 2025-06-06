@@ -264,11 +264,11 @@ public class UserController {
         return ResponseBuilder.ok(stores);
     }
 
-    @GetMapping("/coupon")
-    public CommonResponse getUserCoupons() {
+    @PostMapping("/coupon")
+    public CommonResponse getUserCoupons(UserViewCouponRequest request) {
         Long userId = UserHolder.getId();
-
-        List<UserCouponResponse> coupons = userService.getUserCoupons(userId);
+        Long  storeId = request.getStoreId();
+        List<UserCouponResponse> coupons = userService.getUserCoupons(userId,storeId);
         return ResponseBuilder.ok(coupons);
     }
 
@@ -278,6 +278,8 @@ public class UserController {
         boolean success = userService.claimCoupon(userId, request.getId());
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("领取失败");
     }
+
+
 
     @PostMapping("/current")
     public CommonResponse getCurrentOrders(@Valid @RequestBody UserCurrentOrderRequest request) {

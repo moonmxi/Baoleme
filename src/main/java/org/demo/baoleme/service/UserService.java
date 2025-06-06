@@ -82,7 +82,7 @@ public interface UserService {
      * @param userId 用户ID
      * @return 优惠券列表
      */
-    List<UserCouponResponse> getUserCoupons(Long userId);
+    List<UserCouponResponse> getUserCoupons(Long userId,Long storeId);
 
 
     boolean claimCoupon(Long userId, Long id);

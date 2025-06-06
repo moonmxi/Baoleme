@@ -174,8 +174,8 @@ public class UserServiceImpl implements UserService {
     }
     // 优惠券功能转移到CouponMapper
     @Override
-    public List<UserCouponResponse> getUserCoupons(Long userId) {
-        return couponMapper.selectUserCouponsByUserId(userId);
+    public List<UserCouponResponse> getUserCoupons(Long userId,Long storeId) {
+        return couponMapper.selectUserCouponsByUserId(userId,storeId);
     }
 
     @Override

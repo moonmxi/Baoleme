@@ -9,6 +9,7 @@ import org.demo.baoleme.dto.request.admin.*;
 import org.demo.baoleme.dto.response.admin.*;
 import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.AdminService;
+import org.demo.baoleme.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +24,13 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final AdminService adminService;
     private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private  AdminService adminService;
+
+    @Autowired
+    private ProductService  productService;
 
     @Autowired
     public AdminController(AdminService adminService, RedisTemplate<String, Object> redisTemplate) {
@@ -210,6 +216,15 @@ public class AdminController {
         }).toList();
 
         return ResponseBuilder.ok(Map.of("stores", responses));
+    }
+
+    @PostMapping("/productlist")
+    public CommonResponse getProductList(@RequestBody AdminProductQueryRequest request) {
+        String role = UserHolder.getRole();
+        if (!"admin".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+        return ResponseBuilder.ok(Map.of("products", productService.getProductsByStore(request.getStoreId(), request.getPage(), request.getPageSize())));
     }
 
     @DeleteMapping("/delete")

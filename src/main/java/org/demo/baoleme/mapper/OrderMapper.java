@@ -66,8 +66,8 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Select("""
         SELECT
             COUNT(*) AS completed_orders,
-            IFNULL(SUM(total_price), 0) AS total_earnings,
-            IFNULL(SUM(CASE WHEN DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN total_price ELSE 0 END), 0) AS current_month
+            IFNULL(SUM(delivery_price), 0) AS total_earnings,
+            IFNULL(SUM(CASE WHEN DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN delivery_price ELSE 0 END), 0) AS current_month
         FROM `order`
         WHERE rider_id = #{riderId} AND status = 3
         """)
@@ -150,7 +150,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             SELECT *
             FROM `order`
             WHERE store_id = #{storeId}
-            AND status IS NULL OR status = #{status}
+            AND (status IS NULL OR status = #{status})
             LIMIT #{offset}, #{pageSize}                                
             """)
     List<Order> selectByStoreIdUsingPage(

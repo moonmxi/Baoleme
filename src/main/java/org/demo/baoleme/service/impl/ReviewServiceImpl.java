@@ -35,6 +35,15 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
+    public List<Review> getReviewsByProductId(Long id) {
+        return reviewMapper.selectList(
+                new LambdaQueryWrapper<Review>()
+                        .eq(Review::getProductId, id)
+        );
+    }
+
+    @Override
+    @Transactional
     public boolean updateReview(Review review) {
         // 禁止更新createdAt字段
         review.setCreatedAt(null);

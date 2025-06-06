@@ -2,6 +2,7 @@ package org.demo.baoleme.service;
 
 import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.pojo.Rider;
+import org.demo.baoleme.pojo.Store;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.dto.request.user.UserReviewRequest;
 
@@ -134,4 +135,8 @@ public interface UserService {
     String getMerchantPhoneByStoreId(Long storeId);
 
     boolean updateAvatar(Long userId, String avatarPath);
+
+    boolean updateViewHistory(Long userId, Long storeId, LocalDateTime viewTime);
+
+    List<Store> getViewHistory(Long userId, Integer page, Integer pageSize);
 }

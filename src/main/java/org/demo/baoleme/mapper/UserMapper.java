@@ -3,9 +3,11 @@ package org.demo.baoleme.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
 import org.demo.baoleme.dto.response.user.*;
+import org.demo.baoleme.pojo.Store;
 import org.demo.baoleme.pojo.User;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -139,4 +141,18 @@ public interface UserMapper extends BaseMapper<User> {
                                            @Param("endRating") BigDecimal endRating,
                                            @Param("offset") int offset,
                                            @Param("limit") int limit);
+
+    @Update("INSERT INTO browse_history(user_id, store_id, created_at) " +
+            "VALUES(#{userId}, #{storeId}, #{viewTime}) " +
+            "ON DUPLICATE KEY UPDATE created_at = #{viewTime}")
+    int addViewHistory(Long userId, Long storeId, LocalDateTime viewTime);
+
+    @Select("SELECT s.* FROM store s " +
+            "INNER JOIN browse_history bh ON s.id = bh.store_id " +
+            "WHERE bh.user_id = #{userId} " +
+            "ORDER BY bh.created_at DESC " +  // 按浏览时间倒序
+            "LIMIT #{offset}, #{pageSize}")
+    List<Store> selectViewHistory(@Param("userId") Long userId,
+                                  @Param("offset") int offset,
+                                  @Param("pageSize") Integer pageSize);
 }

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -276,9 +277,27 @@ public class OrderServiceImpl implements OrderService {
     }
     @Override
     @Transactional
-    public List<OrderItem> getOrderItemById(Long orderId){
-        List<OrderItem> orderItems = orderItemMapper.selectByOrderId(orderId);
+    public Map<Product, Integer> getOrderItemById(Long orderId){
+        List<Map<String, Object>> rows = productMapper.selectByOrderId(orderId);
+        Map<Product, Integer> result = new HashMap<>();
+        for (Map<String, Object> row : rows) {
+            Product product = new Product();
+            product.setId((Long) row.get("id"));
+            product.setName((String) row.get("name"));
+            product.setPrice((BigDecimal) row.get("price"));
+            product.setImage((String) row.get("image"));
+            product.setDescription((String) row.get("description"));
+            product.setStock((Integer) row.get("stock"));
+            product.setCategory((String) row.get("category"));
+            product.setRating((BigDecimal) row.get("rating"));
+            product.setStatus((Integer) row.get("status"));
+            product.setCreatedAt((LocalDateTime) row.get("created_at"));
+            product.setStoreId((Long) row.get("store_id"));
 
-        return orderItems;
+            Integer quantity = (Integer) row.get("quantity");
+
+            result.put(product, quantity);
+        }
+        return result;
     }
 }

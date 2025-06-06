@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ser.impl.StringArraySerializer;
 import lombok.Data;
 import org.demo.baoleme.pojo.Order;
 import org.demo.baoleme.pojo.OrderItem;
+import org.demo.baoleme.pojo.Product;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,6 +18,6 @@ import java.util.Map;
 public class UserSearchOrderItemResponse {
     private Long orderId;
 
-    private List<OrderItem> items;
+    private Map<Product, Integer> items;
 
 }

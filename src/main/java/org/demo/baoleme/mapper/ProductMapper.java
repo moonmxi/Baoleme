@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.*;
 import org.demo.baoleme.pojo.Product;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ProductMapper extends BaseMapper<Product> {
@@ -44,4 +45,8 @@ public interface ProductMapper extends BaseMapper<Product> {
     @Update("UPDATE product SET image = #{imagePath} WHERE id = #{productId}")
     int updateImageById(@Param("productId") Long productId, @Param("imagePath") String imagePath);
 
+    @Select("SELECT p.*, o.quantity " +
+            "FROM product p JOIN order_item o ON p.id = o.product_id " +
+            "WHERE o.order_id = #{orderId}")
+    List<Map<String, Object>> selectByOrderId(Long orderId);
 }

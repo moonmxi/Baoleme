@@ -400,6 +400,7 @@ public class UserController {
             UserSearchOrderItemResponse response = new UserSearchOrderItemResponse();
             response.setOrderId(order.getId());
             response.setItems(orderService.getOrderItemById(order.getId()));
+            System.out.println("items" + response);
             return ResponseBuilder.ok(response);
         } catch (Exception e){
             return ResponseBuilder.fail("订单明细不存在");

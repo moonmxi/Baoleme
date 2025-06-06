@@ -170,7 +170,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     WHERE o.user_id = #{userId}
       AND (#{status} IS NULL OR o.status = #{status})
       AND (#{startTime} IS NULL OR o.created_at >= #{startTime})
-      AND (#{endTime} IS NULL OR o.ended_at <= #{endTime})
+      AND (#{endTime} IS NULL OR o.created_at <= #{endTime})
     ORDER BY o.created_at DESC
     LIMIT #{offset}, #{limit}
 """)

@@ -213,14 +213,18 @@ public class UserController {
             UserOrderHistoryResponse resp = new UserOrderHistoryResponse();
             resp.setOrderId((Long) map.get("id"));
             resp.setCreatedAt(map.get("created_at") != null ?
-                    ((Timestamp) map.get("created_at")).toLocalDateTime() : null);
+                    ((LocalDateTime) map.get("created_at")) : null);
             resp.setEndedAt(map.get("ended_at") != null ?
-                    ((Timestamp) map.get("ended_at")).toLocalDateTime() : null);
+                    ((LocalDateTime) map.get("ended_at")) : null);
             resp.setStatus((Integer) map.get("status"));
             resp.setStoreName((String) map.get("store_name"));
             resp.setRemark((String) map.get("remark"));
             resp.setRiderName((String) map.get("rider_name"));
             resp.setRiderPhone((String) map.get("rider_phone"));
+            resp.setTotalPrice((String) map.get("total_price"));
+            resp.setActualPrice((BigDecimal) map.get("actual_price"));
+            resp.setDeliveryPrice((BigDecimal) map.get("delivery_price"));
+
             return resp;
         }).toList();
 

@@ -275,7 +275,7 @@ public class UserController {
     @PostMapping("/coupon/claim")
     public CommonResponse claimCoupon(@Valid @RequestBody UserClaimCouponRequest request) {
         Long userId = UserHolder.getId();
-        boolean success = userService.claimCoupon(userId, request.getType());
+        boolean success = userService.claimCoupon(userId, request.getId());
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("领取失败");
     }
 

@@ -179,17 +179,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean claimCoupon(Long userId, Integer type) {
-        // 验证type是否为有效值(1或2)
-        if (type != 1 && type != 2) {
-            System.out.println("领取失败：无效的优惠券类型");
-            return false;
-        }
+    public boolean claimCoupon(Long userId, Long id) {
 
         // 从数据库中获取一张指定类型且未分配用户的优惠券
-        Coupon availableCoupon = couponMapper.selectAvailableCouponByType(type);
+        Coupon availableCoupon = couponMapper.selectById(id);
         if (availableCoupon == null) {
-            System.out.println("领取失败：该类型优惠券已领完或不存在");
+            System.out.println("领取失败：该类型优惠券不存在");
             return false;
         }
 

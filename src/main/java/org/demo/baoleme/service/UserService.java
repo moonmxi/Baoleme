@@ -84,13 +84,8 @@ public interface UserService {
      */
     List<UserCouponResponse> getUserCoupons(Long userId);
 
-    /**
-     * 领取优惠券
-     * @param userId 用户ID
-     * @param type 优惠券
-     * @return 是否成功
-     */
-    boolean claimCoupon(Long userId, Integer type);
+
+    boolean claimCoupon(Long userId, Long id);
 
     /**
      * 获取用户当前订单

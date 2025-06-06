@@ -199,12 +199,13 @@ BEGIN
         INSERT INTO sales (product_id, store_id, sale_date, quantity, unit_price)
         SELECT
             oi.product_id,
-            NEW.store_id,
-            COALESCE(NEW.ended_at, CURDATE()),  -- 使用订单结束时间或当前日期
+            o.store_id,
+            COALESCE(o.ended_at, CURDATE()),  -- 使用订单结束时间或当前日期
             oi.quantity,
             p.price
         FROM order_item oi
                  JOIN product p ON oi.product_id = p.id
+                 JOIN `order` o on o.id = oi.order_id
         WHERE oi.order_id = NEW.id;
     END IF;
 END$$

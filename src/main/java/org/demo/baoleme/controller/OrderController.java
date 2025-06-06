@@ -192,10 +192,7 @@ public class OrderController {
      * 商家分页查看订单
      */
     @PostMapping("/merchant-list")
-    public CommonResponse ordersReadByMerchant(
-            @RequestHeader("Authorization") String tokenHeader,
-            @Valid @RequestBody OrderReadByMerchantRequest request
-    ) {
+    public CommonResponse ordersReadByMerchant(@Valid @RequestBody OrderReadByMerchantRequest request) {
         // Step 1: 参数校验
         if (request.getStoreId() == null) {
             return ResponseBuilder.fail("订单查看失败：未提供store_id字段");

@@ -308,4 +308,13 @@ public class UserServiceImpl implements UserService {
         int rows = userMapper.updateAvatarById(userId, avatarPath);
         return rows > 0;
     }
+    @Override
+    public boolean updateViewHistory(Long userId, Long storeId, LocalDateTime viewTime){
+        return userMapper.addViewHistory(userId, storeId, viewTime) > 0;
+    }
+    @Override
+    public List<Store> getViewHistory(Long userId, Integer page, Integer pageSize){
+        int offset = (page - 1) * pageSize;
+        return userMapper.selectViewHistory(userId, offset, pageSize);
+    }
 }

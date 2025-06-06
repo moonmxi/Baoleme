@@ -12,6 +12,7 @@ import org.demo.baoleme.dto.response.order.UserOrderItemHistoryResponse;
 import org.demo.baoleme.dto.response.user.*;
 import org.demo.baoleme.mapper.OrderMapper;
 import org.demo.baoleme.pojo.Order;
+import org.demo.baoleme.pojo.Store;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.UserService;
 import org.demo.baoleme.service.OrderService;
@@ -21,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -402,5 +402,23 @@ public class UserController {
         }
 
 
+    }
+
+    @PostMapping("/updateViewHistory")
+    public CommonResponse updateViewHistory(@Valid @RequestBody UserUpdateViewHistoryRequest request) {
+        Long userId = UserHolder.getId();
+        Long storeId = request.getStoreId();
+        LocalDateTime viewTime = request.getViewTime();
+        boolean success = userService.updateViewHistory(userId, storeId,  viewTime);
+        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("添加失败");
+    }
+    @PostMapping("/viewHistory")
+    public CommonResponse getViewHistory(@Valid @RequestBody UserGetViewHistoryRequest request) {
+        Long userId = UserHolder.getId();
+        Integer page = request.getPage();
+        Integer pageSize = request.getPageSize();
+        List<Store> response = userService.getViewHistory(userId, page, pageSize);
+
+        return ResponseBuilder.ok(Map.of("stores", response));
     }
 }

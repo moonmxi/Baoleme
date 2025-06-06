@@ -186,6 +186,14 @@ CREATE TABLE IF NOT EXISTS favorite (
                                         store_id BIGINT,
                                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+-- 十五、浏览记录表
+CREATE TABLE IF NOT EXISTS browse_history (
+                                              user_id BIGINT NOT NULL,
+                                              store_id BIGINT NOT NULL,
+                                              created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                              UNIQUE KEY uc_user_store (user_id, store_id)  -- 联合唯一约束
+);
+
 -- 1. 创建第一个触发器：当order状态更新为3时，将order_item插入sales表
 DELIMITER $$
 DROP TRIGGER IF EXISTS order_status_to_sales;

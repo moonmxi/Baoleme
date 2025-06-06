@@ -263,7 +263,12 @@ public class UserController {
 
         return ResponseBuilder.ok(stores);
     }
-
+    @PostMapping("/deleteFavorite")
+    public CommonResponse deleteFavorite(@Valid @RequestBody UserDeleteFavoriteRequest request) {
+        Long userId = UserHolder.getId();
+        boolean success = userService.deleteFavorite(userId, request.getStoreId());
+        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("删除失败");
+    }
     @PostMapping("/coupon")
     public CommonResponse getUserCoupons(UserViewCouponRequest request) {
         Long userId = UserHolder.getId();

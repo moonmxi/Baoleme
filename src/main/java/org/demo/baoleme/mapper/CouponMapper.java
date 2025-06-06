@@ -18,9 +18,11 @@ public interface CouponMapper extends BaseMapper<Coupon> {
     Coupon selectById(Long couponId);
 
     @Select("SELECT c.id as coupon_id, c.type, c.discount, c.expiration_date, " +
-            "c.type, c.full_amount, c.reduce_amount " +
-            "FROM coupon c WHERE c.user_id = #{userId}")
-    List<UserCouponResponse> selectUserCouponsByUserId(Long userId);
+            "c.full_amount, c.reduce_amount " +
+            "FROM coupon c WHERE (c.user_id IS NULL OR c.user_id = #{userId}) " +
+            "AND (c.store_id IS NULL OR c.store_id = #{storeId})" +
+            "AND (c.is_used = 0)")
+    List<UserCouponResponse> selectUserCouponsByUserId(Long userId, Long storeId);
 
 //    @Select("SELECT COUNT(*) > 0 FROM coupon " +
 //            "WHERE id = #{couponId} AND user_id = #{userId}")

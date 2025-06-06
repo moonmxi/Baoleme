@@ -155,4 +155,7 @@ public interface UserMapper extends BaseMapper<User> {
     List<Store> selectViewHistory(@Param("userId") Long userId,
                                   @Param("offset") int offset,
                                   @Param("pageSize") Integer pageSize);
+
+    @Delete("DELETE FROM favorite WHERE user_id = #{userId} AND store_id = #{storeId}")
+    int deleteFavorite(Long userId, Long storeId);
 }

@@ -168,6 +168,10 @@ public class UserServiceImpl implements UserService {
         return userMapper.selectFavoriteStoresWithDetails(userId,type, distance,wishPrice,startRating,endRating,offset,pageSize);
     }
     @Override
+    public boolean deleteFavorite(Long userId, Long storeId) {
+        return userMapper.deleteFavorite(userId, storeId) > 0;
+    }
+    @Override
     public List<UserFavoriteResponse> getStores(Long userId,String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating, BigDecimal endRating, Integer page, Integer pageSize) {
         int offset = (page - 1) * pageSize;
         return userMapper.getStores(userId,type, distance,wishPrice,startRating,endRating,offset,pageSize);

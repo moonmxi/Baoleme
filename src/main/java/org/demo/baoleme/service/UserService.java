@@ -76,6 +76,8 @@ public interface UserService {
      */
     List<UserFavoriteResponse> getFavoriteStores(Long userId, String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
 
+    boolean deleteFavorite(Long userId, Long storeId);
+
     List<UserFavoriteResponse> getStores(Long userId, String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
     /**
      * 获取用户优惠券

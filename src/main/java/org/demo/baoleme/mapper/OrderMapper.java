@@ -161,8 +161,8 @@ public interface OrderMapper extends BaseMapper<Order> {
     );
 
     @Select("""
-    SELECT o.id, o.created_at, o.ended_at, o.status,
-           s.name AS store_name, o.remark,
+    SELECT o.id, o.created_at, o.ended_at, o.status,o.total_price,o.actual_price,
+           s.name AS store_name, o.remark,o.user_location,o.store_location,o.store_id,o.rider_id,
            r.username AS rider_name, r.phone AS rider_phone
     FROM `order` o
     LEFT JOIN store s ON o.store_id = s.id

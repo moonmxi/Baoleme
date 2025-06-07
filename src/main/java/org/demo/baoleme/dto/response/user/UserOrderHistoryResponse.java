@@ -25,7 +25,7 @@ public class UserOrderHistoryResponse {
     private Long riderId;
     private String riderName;
     private String riderPhone;
-    private String totalPrice;
+    private BigDecimal totalPrice;
     private BigDecimal actualPrice;
     private BigDecimal deliveryPrice;
 }

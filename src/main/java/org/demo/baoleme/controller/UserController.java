@@ -222,7 +222,7 @@ public class UserController {
             resp.setRemark((String) map.get("remark"));
             resp.setRiderName((String) map.get("rider_name"));
             resp.setRiderPhone((String) map.get("rider_phone"));
-            resp.setTotalPrice((String) map.get("total_price"));
+            resp.setTotalPrice((BigDecimal) map.get("total_price"));
             resp.setActualPrice((BigDecimal) map.get("actual_price"));
             resp.setDeliveryPrice((BigDecimal) map.get("delivery_price"));
             resp.setUserLocation((String) map.get("user_location"));

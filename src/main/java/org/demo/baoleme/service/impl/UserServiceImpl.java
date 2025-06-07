@@ -168,28 +168,27 @@ public class UserServiceImpl implements UserService {
         return userMapper.selectFavoriteStoresWithDetails(userId,type, distance,wishPrice,startRating,endRating,offset,pageSize);
     }
     @Override
+    public boolean deleteFavorite(Long userId, Long storeId) {
+        return userMapper.deleteFavorite(userId, storeId) > 0;
+    }
+    @Override
     public List<UserFavoriteResponse> getStores(Long userId,String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating, BigDecimal endRating, Integer page, Integer pageSize) {
         int offset = (page - 1) * pageSize;
         return userMapper.getStores(userId,type, distance,wishPrice,startRating,endRating,offset,pageSize);
     }
     // 优惠券功能转移到CouponMapper
     @Override
-    public List<UserCouponResponse> getUserCoupons(Long userId) {
-        return couponMapper.selectUserCouponsByUserId(userId);
+    public List<UserCouponResponse> getUserCoupons(Long userId,Long storeId) {
+        return couponMapper.selectUserCouponsByUserId(userId,storeId);
     }
 
     @Override
-    public boolean claimCoupon(Long userId, Integer type) {
-        // 验证type是否为有效值(1或2)
-        if (type != 1 && type != 2) {
-            System.out.println("领取失败：无效的优惠券类型");
-            return false;
-        }
+    public boolean claimCoupon(Long userId, Long id) {
 
         // 从数据库中获取一张指定类型且未分配用户的优惠券
-        Coupon availableCoupon = couponMapper.selectAvailableCouponByType(type);
+        Coupon availableCoupon = couponMapper.selectById(id);
         if (availableCoupon == null) {
-            System.out.println("领取失败：该类型优惠券已领完或不存在");
+            System.out.println("领取失败：该类型优惠券不存在");
             return false;
         }
 

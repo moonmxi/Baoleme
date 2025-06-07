@@ -213,14 +213,18 @@ public class UserController {
             UserOrderHistoryResponse resp = new UserOrderHistoryResponse();
             resp.setOrderId((Long) map.get("id"));
             resp.setCreatedAt(map.get("created_at") != null ?
-                    ((Timestamp) map.get("created_at")).toLocalDateTime() : null);
+                    ((LocalDateTime) map.get("created_at")) : null);
             resp.setEndedAt(map.get("ended_at") != null ?
-                    ((Timestamp) map.get("ended_at")).toLocalDateTime() : null);
+                    ((LocalDateTime) map.get("ended_at")) : null);
             resp.setStatus((Integer) map.get("status"));
             resp.setStoreName((String) map.get("store_name"));
             resp.setRemark((String) map.get("remark"));
             resp.setRiderName((String) map.get("rider_name"));
             resp.setRiderPhone((String) map.get("rider_phone"));
+            resp.setTotalPrice((String) map.get("total_price"));
+            resp.setActualPrice((BigDecimal) map.get("actual_price"));
+            resp.setDeliveryPrice((BigDecimal) map.get("delivery_price"));
+
             return resp;
         }).toList();
 
@@ -259,21 +263,28 @@ public class UserController {
 
         return ResponseBuilder.ok(stores);
     }
-
-    @GetMapping("/coupon")
-    public CommonResponse getUserCoupons() {
+    @PostMapping("/deleteFavorite")
+    public CommonResponse deleteFavorite(@Valid @RequestBody UserDeleteFavoriteRequest request) {
         Long userId = UserHolder.getId();
-
-        List<UserCouponResponse> coupons = userService.getUserCoupons(userId);
+        boolean success = userService.deleteFavorite(userId, request.getStoreId());
+        return success ? ResponseBuilder.ok() : ResponseBuilder.fail("删除失败");
+    }
+    @PostMapping("/coupon")
+    public CommonResponse getUserCoupons(UserViewCouponRequest request) {
+        Long userId = UserHolder.getId();
+        Long  storeId = request.getStoreId();
+        List<UserCouponResponse> coupons = userService.getUserCoupons(userId,storeId);
         return ResponseBuilder.ok(coupons);
     }
 
     @PostMapping("/coupon/claim")
     public CommonResponse claimCoupon(@Valid @RequestBody UserClaimCouponRequest request) {
         Long userId = UserHolder.getId();
-        boolean success = userService.claimCoupon(userId, request.getType());
+        boolean success = userService.claimCoupon(userId, request.getId());
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("领取失败");
     }
+
+
 
     @PostMapping("/current")
     public CommonResponse getCurrentOrders(@Valid @RequestBody UserCurrentOrderRequest request) {
@@ -393,9 +404,8 @@ public class UserController {
     public CommonResponse searchOrderItem(@Valid @RequestBody UserSearchOrderRequest request) {
         try {
             Order order = orderService.getOrderById(request.getOrderId());
-            UserSearchOrderItemResponse response = new UserSearchOrderItemResponse();
-            response.setOrderId(order.getId());
-            response.setItems(orderService.getOrderItemById(order.getId()));
+            List<UserSearchOrderItemResponse> response = orderService.getOrderItemById(order.getId());
+
             return ResponseBuilder.ok(response);
         } catch (Exception e){
             return ResponseBuilder.fail("订单明细不存在");

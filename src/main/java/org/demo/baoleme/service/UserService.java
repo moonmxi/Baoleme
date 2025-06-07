@@ -76,21 +76,18 @@ public interface UserService {
      */
     List<UserFavoriteResponse> getFavoriteStores(Long userId, String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
 
+    boolean deleteFavorite(Long userId, Long storeId);
+
     List<UserFavoriteResponse> getStores(Long userId, String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
     /**
      * 获取用户优惠券
      * @param userId 用户ID
      * @return 优惠券列表
      */
-    List<UserCouponResponse> getUserCoupons(Long userId);
+    List<UserCouponResponse> getUserCoupons(Long userId,Long storeId);
 
-    /**
-     * 领取优惠券
-     * @param userId 用户ID
-     * @param type 优惠券
-     * @return 是否成功
-     */
-    boolean claimCoupon(Long userId, Integer type);
+
+    boolean claimCoupon(Long userId, Long id);
 
     /**
      * 获取用户当前订单

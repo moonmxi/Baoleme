@@ -4,6 +4,7 @@ import org.demo.baoleme.common.RedisLockUtil;
 import org.demo.baoleme.dto.request.order.CartItemDTO;
 import org.demo.baoleme.dto.request.order.OrderCreateRequest;
 import org.demo.baoleme.dto.response.user.UserCreateOrderResponse;
+import org.demo.baoleme.dto.response.user.UserSearchOrderItemResponse;
 import org.demo.baoleme.mapper.*;
 import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.CartService;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -276,9 +278,9 @@ public class OrderServiceImpl implements OrderService {
     }
     @Override
     @Transactional
-    public List<OrderItem> getOrderItemById(Long orderId){
-        List<OrderItem> orderItems = orderItemMapper.selectByOrderId(orderId);
+    public List<UserSearchOrderItemResponse> getOrderItemById(Long orderId){
+        List<UserSearchOrderItemResponse> result = productMapper.selectByOrderId(orderId);
 
-        return orderItems;
+        return result;
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -20,4 +21,7 @@ public class UserOrderHistoryResponse {
     private String remark;
     private String riderName;
     private String riderPhone;
+    private String totalPrice;
+    private BigDecimal actualPrice;
+    private BigDecimal deliveryPrice;
 }

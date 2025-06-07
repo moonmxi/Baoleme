@@ -185,6 +185,10 @@ public class RiderController {
     @PostMapping("/auto-order-taking")
     public CommonResponse autoOrderTaking() {
         Long id = UserHolder.getId();
+        if(riderService.getInfo(id).getDispatchMode() == 0)
+            return ResponseBuilder.ok("当前骑手不自动接单");
+
+
         return riderService.randomSendOrder(id)?  ResponseBuilder.ok() : ResponseBuilder.fail("目前无空闲订单");
     }
 }

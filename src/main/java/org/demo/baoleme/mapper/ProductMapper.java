@@ -2,6 +2,7 @@ package org.demo.baoleme.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
+import org.demo.baoleme.dto.response.user.UserSearchOrderItemResponse;
 import org.demo.baoleme.pojo.Product;
 
 import java.util.List;
@@ -48,5 +49,5 @@ public interface ProductMapper extends BaseMapper<Product> {
     @Select("SELECT p.*, o.quantity " +
             "FROM product p JOIN order_item o ON p.id = o.product_id " +
             "WHERE o.order_id = #{orderId}")
-    List<Map<String, Object>> selectByOrderId(Long orderId);
+    List<UserSearchOrderItemResponse> selectByOrderId(Long orderId);
 }

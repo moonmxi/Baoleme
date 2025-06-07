@@ -16,8 +16,27 @@ import java.util.Map;
 
 @Data
 public class UserSearchOrderItemResponse {
-    private Long orderId;
+    private Long id;
 
-    private Map<Product, Integer> items;
+    private Long storeId;
 
+    private String name;
+
+    private String description;
+
+    private BigDecimal price;
+
+    private String category;
+
+    private Integer stock;
+
+    private BigDecimal rating;
+
+    private Integer status;
+
+    private LocalDateTime createdAt;
+
+    private String image;
+
+    private Integer quantity;
 }

@@ -2,6 +2,7 @@ package org.demo.baoleme.service;
 
 import org.demo.baoleme.dto.request.order.OrderCreateRequest;
 import org.demo.baoleme.dto.response.user.UserCreateOrderResponse;
+import org.demo.baoleme.dto.response.user.UserSearchOrderItemResponse;
 import org.demo.baoleme.pojo.Order;
 import org.demo.baoleme.pojo.OrderItem;
 import org.demo.baoleme.pojo.Product;
@@ -57,5 +58,5 @@ public interface OrderService {
 
     boolean updateOrderByMerchant(Long merchantId, Long orderId, Integer newStatus);
 
-    Map<Product, Integer> getOrderItemById(Long orderId);
+    List<UserSearchOrderItemResponse> getOrderItemById(Long orderId);
 }

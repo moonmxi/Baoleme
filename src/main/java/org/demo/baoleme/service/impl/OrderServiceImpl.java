@@ -4,6 +4,7 @@ import org.demo.baoleme.common.RedisLockUtil;
 import org.demo.baoleme.dto.request.order.CartItemDTO;
 import org.demo.baoleme.dto.request.order.OrderCreateRequest;
 import org.demo.baoleme.dto.response.user.UserCreateOrderResponse;
+import org.demo.baoleme.dto.response.user.UserSearchOrderItemResponse;
 import org.demo.baoleme.mapper.*;
 import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.CartService;
@@ -277,27 +278,9 @@ public class OrderServiceImpl implements OrderService {
     }
     @Override
     @Transactional
-    public Map<Product, Integer> getOrderItemById(Long orderId){
-        List<Map<String, Object>> rows = productMapper.selectByOrderId(orderId);
-        Map<Product, Integer> result = new HashMap<>();
-        for (Map<String, Object> row : rows) {
-            Product product = new Product();
-            product.setId((Long) row.get("id"));
-            product.setName((String) row.get("name"));
-            product.setPrice((BigDecimal) row.get("price"));
-            product.setImage((String) row.get("image"));
-            product.setDescription((String) row.get("description"));
-            product.setStock((Integer) row.get("stock"));
-            product.setCategory((String) row.get("category"));
-            product.setRating((BigDecimal) row.get("rating"));
-            product.setStatus((Integer) row.get("status"));
-            product.setCreatedAt((LocalDateTime) row.get("created_at"));
-            product.setStoreId((Long) row.get("store_id"));
+    public List<UserSearchOrderItemResponse> getOrderItemById(Long orderId){
+        List<UserSearchOrderItemResponse> result = productMapper.selectByOrderId(orderId);
 
-            Integer quantity = (Integer) row.get("quantity");
-
-            result.put(product, quantity);
-        }
         return result;
     }
 }

@@ -404,10 +404,8 @@ public class UserController {
     public CommonResponse searchOrderItem(@Valid @RequestBody UserSearchOrderRequest request) {
         try {
             Order order = orderService.getOrderById(request.getOrderId());
-            UserSearchOrderItemResponse response = new UserSearchOrderItemResponse();
-            response.setOrderId(order.getId());
-            response.setItems(orderService.getOrderItemById(order.getId()));
-            System.out.println("items" + response);
+            List<UserSearchOrderItemResponse> response = orderService.getOrderItemById(order.getId());
+
             return ResponseBuilder.ok(response);
         } catch (Exception e){
             return ResponseBuilder.fail("订单明细不存在");

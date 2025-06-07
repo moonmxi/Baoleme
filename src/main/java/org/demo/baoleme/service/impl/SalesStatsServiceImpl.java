@@ -6,6 +6,7 @@ import org.demo.baoleme.mapper.ProductMapper;
 import org.demo.baoleme.mapper.SaleMapper;
 import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.pojo.ProductSalesDTO;
+import org.demo.baoleme.pojo.Store;
 import org.demo.baoleme.service.SalesStatsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,5 +140,18 @@ public class SalesStatsServiceImpl implements SalesStatsService {
         return totalQuantity > 0
                 ? totalValue.divide(new BigDecimal(totalQuantity), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
+    }
+
+    @Override
+    @Transactional
+    public int getProductVolume(Long productId){
+        // Step2: 检查id是否存在
+        Product product = productMapper.selectById(productId);
+        if (product == null) {
+            System.out.println("错误：商品ID不存在");
+            return -1;
+        }
+
+        return productMapper.getProductVolume(productId);
     }
 }

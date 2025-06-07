@@ -271,14 +271,14 @@ public class UserController {
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("删除失败");
     }
     @PostMapping("/coupon")
-    public CommonResponse getUserCoupons(UserViewCouponRequest request) {
+    public CommonResponse getUserCoupons(@Valid @RequestBody UserViewCouponRequest request) {
         Long userId = UserHolder.getId();
         Long storeId = request.getStoreId();
         List<UserCouponResponse> coupons = userService.getUserCoupons(userId,storeId);
         return ResponseBuilder.ok(coupons);
     }
     @PostMapping("/coupon/view")
-    public CommonResponse availableCoupons(AvailableCouponRequest request){
+    public CommonResponse availableCoupons(@Valid @RequestBody AvailableCouponRequest request){
         Long storeId = request.getStoreId();
         List<UserCouponResponse> coupons = userService.getUserCoupons(0L,storeId);
 

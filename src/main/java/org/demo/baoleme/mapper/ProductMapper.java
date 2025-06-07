@@ -50,4 +50,18 @@ public interface ProductMapper extends BaseMapper<Product> {
             "FROM product p JOIN order_item o ON p.id = o.product_id " +
             "WHERE o.order_id = #{orderId}")
     List<UserSearchOrderItemResponse> selectByOrderId(Long orderId);
+
+    /**
+     * 每个商品的总量
+     * @param productId
+     * @return
+     */
+    @Select(
+            """
+            SELECT SUM(quantity)
+            from sales
+            WHERE product_id = #{productId}
+            """
+    )
+    int getProductVolume(@Param("productId") Long productId);
 }

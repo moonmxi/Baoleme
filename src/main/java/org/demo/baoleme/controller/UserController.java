@@ -225,6 +225,11 @@ public class UserController {
             resp.setTotalPrice((String) map.get("total_price"));
             resp.setActualPrice((BigDecimal) map.get("actual_price"));
             resp.setDeliveryPrice((BigDecimal) map.get("delivery_price"));
+            resp.setUserLocation((String) map.get("user_location"));
+            resp.setStoreLocation((String) map.get("store_location"));
+            resp.setStoreId((Long) map.get("store_id"));
+            resp.setRiderId((Long) map.get("rider_id"));
+
 
             return resp;
         }).toList();

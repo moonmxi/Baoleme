@@ -17,8 +17,12 @@ public class UserOrderHistoryResponse {
     private LocalDateTime createdAt;
     private LocalDateTime endedAt;
     private Integer status;
+    private String userLocation;
+    private String storeLocation;
+    private Long storeId;
     private String storeName;
     private String remark;
+    private Long riderId;
     private String riderName;
     private String riderPhone;
     private String totalPrice;

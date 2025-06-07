@@ -16,7 +16,7 @@ public class ProductViewResponse {
     private BigDecimal price;
     private String category;
     private Integer stock;
-    private Integer volume;
+    private int volume;
     private BigDecimal rating;
     private Integer status;
     private LocalDateTime createdAt;

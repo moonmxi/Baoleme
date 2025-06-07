@@ -5,6 +5,7 @@ import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.UserHolder;
+import org.demo.baoleme.dto.request.coupon.AvailableCouponRequest;
 import org.demo.baoleme.dto.request.order.OrderCreateRequest;
 import org.demo.baoleme.dto.request.order.UserOrderItemHistoryRequest;
 import org.demo.baoleme.dto.request.user.*;
@@ -270,10 +271,17 @@ public class UserController {
         return success ? ResponseBuilder.ok() : ResponseBuilder.fail("删除失败");
     }
     @PostMapping("/coupon")
-    public CommonResponse getUserCoupons(UserViewCouponRequest request) {
+    public CommonResponse getUserCoupons(@Valid @RequestBody UserViewCouponRequest request) {
         Long userId = UserHolder.getId();
-        Long  storeId = request.getStoreId();
+        Long storeId = request.getStoreId();
         List<UserCouponResponse> coupons = userService.getUserCoupons(userId,storeId);
+        return ResponseBuilder.ok(coupons);
+    }
+    @PostMapping("/coupon/view")
+    public CommonResponse availableCoupons(@Valid @RequestBody AvailableCouponRequest request){
+        Long storeId = request.getStoreId();
+        List<UserCouponResponse> coupons = userService.getUserCoupons(0L,storeId);
+
         return ResponseBuilder.ok(coupons);
     }
 
@@ -410,7 +418,6 @@ public class UserController {
         } catch (Exception e){
             return ResponseBuilder.fail("订单明细不存在");
         }
-
 
     }
 

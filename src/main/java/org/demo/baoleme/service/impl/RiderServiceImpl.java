@@ -86,6 +86,10 @@ public class RiderServiceImpl implements RiderService {
         Rider existing = riderMapper.selectById(rider.getId());
         if (existing == null) return false;
 
+        if(rider.getDispatchMode()==0){
+            return false;
+        }
+
         if (StringUtils.hasText(rider.getUsername())) {
             existing.setUsername(rider.getUsername());
         }

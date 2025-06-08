@@ -58,9 +58,9 @@ public interface ProductMapper extends BaseMapper<Product> {
      */
     @Select(
             """
-            SELECT SUM(quantity)
-            from sales
-            WHERE product_id = #{productId}
+        SELECT COALESCE(SUM(quantity), 0)
+        FROM sales
+        WHERE product_id = #{productId}
             """
     )
     int getProductVolume(@Param("productId") Long productId);

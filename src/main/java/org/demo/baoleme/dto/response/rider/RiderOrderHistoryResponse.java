@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Data
 public class RiderOrderHistoryResponse {
     private Long orderId;
+    private Long userId;
     private Integer status;
     private BigDecimal totalPrice;
     private BigDecimal deliveryPrice;

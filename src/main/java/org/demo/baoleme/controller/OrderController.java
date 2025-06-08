@@ -118,6 +118,7 @@ public class OrderController {
         List<RiderOrderHistoryResponse> responses = orders.stream().map(order -> {
             RiderOrderHistoryResponse resp = new RiderOrderHistoryResponse();
             resp.setOrderId(order.getId());
+            resp.setUserId(order.getUserId());
             resp.setStatus(order.getStatus());
             resp.setTotalPrice(order.getTotalPrice());
             resp.setDeliveryPrice(order.getDeliveryPrice());

@@ -15,6 +15,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,7 +64,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
         // Step1: 从请求头获取并验证JWT Token
         // 从请求头提取Token
+        System.out.println(session.toString());
         String token = getToken(session);
+
         Map<String, Object> payload = JwtUtils.parsePayload(token);
 
         // Token无效则拒绝连接
@@ -100,35 +103,71 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) throws Exception {
-        // Step1: 解析消息内容并补充发送者信息
-        // 反序列化消息内容
+        System.out.println("111");
+        // Step1: 直接用字符串操作，手动解析 JSON 内容
         String json = message.getPayload();
-        ChatMessage chatMsg = objectMapper.readValue(json, ChatMessage.class);
-        chatMsg.setTimeStamp(LocalDateTime.now());
+        ChatMessage chatMsg = new ChatMessage();
 
-        // 从会话中获取发送者身份
-        String token = getToken(session);
-        Map<String, Object> payload = JwtUtils.parsePayload(token);
-        if (payload == null) return;
+        // 1. 仅支持 {"body":{...}} 结构，找到 body 部分
+        int bodyPos = json.indexOf("\"body\":{");
+        if (bodyPos < 0) {
+            session.sendMessage(new TextMessage("{\"error\":\"消息格式错误\"}"));
+            return;
+        }
+        int bodyStart = bodyPos + "\"body\":".length();
+        int braceCount = 0, i = bodyStart, bodyEnd = -1;
+        for (; i < json.length(); ++i) {
+            if (json.charAt(i) == '{') braceCount++;
+            else if (json.charAt(i) == '}') {
+                braceCount--;
+                if (braceCount == 0) {
+                    bodyEnd = i;
+                    break;
+                }
+            }
+        }
+        if (bodyEnd == -1) {
+            session.sendMessage(new TextMessage("{\"error\":\"消息格式错误\"}"));
+            return;
+        }
+        String bodyJson = json.substring(bodyStart, bodyEnd + 1);
 
-        // Step2: 根据接收者用户名查找对应ID
-        // 设置发送者信息
-        Long senderId = ((Number) payload.get("user_id")).longValue();
-        String senderRole = (String) payload.get("role");
-        String senderName = (String) payload.get("username");
-        chatMsg.setSenderId(senderId);
-        chatMsg.setSenderRole(senderRole);
-        chatMsg.setSenderName(senderName);
-
-        // 根据接收者用户名解析其ID
-        Long receiverId = resolveReceiverId(chatMsg.getReceiverRole(), chatMsg.getReceiverName());
+        // 2. 字符串方式查找字段
+        // 支持 "xxx":"yyy"  和 "xxx":123  两种
+        String createdAt = getJsonString(bodyJson, "created_at");
+        chatMsg.setContent(getJsonString(bodyJson, "content"));
+        chatMsg.setReceiverRole(getJsonString(bodyJson, "receiver_role"));
+        chatMsg.setReceiverName(getJsonString(bodyJson, "receiver_name"));
+        chatMsg.setSenderName(getJsonString(bodyJson, "sender_name"));
+        chatMsg.setSenderRole(getJsonString(bodyJson, "sender_role"));
+        Long senderId = getJsonLong(bodyJson, "sender_id");
+        Long receiverId = getJsonLong(bodyJson, "receiver_id");
+        if (senderId != null) chatMsg.setSenderId(senderId);
         if (receiverId == null) {
             session.sendMessage(new TextMessage("{\"error\":\"接收方用户不存在\"}"));
             return;
         }
         chatMsg.setReceiverId(receiverId);
+        if (createdAt != null) {
+            try {
+                chatMsg.setTimeStamp(LocalDateTime.parse(createdAt, DateTimeFormatter.ISO_DATE_TIME));
+            } catch (Exception e) {
+                // 解析失败忽略
+            }
+        }
 
-        // Step3: 持久化消息到数据库
+        // 3. 补充时间戳
+        chatMsg.setTimeStamp(LocalDateTime.now());
+
+        // 4. Token 校验及补全
+        String token = getToken(session);
+        Map<String, Object> payload = JwtUtils.parsePayload(token);
+        if (payload == null) {
+            session.sendMessage(new TextMessage("{\"error\":\"无效的Token\"}"));
+            return;
+        }
+
+        // 5. 持久化与转发逻辑（原样）
         Message dbMsg = new Message();
         dbMsg.setContent(chatMsg.getContent());
         dbMsg.setSenderId(chatMsg.getSenderId());
@@ -138,20 +177,49 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         dbMsg.setCreatedAt(chatMsg.getTimeStamp());
         messageService.saveMessage(dbMsg);
 
-        // Step4: 实时转发或存储为离线消息
-        // 消息路由：实时转发或离线存储
         String receiverKey = buildKey(chatMsg.getReceiverRole(), chatMsg.getReceiverId());
         WebSocketSession receiverSession = sessionMap.get(receiverKey);
 
         if (receiverSession != null && receiverSession.isOpen()) {
-            // 接收者在线：实时转发
             receiverSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMsg)));
         } else {
-            // 接收者离线：存入Redis队列
             String redisKey = "offline:msg:" + receiverKey;
             redisTemplate.opsForList().rightPush(redisKey, chatMsg);
         }
     }
+
+// ===================== 工具函数 =========================
+
+    /**
+     * 查找 "key":"value" 或 "key":123 这样的内容，返回字符串
+     */
+    private String getJsonString(String json, String key) {
+        String pat = "\"" + key + "\":";
+        int p = json.indexOf(pat);
+        if (p < 0) return null;
+        int vstart = p + pat.length();
+        // 跳过空格
+        while (vstart < json.length() && (json.charAt(vstart) == ' ' || json.charAt(vstart) == '\n')) vstart++;
+        if (vstart >= json.length()) return null;
+        if (json.charAt(vstart) == '"') {
+            vstart++;
+            int vend = json.indexOf('"', vstart);
+            return vend > vstart ? json.substring(vstart, vend) : null;
+        } else {
+            int vend = vstart;
+            while (vend < json.length() && (Character.isDigit(json.charAt(vend)) || json.charAt(vend) == '-')) vend++;
+            return json.substring(vstart, vend);
+        }
+    }
+
+    /**
+     * 查找并返回 long 整型
+     */
+    private Long getJsonLong(String json, String key) {
+        String v = getJsonString(json, key);
+        try { return v == null ? null : Long.parseLong(v); } catch (Exception e) { return null; }
+    }
+
 
     /**
      * 当 WebSocket 连接关闭时调用
@@ -192,9 +260,43 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
      * @param session WebSocket会话
      * @return 去除"Bearer "前缀后的Token字符串
      */
+
     private String getToken(WebSocketSession session) {
-        String raw = session.getHandshakeHeaders().getFirst("Authorization");
-        return raw != null ? raw.replace("Bearer ", "") : null;
+        // 0. 防御性编程，检查 session 是否为 null
+        if (session == null) {
+            return null;
+        }
+
+        // 1. 将 WebSocketSession 对象转换为其字符串表示形式
+        //    例如："StandardWebSocketSession[id=..., uri=...Authorization=Bearer%20...]"
+        String sessionString = session.toString();
+
+        // 2. 定义我们要查找的 Token 的前缀
+        //    在 URL query 中，"Bearer " 后面的空格被编码为 "%20"
+        String prefix = "Authorization=Bearer%20";
+
+        // 3. 查找此前缀在字符串中的起始位置
+        int startIndex = sessionString.indexOf(prefix);
+
+        // 4. 如果没有找到前缀，说明 Token 不存在于字符串中，返回 null
+        if (startIndex == -1) {
+            return null;
+        }
+
+        // 5. 计算 Token 内容的真正起始索引（即前缀之后的位置）
+        int tokenStartIndex = startIndex + prefix.length();
+
+        // 6. 查找 Token 的结束位置。根据您提供的格式，Token 在字符串的末尾，并由 ']' 符号结束。
+        int endIndex = sessionString.indexOf(']', tokenStartIndex);
+
+        // 7. 截取子字符串，得到最终的 Token
+        //    如果找到了结束符 ']'，则截取到它之前
+        //    如果没有找到（以防万一格式有变），则截取到字符串末尾
+        if (endIndex != -1) {
+            return sessionString.substring(tokenStartIndex, endIndex);
+        } else {
+            return sessionString.substring(tokenStartIndex);
+        }
     }
 
     /**

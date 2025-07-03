@@ -145,6 +145,11 @@ public class MerchantServiceImpl implements MerchantService {
         if (StringUtils.hasText(source.getPhone())) {
             target.setPhone(source.getPhone());
         }
+
+        // Step4:
+        if (StringUtils.hasText(source.getAvatar())) {
+            target.setAvatar(source.getAvatar());
+        }
     }
 
     /**
@@ -161,5 +166,14 @@ public class MerchantServiceImpl implements MerchantService {
     private boolean isPhoneExists(String phone) {
         return StringUtils.hasText(phone) &&
                 merchantMapper.selectByPhone(phone) != null;
+    }
+
+    @Override
+    public boolean updateAvatar(Long merchantId, String avatarPath) {
+        if (merchantId == null || !StringUtils.hasText(avatarPath)) {
+            return false;
+        }
+        int rows = merchantMapper.updateAvatarById(merchantId, avatarPath);
+        return rows > 0;
     }
 }

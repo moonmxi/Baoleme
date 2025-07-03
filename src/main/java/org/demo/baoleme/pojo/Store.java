@@ -24,6 +24,8 @@ public class Store {
 
     private String location;
 
+    private String type;
+
     /**
      * 评分（decimal(2,1), 默认5.0）
      */
@@ -34,7 +36,6 @@ public class Store {
      */
     private Integer status = 0;
 
-    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
     private String image;

@@ -17,4 +17,6 @@ public interface MerchantService {
     Merchant updateInfo(Merchant merchant);
     // 删除商户
     boolean deleteMerchant(Long id);
+
+    boolean updateAvatar(Long merchantId, String avatarPath);
 }

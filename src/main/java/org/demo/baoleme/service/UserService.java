@@ -1,9 +1,13 @@
 package org.demo.baoleme.service;
 
 import org.demo.baoleme.dto.response.user.*;
+import org.demo.baoleme.pojo.Rider;
+import org.demo.baoleme.pojo.Store;
 import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.dto.request.user.UserReviewRequest;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +32,7 @@ public interface UserService {
      */
     User login(String phone, String password);
 
+    boolean delete(Long riderId);
     /**
      * 获取用户信息
      * @param userId 用户主键 ID
@@ -69,43 +74,37 @@ public interface UserService {
      * @param userId 用户ID
      * @return 收藏店铺列表
      */
-    List<UserFavoriteResponse> getFavoriteStores(Long userId);
+    List<UserFavoriteResponse> getFavoriteStores(Long userId, String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
 
+    boolean deleteFavorite(Long userId, Long storeId);
+
+    List<UserFavoriteResponse> getStores(Long userId, String type, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
     /**
      * 获取用户优惠券
      * @param userId 用户ID
      * @return 优惠券列表
      */
-    List<UserCouponResponse> getUserCoupons(Long userId);
+    List<UserCouponResponse> getUserCoupons(Long userId,Long storeId);
+
+
+    boolean claimCoupon(Long userId, Long id);
 
     /**
-     * 领取优惠券
+     * 获取用户当前订单
      * @param userId 用户ID
-     * @param type 优惠券
-     * @return 是否成功
+     * @param page 页码
+     * @param pageSize 每页数量
+     * @return 当前订单列表
      */
-    boolean claimCoupon(Long userId, Integer type);
-
-    /**
-     * 获取当前订单
-     * @param userId 用户ID
-     * @return 当前订单信息
-     */
-    UserCurrentOrderResponse getCurrentOrders(Long userId);
+    List<Map<String, Object>> getCurrentOrders(Long userId, int page, int pageSize);
 
     /**
      * 全局搜索
      * @param keyword 关键词
      * @return 搜索结果
      */
-    List<Map<String, Object>> searchStoreAndProductByKeyword(String keyword);
+    List<UserSearchResponse> searchStores(String keyword, BigDecimal distance,BigDecimal wishPrice, BigDecimal startRating,BigDecimal endRating,Integer page,Integer pageSize);
 
-    /**
-     * 获取商家列表
-     * @param description 商家类型(可选)
-     * @return 商家列表
-     */
-    UserGetShopResponse getStoresByDescription(String description);
 
     /**
      * 获取商品列表
@@ -113,7 +112,7 @@ public interface UserService {
      * @param category 商品分类(可选)
      * @return 商品列表
      */
-    UserGetProductResponse getProducts(Long shopId, String category);
+    List<UserGetProductResponse> getProducts(Long shopId, String category);
 
     /**
      * 提交评价
@@ -123,4 +122,18 @@ public interface UserService {
      */
     UserReviewResponse submitReview(Long userId, UserReviewRequest request);
 
+    List<Map<String, Object>> getUserOrdersPaged(
+            Long userId, Integer status, LocalDateTime startTime, LocalDateTime endTime,
+            int page, int pageSize
+    );
+
+    List<Map<String,Object>> getOrderItemHistory(Long orderId);
+
+    String getMerchantPhoneByStoreId(Long storeId);
+
+    boolean updateAvatar(Long userId, String avatarPath);
+
+    boolean updateViewHistory(Long userId, Long storeId, LocalDateTime viewTime);
+
+    List<Store> getViewHistory(Long userId, Integer page, Integer pageSize);
 }

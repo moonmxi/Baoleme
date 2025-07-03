@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ProductCreateResponse {
-    private Long ProductId;
+    private Long productId;
 }

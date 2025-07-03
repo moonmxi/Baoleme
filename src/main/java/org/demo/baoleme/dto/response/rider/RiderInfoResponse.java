@@ -13,4 +13,5 @@ public class RiderInfoResponse {
     private Integer orderStatus;
     private Integer dispatchMode;
     private Long balance;
+    private String avatar;
 }

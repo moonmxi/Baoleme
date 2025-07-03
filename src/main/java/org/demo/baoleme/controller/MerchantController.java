@@ -64,12 +64,12 @@ public class MerchantController {
     ) {
         System.out.println("收到登录请求: " + request);
 
-        // Step1: 根据用户名查询商家
-        Merchant result = merchantService.getMerchantByUsername(request.getUsername());
+        // Step1: 根据手机号查询商家
+        Merchant result = merchantService.getMerchantByPhone(request.getPhone());
 
         // Step2: 验证用户存在性
         if (result == null) {
-            return ResponseBuilder.fail("用户名不存在");
+            return ResponseBuilder.fail("手机号不存在");
         }
 
         // Step3: 验证密码匹配
@@ -128,18 +128,20 @@ public class MerchantController {
         System.out.println("收到更新请求: " + request);
 
         // Step1: 创建Merchant对象并设置用户ID
-        Merchant oldMerchant = new Merchant();
+        Merchant newMerchant = new Merchant();
         Long id = UserHolder.getId();
-        oldMerchant.setId(id);
+        newMerchant.setId(id);
+
+        String oldMerchantName = merchantService.getMerchantById(id).getUsername();
 
         // Step2: 拷贝请求参数到实体对象
-        BeanUtils.copyProperties(request, oldMerchant);
+        BeanUtils.copyProperties(request, newMerchant);
 
         // Step3: 调用Service执行更新操作
-        Merchant newMerchant = merchantService.updateInfo(oldMerchant);
+        Merchant afterUpdate = merchantService.updateInfo(newMerchant);
 
         // Step4: 处理更新失败情况
-        if (newMerchant == null) {
+        if (afterUpdate == null) {
             return ResponseBuilder.fail("更新失败，请检查字段");
         }
 
@@ -147,12 +149,12 @@ public class MerchantController {
         MerchantUpdateResponse response = new MerchantUpdateResponse();
         response.setUsername(request.getUsername());
         response.setUserId(id);
-        response.setPhone(newMerchant.getPhone());
-        response.setAvatar(newMerchant.getAvatar());
+        response.setPhone(afterUpdate.getPhone());
+        response.setAvatar(afterUpdate.getAvatar());
 
         // Step6: 检查用户名是否发生变更
         boolean usernameChanged = request.getUsername() != null
-                && !request.getUsername().equals(newMerchant.getUsername());
+                && !oldMerchantName.equals(afterUpdate.getUsername());
         if (!usernameChanged) {
             return ResponseBuilder.ok(response);  // 用户名未修改直接返回
         }
@@ -168,7 +170,7 @@ public class MerchantController {
         redisTemplate.opsForValue().set("merchant:login:" + id, newToken, 1, TimeUnit.DAYS);
 
         // Step9: 设置响应中的新Token
-        response.setToken(newToken);
+        response.setNewToken(newToken);
 
         System.out.println("更新成功，响应: " + response);
         return ResponseBuilder.ok(response);
@@ -178,19 +180,7 @@ public class MerchantController {
     public CommonResponse logout(@RequestHeader("Authorization") String tokenHeader) {
         System.out.println("收到登出请求，Token: " + tokenHeader);
 
-        // Step1: 解析并提取原始Token
-        String token = tokenHeader.replace("Bearer ", "");
-        String tokenKey = "merchant:token:" + token;
-
-        // Step2: 获取并删除关联的登录状态
-        Object merchantId = redisTemplate.opsForValue().get(tokenKey);
-        if (merchantId != null) {
-            String loginKey = "merchant:login:" + merchantId;
-            redisTemplate.delete(loginKey);
-        }
-
-        // Step3: 删除Token本体
-        redisTemplate.delete(tokenKey);
+        removeToken(tokenHeader);
 
         // Step4: 返回操作结果
         return ResponseBuilder.ok();
@@ -206,7 +196,25 @@ public class MerchantController {
         // Step2: 执行删除操作
         boolean ok = merchantService.deleteMerchant(id);
 
+        removeToken(tokenHeader);
+
         // Step3: 返回操作结果
         return ok ? ResponseBuilder.ok() : ResponseBuilder.fail("注销失败");
+    }
+
+    private void removeToken(String tokenHeader) {
+        // Step1: 解析并提取原始Token
+        String token = tokenHeader.replace("Bearer ", "");
+        String tokenKey = "merchant:token:" + token;
+
+        // Step2: 获取并删除关联的登录状态
+        Object merchantId = redisTemplate.opsForValue().get(tokenKey);
+        if (merchantId != null) {
+            String loginKey = "merchant:login:" + merchantId;
+            redisTemplate.delete(loginKey);
+        }
+
+        // Step3: 删除Token本体
+        redisTemplate.delete(tokenKey);
     }
 }

@@ -16,9 +16,8 @@ public class StoreUpdateRequest {
     private Long id;
 
     private String name;
-    private String desc;
+    private String description;
     private String location;
-    private BigDecimal rating;
     private Integer status;
     private String image;
 }

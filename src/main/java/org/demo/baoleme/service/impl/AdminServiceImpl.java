@@ -50,32 +50,27 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Admin getInfo(Long id) {
-        return adminMapper.selectById(id);
+    public List<User> getAllUsersPaged(int page, int pageSize,String keyword ,String gender, Long startId, Long endId) {
+        int offset = (page - 1) * pageSize;
+        return userMapper.selectUsersPaged(keyword, gender, startId, endId, offset, pageSize);
     }
 
     @Override
-    public List<User> getAllUsersPaged(int page, int pageSize) {
+    public List<Rider> getAllRidersPaged(int page, int pageSize,String keyword, Long startId, Long endId, Integer status, Integer dispatchMode, Long startBalance, Long endBalance) {
         int offset = (page - 1) * pageSize;
-        return userMapper.selectUsersPaged(offset, pageSize);
+        return riderMapper.selectRidersPaged(offset, pageSize, keyword, startId, endId, status, dispatchMode, startBalance, endBalance);
     }
 
     @Override
-    public List<Rider> getAllRidersPaged(int page, int pageSize) {
+    public List<Merchant> getAllMerchantsPaged(int page, int pageSize, String keyword, Long startId, Long endId) {
         int offset = (page - 1) * pageSize;
-        return riderMapper.selectRidersPaged(offset, pageSize);
+        return merchantMapper.selectMerchantsPaged(offset, pageSize, keyword, startId, endId);
     }
 
     @Override
-    public List<Merchant> getAllMerchantsPaged(int page, int pageSize) {
+    public List<Store> getAllStoresPaged(int page, int pageSize, String keyword, String type, Integer status, BigDecimal startRating, BigDecimal endRating) {
         int offset = (page - 1) * pageSize;
-        return merchantMapper.selectMerchantsPaged(offset, pageSize);
-    }
-
-    @Override
-    public List<Store> getAllStoresPaged(int page, int pageSize) {
-        int offset = (page - 1) * pageSize;
-        return storeMapper.selectStoresPaged(offset, pageSize);
+        return storeMapper.selectStoresPaged(offset, pageSize, keyword, type, status, startRating, endRating);
     }
 
     @Override
@@ -134,8 +129,16 @@ public class AdminServiceImpl implements AdminService {
 
         // 先填入店铺
         for (Map<String, Object> store : stores) {
-            Long storeId = ((Number) store.get("id")).longValue();
-            String storeName = (String) store.get("name");
+            Object idObj = store.get("id");
+            Object nameObj = store.get("name");
+
+            Long storeId = (idObj instanceof Number) ? ((Number) idObj).longValue() : null;
+            String storeName = (nameObj instanceof String) ? (String) nameObj : "";
+
+            if (storeId == null) {
+                // 可选：跳过无效数据
+                continue;
+            }
 
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("store_id", storeId);
@@ -167,5 +170,15 @@ public class AdminServiceImpl implements AdminService {
         }
 
         return new ArrayList<>(resultMap.values());
+    }
+
+    @Override
+    public Order getOrderById(Long orderId) {
+        return orderMapper.selectById(orderId);
+    }
+
+    @Override
+    public Review getReviewById(Long reviewId) {
+        return reviewMapper.selectById(reviewId);
     }
 }

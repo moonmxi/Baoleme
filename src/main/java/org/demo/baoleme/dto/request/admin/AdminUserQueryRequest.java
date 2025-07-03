@@ -7,6 +7,10 @@ import lombok.Data;
  */
 @Data
 public class AdminUserQueryRequest {
+    private String keyword;
+    private String gender;
+    private Long startId;
+    private Long endId;
     private Integer page;
     private Integer pageSize;
 }

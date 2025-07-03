@@ -1,7 +1,6 @@
 package org.demo.baoleme.controller;
 
 import jakarta.validation.Valid;
-import org.apache.ibatis.annotations.Delete;
 import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.JwtUtils;
 import org.demo.baoleme.common.ResponseBuilder;
@@ -10,10 +9,12 @@ import org.demo.baoleme.dto.request.admin.*;
 import org.demo.baoleme.dto.response.admin.*;
 import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.AdminService;
+import org.demo.baoleme.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,13 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final AdminService adminService;
     private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private  AdminService adminService;
+
+    @Autowired
+    private ProductService  productService;
 
     @Autowired
     public AdminController(AdminService adminService, RedisTemplate<String, Object> redisTemplate) {
@@ -96,12 +102,17 @@ public class AdminController {
 
         int page = request.getPage();
         int pageSize = request.getPageSize();
-        List<User> userList = adminService.getAllUsersPaged(page, pageSize);
+        String keyword = request.getKeyword();
+        String gender = request.getGender();
+        Long startId = request.getStartId();
+        Long endId = request.getEndId();
+        List<User> userList = adminService.getAllUsersPaged(page, pageSize, keyword, gender, startId, endId);
 
         List<AdminUserQueryResponse> responses = userList.stream().map(user -> {
             AdminUserQueryResponse resp = new AdminUserQueryResponse();
             resp.setId(user.getId());
             resp.setUsername(user.getUsername());
+            resp.setDescription(user.getDescription());
             resp.setPhone(user.getPhone());
             resp.setAvatar(user.getAvatar());
             resp.setCreatedAt(user.getCreatedAt());
@@ -123,7 +134,14 @@ public class AdminController {
 
         int page = request.getPage();
         int pageSize = request.getPageSize();
-        List<Rider> riderList = adminService.getAllRidersPaged(page, pageSize);
+        String keyword = request.getKeyword();
+        Long startId = request.getStartId();
+        Long endId = request.getEndId();
+        Integer status = request.getStatus();
+        Integer dispatchMode = request.getDispatchMode();
+        Long startBalance = request.getStartBalance();
+        Long endBalance = request.getEndBalance();
+        List<Rider> riderList = adminService.getAllRidersPaged(page, pageSize, keyword, startId, endId, status, dispatchMode, startBalance, endBalance);
 
         List<AdminRiderQueryResponse> responses = riderList.stream().map(rider -> {
             AdminRiderQueryResponse resp = new AdminRiderQueryResponse();
@@ -150,7 +168,10 @@ public class AdminController {
 
         int page = request.getPage();
         int pageSize = request.getPageSize();
-        List<Merchant> merchantList = adminService.getAllMerchantsPaged(page, pageSize);
+        String keyword = request.getKeyword();
+        Long startId = request.getStartId();
+        Long endId = request.getEndId();
+        List<Merchant> merchantList = adminService.getAllMerchantsPaged(page, pageSize, keyword, startId, endId);
 
         List<AdminMerchantQueryResponse> responses = merchantList.stream().map(merchant -> {
             AdminMerchantQueryResponse resp = new AdminMerchantQueryResponse();
@@ -174,7 +195,12 @@ public class AdminController {
 
         int page = request.getPage();
         int pageSize = request.getPageSize();
-        List<Store> storeList = adminService.getAllStoresPaged(page, pageSize);
+        String type = request.getType();
+        BigDecimal startRating = request.getStartRating();
+        BigDecimal endRating = request.getEndRating();
+        Integer status = request.getStatus();
+        String keyword = request.getKeyword();
+        List<Store> storeList = adminService.getAllStoresPaged(page, pageSize, keyword, type, status, startRating, endRating);
 
         List<AdminStoreQueryResponse> responses = storeList.stream().map(store -> {
             AdminStoreQueryResponse resp = new AdminStoreQueryResponse();
@@ -190,6 +216,15 @@ public class AdminController {
         }).toList();
 
         return ResponseBuilder.ok(Map.of("stores", responses));
+    }
+
+    @PostMapping("/productlist")
+    public CommonResponse getProductList(@RequestBody AdminProductQueryRequest request) {
+        String role = UserHolder.getRole();
+        if (!"admin".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+        return ResponseBuilder.ok(Map.of("products", productService.getProductsByStore(request.getStoreId(), request.getPage(), request.getPageSize())));
     }
 
     @DeleteMapping("/delete")
@@ -269,7 +304,7 @@ public class AdminController {
                 request.getCreatedAt(),
                 request.getEndedAt(),
                 request.getPage(),
-                request.getPage_size()
+                request.getPageSize()
         );
 
         List<AdminOrderQueryResponse> responses = orders.stream().map(order -> {
@@ -349,6 +384,26 @@ public class AdminController {
         }).toList();
 
         return ResponseBuilder.ok(Map.of("results", responses));
+    }
+
+    @PostMapping("/search-order-by-id")
+    public CommonResponse searchOrderById(@Valid @RequestBody AdminSearchOrderByIdRequest request) {
+        String role = UserHolder.getRole();
+        if (!"admin".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+        Order order = adminService.getOrderById(request.getOrderId());
+        return ResponseBuilder.ok(Map.of("order", order));
+    }
+
+    @PostMapping("/search-review-by-id")
+    public CommonResponse searchReviewById(@Valid @RequestBody AdminSearchReviewByIdRequest request) {
+        String role = UserHolder.getRole();
+        if (!"admin".equals(role)) {
+            return ResponseBuilder.fail("无权限访问，仅管理员可操作");
+        }
+        Review review = adminService.getReviewById(request.getReviewId());
+        return ResponseBuilder.ok(Map.of("review", review));
     }
 
 }

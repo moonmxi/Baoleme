@@ -1,33 +1,32 @@
 package org.demo.baoleme.dto.response.user;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserCurrentOrderResponse {
-    private List<OrderItem> data;
-    private String predictTime;
-
-    @Data
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class OrderItem {
-        private Long productId;
-        private String productName;
-        private Date createTime;
-        private Long storeId;
-        private String storeName;
-    }
-
-    public void setData(List<OrderItem> orderItems) {
-        this.data = orderItems;
-    }
-
-    public void setPredictTime(String predictTime) {
-        this.predictTime = predictTime;
-    }
+    private Long orderId;
+    private LocalDateTime createdAt;
+    private Integer status;
+    private String remark;
+    @TableField("user_location")
+    private String userLocation;
+    @TableField("store_location")
+    private String storeLocation;
+    @TableField("total_price")
+    private BigDecimal totalPrice;
+    @TableField("actual_price")
+    private BigDecimal actualPrice;
+    @TableField("delivery_price")
+    private BigDecimal deliveryPrice;
+    private String storeName;
+    private String riderName;
+    private String riderPhone;
+    private String storePhone;
 }

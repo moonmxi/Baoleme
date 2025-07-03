@@ -10,11 +10,15 @@ import lombok.Data;
 @Data
 public class AdminRiderQueryRequest {
 
-    @NotNull
-    @Min(1)
+    private String keyword;
+    private Long startId;
+    private Long endId;
+    private Integer status;
+    private Integer dispatchMode;
+    private Long startBalance;
+    private Long endBalance;
+
     private Integer page;
 
-    @NotNull
-    @Min(1)
     private Integer pageSize;
 }

@@ -6,6 +6,7 @@ import org.demo.baoleme.dto.response.user.UserCurrentOrderResponse;
 import org.demo.baoleme.dto.response.user.UserOrderHistoryResponse;
 import org.demo.baoleme.pojo.Order;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,9 @@ public interface OrderMapper extends BaseMapper<Order> {
      */
     @Select("SELECT * FROM `order` WHERE status = 0 AND rider_id IS NULL ORDER BY created_at DESC LIMIT #{offset}, #{limit}")
     List<Order> selectAvailableOrders(@Param("offset") int offset, @Param("limit") int limit);
+
+    @Select("SELECT * FROM `order` WHERE status = 0 AND rider_id IS NULL ORDER BY RAND() LIMIT 1")
+    Order selectRandomOrderToSend();
 
     /**
      * 尝试抢单（加乐观锁，确保 rider_id 为空时才能更新）
@@ -62,8 +66,8 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Select("""
         SELECT
             COUNT(*) AS completed_orders,
-            IFNULL(SUM(total_price), 0) AS total_earnings,
-            IFNULL(SUM(CASE WHEN DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN total_price ELSE 0 END), 0) AS current_month
+            IFNULL(SUM(delivery_price), 0) AS total_earnings,
+            IFNULL(SUM(CASE WHEN DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN delivery_price ELSE 0 END), 0) AS current_month
         FROM `order`
         WHERE rider_id = #{riderId} AND status = 3
         """)
@@ -75,11 +79,6 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Update("UPDATE `order` SET status = 3, ended_at = NOW() WHERE id = #{orderId} AND rider_id = #{riderId}")
     int completeOrder(@Param("orderId") Long orderId, @Param("riderId") Long riderId);
 
-    /**
-     * 查询单个订单（用于验证 rider 是否拥有该订单等）
-     */
-    @Select("SELECT * FROM `order` WHERE id = #{orderId}")
-    Order selectById(@Param("orderId") Long orderId);
 
     @Select("""
     SELECT * FROM `order`
@@ -102,24 +101,15 @@ public interface OrderMapper extends BaseMapper<Order> {
                                   @Param("limit") int limit);
 
     @Select("""
-    SELECT oi.product_id, p.name AS product_name, o.created_at AS create_time
-    FROM order_item oi
-    JOIN product p ON oi.product_id = p.id
-    JOIN `order` o ON oi.order_id = o.id
-    WHERE o.user_id = #{userId} AND o.status = 3 -- 假设 3 是 completed
+    SELECT order_item.product_id, p.name AS product_name, o.created_at
+    FROM order_item
+    JOIN product p ON order_item.product_id = p.id
+    JOIN `order` o ON order_item.order_id = o.id
+    WHERE o.user_id = #{userId}
     ORDER BY o.created_at DESC
 """)
     List<UserOrderHistoryResponse> selectOrderHistoryByUserId(Long userId);
 
-    @Select("""
-    SELECT oi.product_id, p.name AS product_name, o.created_at AS create_time
-    FROM order_item oi
-    JOIN product p ON oi.product_id = p.id
-    JOIN `order` o ON oi.order_id = o.id
-    WHERE o.user_id = #{userId} AND o.status IN (0, 1)
-    ORDER BY o.created_at DESC
-""")
-    List<UserCurrentOrderResponse.OrderItem> selectCurrentOrdersByUserId(Long userId);
 
     @Select("""
     SELECT MAX(DATE_ADD(o.created_at, INTERVAL 30 MINUTE)) AS predict_time
@@ -156,16 +146,76 @@ public interface OrderMapper extends BaseMapper<Order> {
             """)
     List<Order> selectByStoreId(@Param("storeId") Long storeId);
 
-    // TODO: 使用OrderMapper.xml，实现可变参数
     @Select("""
             SELECT *
             FROM `order`
             WHERE store_id = #{storeId}
+            AND (status IS NULL OR status = #{status})
             LIMIT #{offset}, #{pageSize}                                
             """)
     List<Order> selectByStoreIdUsingPage(
             @Param("storeId") Long storeId,
             @Param("offset") int offset,
-            @Param("pageSize") int pageSize
+            @Param("pageSize") int pageSize,
+            @Param("status") Integer status
     );
+
+    @Select("""
+    SELECT o.id, o.created_at, o.ended_at, o.status,o.total_price,o.actual_price,
+           s.name AS store_name, o.remark,o.user_location,o.store_location,o.store_id,o.rider_id,
+           r.username AS rider_name, r.phone AS rider_phone
+    FROM `order` o
+    LEFT JOIN store s ON o.store_id = s.id
+    LEFT JOIN rider r ON o.rider_id = r.id
+    WHERE o.user_id = #{userId}
+      AND (#{status} IS NULL OR o.status = #{status})
+      AND (#{startTime} IS NULL OR o.created_at >= #{startTime})
+      AND (#{endTime} IS NULL OR o.created_at <= #{endTime})
+    ORDER BY o.created_at DESC
+    LIMIT #{offset}, #{limit}
+""")
+    List<Map<String, Object>> selectUserOrders(
+            @Param("userId") Long userId,
+            @Param("status") Integer status,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    @Select("""
+    SELECT 
+        o.id AS order_id, 
+        o.created_at, 
+        o.status,
+        o.remark,
+        o.user_location,
+        s.location AS store_location,
+        o.total_price,
+        o.actual_price,
+        o.delivery_price,
+        s.name AS store_name,
+        m.phone AS store_phone,   -- 从 merchant 表获取
+        r.username AS rider_name,
+        r.phone AS rider_phone
+    FROM `order` o
+    JOIN store s ON o.store_id = s.id
+    JOIN merchant m ON s.merchant_id = m.id  -- 新增关联
+    LEFT JOIN rider r ON o.rider_id = r.id
+    WHERE o.user_id = #{userId} AND o.status IN (0, 1, 2)
+    ORDER BY o.created_at DESC
+    LIMIT #{offset}, #{limit}
+""")
+    List<Map<String, Object>> selectCurrentOrdersByUser(@Param("userId") Long userId,
+                                                        @Param("offset") int offset,
+                                                        @Param("limit") int limit);
+
+    @Select("SELECT oi.quantity, p.name, p.description, p.price, p.image " +
+            "FROM order_item oi " +
+            "JOIN product p ON oi.product_id = p.id " +
+            "WHERE oi.order_id = #{orderId}")
+    List<Map<String, Object>> selectOrderItemsWithProductInfo(@Param("orderId") Long orderId);
+
+    @Select("SELECT total_price, actual_price, delivery_price FROM `order` WHERE id = #{orderId}")
+    Map<String, BigDecimal> getPriceInfoById(Long orderId);
 }

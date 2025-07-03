@@ -1,6 +1,9 @@
 package org.demo.baoleme.dto.request.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 /**
  * 骑手订单历史查询请求
@@ -8,8 +11,8 @@ import lombok.Data;
 @Data
 public class UserOrderHistoryRequest {
     private Integer status;
-    private String start_time;
-    private String end_time;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private Integer page;
-    private Integer page_size;
+    private Integer pageSize;
 }

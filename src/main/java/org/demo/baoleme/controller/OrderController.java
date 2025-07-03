@@ -11,7 +11,9 @@ import org.demo.baoleme.dto.response.rider.RiderOrderHistoryResponse;
 import org.demo.baoleme.pojo.Order;
 import org.demo.baoleme.service.OrderService;
 import org.demo.baoleme.common.UserHolder;
+import org.demo.baoleme.service.RiderService;
 import org.demo.baoleme.service.StoreService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -26,6 +28,9 @@ public class OrderController {
 
     private final OrderService orderService;
     private final StoreService storeService;
+
+    @Autowired
+    private RiderService riderService;
 
     public OrderController(OrderService orderService, StoreService storeService) {
         this.storeService = storeService;
@@ -52,7 +57,7 @@ public class OrderController {
         if (!ok) {
             return ResponseBuilder.fail("订单已被抢或不存在");
         }
-
+        riderService.updateRiderOrderStatusAfterOrderGrab(riderId);
         OrderGrabResponse response = new OrderGrabResponse();
         response.setOrderId(request.getOrderId());
         response.setPickupDeadline(LocalDateTime.now().plusMinutes(30)); // 假设30分钟取货
@@ -113,9 +118,13 @@ public class OrderController {
         List<RiderOrderHistoryResponse> responses = orders.stream().map(order -> {
             RiderOrderHistoryResponse resp = new RiderOrderHistoryResponse();
             resp.setOrderId(order.getId());
+            resp.setUserId(order.getUserId());
             resp.setStatus(order.getStatus());
-            resp.setTotalAmount(order.getTotalPrice());
-            resp.setCompletedAt(order.getEndedAt());
+            resp.setTotalPrice(order.getTotalPrice());
+            resp.setDeliveryPrice(order.getDeliveryPrice());
+            resp.setCreatedAt(order.getCreatedAt());
+            resp.setStoreLocation(order.getStoreLocation());
+            resp.setUserLocation(order.getUserLocation());
             return resp;
         }).toList();
 
@@ -146,9 +155,7 @@ public class OrderController {
             @Valid @RequestBody OrderUpdateByMerchantRequest request
     ) {
         Order order = orderService.getOrderById(request.getId());
-        if (order.getStatus() != 1) {
-            return ResponseBuilder.fail("订单更新失败：当前状态商家无权更新");
-        }
+
         if (request.getNewStatus() == null){
             return ResponseBuilder.fail("订单更新失败：商家未设置新状态");
         }
@@ -174,7 +181,7 @@ public class OrderController {
         // Step 4: 构造响应
         OrderUpdateByMerchantResponse response = new OrderUpdateByMerchantResponse();
         response.setId(newOrder.getId());
-        response.setOldStatus(newOrder.getStatus()); // 假设Service已处理旧状态
+        // response.setOldStatus(1); // 假设Service已处理旧状态
         response.setNewStatus(request.getNewStatus());
         response.setUpdateAt(LocalDateTime.now());
         response.setCancelReason(request.getCancelReason());
@@ -186,10 +193,7 @@ public class OrderController {
      * 商家分页查看订单
      */
     @PostMapping("/merchant-list")
-    public CommonResponse ordersReadByMerchant(
-            @RequestHeader("Authorization") String tokenHeader,
-            @Valid @RequestBody OrderReadByMerchantRequest request
-    ) {
+    public CommonResponse ordersReadByMerchant(@Valid @RequestBody OrderReadByMerchantRequest request) {
         // Step 1: 参数校验
         if (request.getStoreId() == null) {
             return ResponseBuilder.fail("订单查看失败：未提供store_id字段");

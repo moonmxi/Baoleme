@@ -41,7 +41,8 @@ public interface SaleMapper extends BaseMapper<Sale> {
     @Select("SELECT s.product_id, SUM(s.quantity) as total_quantity " +
             "FROM sales s " +
             "JOIN product p ON s.product_id = p.id " +
-            "WHERE s.store_id = #{storeId} AND p.store_id = #{storeId} " + // 双重校验店铺ID
+            "WHERE s.store_id = #{storeId} " +
+            "AND s.sale_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) " + // 限制最近30天
             "GROUP BY s.product_id " +
             "ORDER BY total_quantity DESC " +
             "LIMIT 3")

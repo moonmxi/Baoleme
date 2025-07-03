@@ -9,6 +9,7 @@ import org.demo.baoleme.service.StoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -157,8 +158,25 @@ public class ProductServiceImpl implements ProductService {
             target.setPrice(source.getPrice());
         }
 
-        // 状态更新（需通过专用方法）
-        // 状态更新应使用updateProductStatus方法
+        if(source.getCategory() != null) {
+            target.setCategory(source.getCategory());
+        }
+
+        if(source.getDescription() != null) {
+            target.setDescription(source.getDescription());
+        }
+
+        if(source.getImage() != null) {
+            target.setImage(source.getImage());
+        }
+
+        if(source.getStock() != null){
+            target.setStock(source.getStock());
+        }
+
+        if(source.getStatus() != null) {
+            target.setStatus(source.getStatus());
+        }
     }
 
     /**
@@ -189,5 +207,14 @@ public class ProductServiceImpl implements ProductService {
         // Step2: 执行删除操作
         int result = productMapper.deleteById(productId);
         return result > 0;
+    }
+
+    @Override
+    public boolean updateImage(Long productId, String imagePath) {
+        if (productId == null || !StringUtils.hasText(imagePath)) {
+            return false;
+        }
+        int rows = productMapper.updateImageById(productId, imagePath);
+        return rows > 0;
     }
 }

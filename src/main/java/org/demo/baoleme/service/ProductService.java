@@ -47,4 +47,12 @@ public interface ProductService {
      * @return 是否成功
      */
     boolean deleteProduct(Long productId);
+
+    /**
+     * 更新产品图片路径（单张产品图；若需多图，可改为保存到关联表）
+     * @param productId 产品主键 ID
+     * @param imagePath 新图片相对路径
+     * @return true 表示成功，false 表示失败
+     */
+    boolean updateImage(Long productId, String imagePath);
 }

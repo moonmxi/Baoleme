@@ -8,20 +8,18 @@ import org.demo.baoleme.pojo.OrderItem;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserCreateOrderResponse {
     private Long orderId;
-    private String orderNumber;
     private Long storeId;
-    private Long addressId;
-    private Long couponId;
+    private String storeName;
     private String remark;
     private BigDecimal totalPrice;
     private BigDecimal actualPrice;
-    private String status;
-    private String payUrl;
-    private List<OrderItem> items;
+    private Integer status;
+    private List<Map<String, Object>> items;
     private LocalDateTime createdAt;
 }

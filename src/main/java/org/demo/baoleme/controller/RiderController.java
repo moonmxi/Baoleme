@@ -27,7 +27,8 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/rider")
 public class RiderController {
 
-    private final RiderService riderService;
+    @Autowired
+    private RiderService riderService;
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -179,5 +180,15 @@ public class RiderController {
     public CommonResponse delete() {
         boolean ok = riderService.delete(UserHolder.getId());
         return ok ? ResponseBuilder.ok() : ResponseBuilder.fail("注销失败");
+    }
+
+    @PostMapping("/auto-order-taking")
+    public CommonResponse autoOrderTaking() {
+        Long id = UserHolder.getId();
+        if(riderService.getInfo(id).getDispatchMode() == 0)
+            return ResponseBuilder.ok("当前骑手不自动接单");
+
+
+        return riderService.randomSendOrder(id)?  ResponseBuilder.ok() : ResponseBuilder.fail("目前无空闲订单");
     }
 }

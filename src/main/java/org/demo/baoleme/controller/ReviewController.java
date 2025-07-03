@@ -6,9 +6,12 @@ import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.review.ReviewReadRequest;
 import org.demo.baoleme.dto.response.review.ReviewPageResponse;
 import org.demo.baoleme.dto.response.review.ReviewReadResponse;
+import org.demo.baoleme.mapper.ProductMapper;
 import org.demo.baoleme.mapper.UserMapper;
 import org.demo.baoleme.pojo.Page;
+import org.demo.baoleme.pojo.Product;
 import org.demo.baoleme.pojo.Review;
+import org.demo.baoleme.pojo.User;
 import org.demo.baoleme.service.ReviewService;
 import org.demo.baoleme.service.StoreService;
 import org.demo.baoleme.service.UserService;
@@ -25,12 +28,14 @@ public class ReviewController {
     private final StoreService storeService;
     private final UserMapper userMapper;
     private final UserService userService;
+    private final ProductMapper productMapper;
 
-    public ReviewController(ReviewService reviewService, StoreService storeService, UserMapper userMapper, UserService userService) {
+    public ReviewController(ReviewService reviewService, StoreService storeService, UserMapper userMapper, UserService userService, ProductMapper productMapper) {
         this.reviewService = reviewService;
         this.storeService = storeService;
         this.userMapper = userMapper;
         this.userService = userService;
+        this.productMapper = productMapper;
     }
 
     @PostMapping("/list")
@@ -133,13 +138,26 @@ public class ReviewController {
         // 转换评论列表
         List<ReviewReadResponse> reviews = reviewPage.getList().stream().map(review -> {
             ReviewReadResponse item = new ReviewReadResponse();
-            // TODO: 目前使用占位符
-            // TODO: userService.getUserById()
-            item.setUsername("用户" + review.getUserId());  // 用户占位逻辑
+
+            // Step1
+            User user = userMapper.selectById(review.getUserId());
+            if(user != null){
+                item.setUserId(user.getId());
+                item.setUsername("用户" + user.getUsername());
+                item.setUserAvatar(user.getAvatar());
+            }
+
+            // Step2
+            Product product = productMapper.selectById(review.getProductId());
+            if(product != null){
+                item.setProductId(product.getId());
+                item.setProductName(product.getName());
+            }
+
+            // Step3
             item.setRating(review.getRating());
             item.setComment(review.getComment());
             item.setCreatedAt(review.getCreatedAt());
-            item.setUserAvatar("");  // 空头像
             item.setImage(review.getImage());
             return item;
         }).collect(Collectors.toList());

@@ -14,11 +14,13 @@ public class OrderCreateRequest {
 
     private Long couponId;       // 可选优惠券 ID
 
-    private BigDecimal deliveryFee; // 配送费
+    private BigDecimal deliveryPrice; // 配送费
 
     private Long storeId;        // 下单的商家 ID
 
     private String remark;       // 用户备注
 
     private LocalDateTime deadline;
+
+    private String userLocation;
 }

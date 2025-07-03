@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class AdminUserQueryResponse {
     private Long id;
     private String username;
+    private String description;
     private String phone;
     private String avatar;
     private LocalDateTime createdAt;

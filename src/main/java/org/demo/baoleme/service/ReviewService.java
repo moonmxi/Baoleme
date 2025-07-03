@@ -62,4 +62,6 @@ public interface ReviewService {
 
     @Transactional(readOnly = true)
     Page<Review> getStoreReviewsPage(Long storeId, int page, int pageSize);
+
+    List<Review> getReviewsByProductId(Long id);
 }

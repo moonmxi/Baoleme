@@ -4,11 +4,17 @@ import org.demo.baoleme.common.CommonResponse;
 import org.demo.baoleme.common.ResponseBuilder;
 import org.demo.baoleme.common.UserHolder;
 import org.demo.baoleme.dto.request.product.*;
+import org.demo.baoleme.dto.request.user.UserGetProductInfoRequest;
 import org.demo.baoleme.dto.response.product.*;
+import org.demo.baoleme.dto.response.user.UserGetProductInfoResponse;
+import org.demo.baoleme.dto.response.user.UserGetProductResponse;
 import org.demo.baoleme.mapper.StoreMapper;
 import org.demo.baoleme.pojo.Page;
 import org.demo.baoleme.pojo.Product;
+import org.demo.baoleme.pojo.Review;
 import org.demo.baoleme.service.ProductService;
+import org.demo.baoleme.service.ReviewService;
+import org.demo.baoleme.service.SalesStatsService;
 import org.demo.baoleme.service.StoreService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +29,11 @@ public class ProductController {
 
     private final ProductService productService;
     private final StoreService storeService;
+
+    @Autowired
+    private ReviewService  reviewService;
+    @Autowired
+    private SalesStatsService salesStatsService;
 
     @Autowired
     public ProductController(
@@ -77,14 +88,14 @@ public class ProductController {
         // Step1: 查询商品详情
         Product product = productService.getProductById(productId);
 
-        if (!validateStoreOwnerShip(product)) return ResponseBuilder.fail("商品创建失败，商家没有权限");
-
         // Step2: 验证查询结果
         if (product == null) {
             CommonResponse errorResponse = ResponseBuilder.fail("商品不存在");
             System.out.println("Response Body: " + errorResponse);
             return errorResponse;
         }
+
+        if (!validateStoreOwnerShip(product)) return ResponseBuilder.fail("商品创建失败，商家没有权限");
 
         // Step3: 构建响应体
         ProductViewResponse response = new ProductViewResponse();
@@ -116,6 +127,9 @@ public class ProductController {
                 .map(product -> {
                     ProductViewResponse resp = new ProductViewResponse();
                     BeanUtils.copyProperties(product, resp);
+
+                    // Step: 获取销量
+                    resp.setVolume(salesStatsService.getProductVolume(product.getId()));
                     return resp;
                 })
                 .collect(Collectors.toList());
@@ -140,8 +154,9 @@ public class ProductController {
         System.out.println("Request Body: " + request);
 
         // Step1: 创建 Product 对象并设置 ID
+        Long productId = request.getProductId();
         Product product = new Product();
-        product.setId(request.getProductId());
+        product.setId(productId);
 
         // Step2: 拷贝请求参数
         // 可能会出现属性拷贝后数据类型不匹配的情况
@@ -149,6 +164,8 @@ public class ProductController {
 
         // Step3: 调用 Service 更新数据
         boolean success = productService.updateProduct(product);
+
+        Product newProduct = productService.getProductById(productId);
 
         // Step4: 处理更新结果
         if (!success) {
@@ -159,7 +176,8 @@ public class ProductController {
 
         // Step5: 构建响应体
         ProductUpdateResponse response = new ProductUpdateResponse();
-        BeanUtils.copyProperties(product, response);
+        BeanUtils.copyProperties(newProduct, response);
+
         System.out.println("Response Body: " + response);
         return ResponseBuilder.ok(response);
     }
@@ -206,6 +224,27 @@ public class ProductController {
                 ResponseBuilder.fail("删除失败，商品可能不存在");
         System.out.println("Response Body: " + response);
         return response;
+    }
+    @PostMapping("/productInfo")
+    public CommonResponse getProductInfo(@RequestBody UserGetProductInfoRequest request){
+        Long id = request.getId();
+        Product product = productService.getProductById(id);
+        UserGetProductInfoResponse response = new UserGetProductInfoResponse();
+        response.setId(product.getId());
+        response.setName(product.getName());
+        response.setCategory(product.getCategory());
+        response.setDescription(product.getDescription());
+        response.setImage(product.getImage());
+        response.setPrice(product.getPrice());
+        response.setRating(product.getRating());
+        response.setStock(product.getStock());
+        response.setStatus(product.getStatus());
+        response.setCreatedAt(product.getCreatedAt());
+
+        List<Review> reviews = reviewService.getReviewsByProductId(id);
+        response.setReviews(reviews);
+
+        return ResponseBuilder.ok(response);
     }
 
     private boolean validateStoreOwnerShip(Product product) {

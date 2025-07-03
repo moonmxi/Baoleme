@@ -2,8 +2,11 @@ package org.demo.baoleme.controller;
 
 import org.demo.baoleme.common.*;
 import org.demo.baoleme.dto.request.store.*;
+import org.demo.baoleme.dto.request.user.UserGetFavoriteStoresRequest;
 import org.demo.baoleme.dto.request.user.UserGetProductByConditionRequest;
+import org.demo.baoleme.dto.response.product.ProductViewResponse;
 import org.demo.baoleme.dto.response.store.*;
+import org.demo.baoleme.dto.response.user.UserFavoriteResponse;
 import org.demo.baoleme.dto.response.user.UserGetProductResponse;
 import org.demo.baoleme.dto.response.user.UserGetShopResponse;
 import org.demo.baoleme.pojo.Store;
@@ -12,6 +15,11 @@ import org.demo.baoleme.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/store")
@@ -60,6 +68,39 @@ public class StoreController {
         return ResponseBuilder.ok(response);
     }
 
+    @PostMapping("/list")
+    public CommonResponse listStore(
+            @RequestHeader("Authorization") String tokenHeader,
+            @RequestBody StoreListRequest request
+    ){
+        System.out.println(
+                "收到查询请求: " + request
+//                + "查询者: " + UserHolder.getId()
+        );
+
+        List<Store> stores = storeService.getStoresByMerchant(
+                UserHolder.getId(),
+                request.getPage(),
+                request.getPageSize()
+        );
+
+        List<StoreViewInfoResponse> storeViewInfoResponses = stores.stream()
+                .map(store -> {
+                    StoreViewInfoResponse resp = new StoreViewInfoResponse();
+                    BeanUtils.copyProperties(store, resp);
+                    resp.setStoreId(store.getId());
+                    return resp;
+                })
+                .collect(Collectors.toList());
+
+        StorePageResponse response = new StorePageResponse();
+        response.setStores(storeViewInfoResponses);
+        response.setCurrentPage(request.getPage());
+
+        System.out.println("[INFO] 已应答");
+        return ResponseBuilder.ok(response);
+    }
+
     @PostMapping("/view")
     public CommonResponse getStoreById(
             @RequestHeader("Authorization") String tokenHeader,
@@ -98,8 +139,9 @@ public class StoreController {
         System.out.println("收到更新请求: " + request);
 
         // Step1: 初始化待更新的店铺对象
+        Long storeId = request.getId();
         Store store = new Store();
-        store.setId(request.getId());
+        store.setId(storeId);
 
         // Step2: 验证店铺操作权限
         if (!validateStoreOwnership(store.getId())) return ResponseBuilder.fail("店铺不属于您");
@@ -110,6 +152,8 @@ public class StoreController {
         // Step4: 执行数据库更新操作
         boolean success = storeService.updateStore(store);
 
+        Store newStore = storeService.getStoreById(storeId);
+
         // Step5: 处理更新失败场景
         if (!success) {
             System.out.println("更新失败，店铺ID: " + request.getId());
@@ -118,7 +162,7 @@ public class StoreController {
 
         // Step6: 构建更新响应数据
         StoreUpdateResponse response = new StoreUpdateResponse();
-        BeanUtils.copyProperties(store, response);
+        BeanUtils.copyProperties(newStore, response);
 
         System.out.println("更新成功，响应: " + response);
         return ResponseBuilder.ok(response);
@@ -191,10 +235,20 @@ public class StoreController {
     }
 
     // 商家浏览
-    @GetMapping("/user-view-stores")
-    public CommonResponse getShops(@RequestParam(required = false) String description) {
-        UserGetShopResponse response = userService.getStoresByDescription(description);
-        return ResponseBuilder.ok(response);
+    @PostMapping("/user-view-stores")
+    public CommonResponse getShops(@RequestBody UserGetFavoriteStoresRequest request) {
+        Long userId = UserHolder.getId();
+        String type = request.getType();
+        BigDecimal distance = request.getDistance();
+        BigDecimal wishPrice = request.getWishPrice();
+        BigDecimal startRating = request.getStartRating();
+        BigDecimal endRating = request.getEndRating();
+        Integer page = request.getPage();
+        Integer pageSize = request.getPageSize();
+        //favourite 请求与返回的代码复用
+        List<UserFavoriteResponse> stores = userService.getStores(userId,type, distance,wishPrice,startRating,endRating,page,pageSize);
+
+        return ResponseBuilder.ok(stores);
     }
 
     // 商品浏览
@@ -202,7 +256,19 @@ public class StoreController {
     public CommonResponse getProductsByStore(@RequestBody UserGetProductByConditionRequest request) {
         Long storeId = request.getStoreId();
         String category = request.getCategory();
-        UserGetProductResponse response = userService.getProducts(storeId, category);
+        List<UserGetProductResponse> response = userService.getProducts(storeId, category);
+        System.out.println(
+                "查询成功，店铺信息: " + response
+        );
+        return ResponseBuilder.ok(response);
+    }
+
+    @PostMapping("/storeInfo")
+    public CommonResponse getStoreInfo(@RequestBody StoreInfoRequest request) {
+        Long id = request.getId();
+        Store store = storeService.getStoreById(id);
+        StoreInfoResponse response = new StoreInfoResponse();
+        BeanUtils.copyProperties(store, response);
         return ResponseBuilder.ok(response);
     }
 }

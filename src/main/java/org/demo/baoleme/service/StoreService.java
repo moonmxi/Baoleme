@@ -25,7 +25,7 @@ public interface StoreService {
      * @param merchantId 商家ID
      * @return 店铺列表（可能为空）
      */
-    List<Store> getStoresByMerchant(Long merchantId);
+    List<Store> getStoresByMerchant(Long merchantId, int currentPage, int pageSize);
 
     /**
      * 更新店铺信息
@@ -56,4 +56,6 @@ public interface StoreService {
      * @return true if the store belongs to the merchant
      */
     boolean validateStoreOwnership(Long storeId, Long merchantId);
+
+    boolean updateImage(Long storeId, String imagePath);
 }

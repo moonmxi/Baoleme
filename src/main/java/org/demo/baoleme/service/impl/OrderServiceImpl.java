@@ -4,11 +4,13 @@ import org.demo.baoleme.common.RedisLockUtil;
 import org.demo.baoleme.dto.request.order.CartItemDTO;
 import org.demo.baoleme.dto.request.order.OrderCreateRequest;
 import org.demo.baoleme.dto.response.user.UserCreateOrderResponse;
+import org.demo.baoleme.dto.response.user.UserSearchOrderItemResponse;
 import org.demo.baoleme.mapper.*;
 import org.demo.baoleme.pojo.*;
 import org.demo.baoleme.service.CartService;
 import org.demo.baoleme.service.OrderService;
 import org.demo.baoleme.service.StoreService;
+import org.demo.baoleme.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -51,6 +54,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RiderMapper riderMapper;
+
     @Override
     public List<Order> getAvailableOrders(int page, int pageSize) {
         int offset = (page - 1) * pageSize;
@@ -81,11 +90,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public boolean riderUpdateOrderStatus(Long orderId, Long riderId, Integer targetStatus) {
         if (targetStatus != null && targetStatus == 3) {
+
             // 特判：完成订单，调用专门 SQL
-            return orderMapper.completeOrder(orderId, riderId) > 0;
+            return (orderMapper.completeOrder(orderId, riderId) > 0 && riderMapper.updateRiderOrderStatusAfterOrderCompletion(riderId) > 0);
         } else {
             // 其他普通状态
-            System.out.println("1");
+            //System.out.println("1");
             return orderMapper.riderUpdateOrderStatus(orderId, riderId, targetStatus) > 0;
         }
     }
@@ -131,13 +141,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getOrdersByMerchant(Long storeId, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
-        return orderMapper.selectByStoreIdUsingPage(storeId, offset, pageSize);
+        return orderMapper.selectByStoreIdUsingPage(storeId, offset, pageSize, null);
     }
 
     @Override
     public List<Order> getOrdersByMerchantAndStatus(Long storeId, Integer status, int page, int pageSize){
-        // TODO: status未实现
-        return List.of();
+        int offset = (page - 1) * pageSize;
+        return orderMapper.selectByStoreIdUsingPage(storeId, offset, pageSize, status);
     }
 
     @Override
@@ -176,7 +186,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("用户不存在");
         }
         // 这里假设你有方法获取用户地址
-        String userLocation = user.getLocation();
+        String userLocation = request.getUserLocation();
 
         // 3. 查询店铺，获取店铺地址
         Store store = storeMapper.selectById(request.getStoreId());
@@ -215,8 +225,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 6. 加上配送费，计算最终支付金额
-        BigDecimal deliveryFee = request.getDeliveryFee() != null ? request.getDeliveryFee() : BigDecimal.ZERO;
-        BigDecimal actualPrice = discountedPrice.add(deliveryFee);
+        BigDecimal deliveryPrice = request.getDeliveryPrice() != null ? request.getDeliveryPrice() : BigDecimal.ZERO;
+        BigDecimal actualPrice = discountedPrice.add(deliveryPrice);
+
 
         // 7. 创建订单实体并插入数据库
         Order order = new Order();
@@ -230,6 +241,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCreatedAt(LocalDateTime.now());
         order.setDeadline(request.getDeadline()); // 订单截止时间30分钟后
         order.setRemark(request.getRemark());
+        order.setDeliveryPrice(deliveryPrice);
         orderMapper.insert(order);
 
         // 8. 创建订单项并扣库存
@@ -256,6 +268,19 @@ public class OrderServiceImpl implements OrderService {
         response.setOrderId(order.getId());
         response.setTotalPrice(totalProductPrice);
         response.setActualPrice(actualPrice);
+        response.setStatus(order.getStatus());
+        response.setStoreId(order.getStoreId());
+        response.setStoreName(store.getName());
+        response.setRemark(order.getRemark());
+        response.setCreatedAt(order.getCreatedAt());
+        response.setItems(orderMapper.selectOrderItemsWithProductInfo(order.getId()));
         return response;
+    }
+    @Override
+    @Transactional
+    public List<UserSearchOrderItemResponse> getOrderItemById(Long orderId){
+        List<UserSearchOrderItemResponse> result = productMapper.selectByOrderId(orderId);
+
+        return result;
     }
 }

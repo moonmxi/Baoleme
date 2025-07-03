@@ -12,7 +12,10 @@ import java.time.LocalDateTime;
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ReviewReadResponse {
+    private Long userId;
     private String username;
+    private Long productId;
+    private String productName;
     private BigDecimal rating;
     private String comment;
     private LocalDateTime createdAt;

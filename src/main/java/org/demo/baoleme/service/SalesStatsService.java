@@ -18,4 +18,8 @@ public interface SalesStatsService {
     int getOrderCount(Long storeId, LocalDate startDate, LocalDate endDate);
 
     List<Product> getPopularProducts(Long storeId, LocalDate startDate, LocalDate endDate);
+
+    BigDecimal getWeightedAveragePriceOfPopularProducts(Long storeId);
+
+    int getProductVolume(Long productId);
 }
